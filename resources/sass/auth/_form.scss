@@ -1,0 +1,144 @@
+$form-title-color:#191919;
+$form-description-color:#cfcfcf;
+$form-title-font-size:21.18px;
+$form-description-font-size:12.61px;
+$form-placeholder-color:#dddddd;
+$form-input-border-color:#cccccc;
+$btn-color:#087fbd;
+form{
+    width: 300px;
+    margin-left: auto;
+    .form-title{
+        font-size: $form-title-font-size;
+        color: $form-title-color;
+        font-weight: 400;
+    }
+    .form-description{
+        font-size: $form-description-font-size;
+        color: $form-description-color;
+        margin-top:10px;
+        padding-right: 9px;
+    }
+
+    .register-link{
+        font-size: 10.59px;
+        display: block;
+        text-align: center;
+        margin-top:27px;
+        a{
+            color:#077fbd;
+            text-decoration: none;
+            &:hover{
+                color:#1565c0
+            }
+        }
+    }
+    .divider{
+        position: relative;
+        margin-top: 18px;
+        hr{
+            height: 0px;
+            border:none;
+            border-top: 1px solid #cccccc;
+        }
+        span{
+            position: absolute;
+            font-size: 10.59px;
+            padding: 0 10px;
+            top:-7px;
+            left: 128px;
+            background: #ffffff;
+        }
+    }
+    .form-group{
+        margin-top: 8px;
+        p{
+            font-size: 10.59px;
+            color:#343434;
+            letter-spacing: -0.5px;
+            padding: 2px 0;
+        }
+        label{
+            font-size: 10.59px;
+            color:#343434;
+            a{
+                float: right;
+                color:#077fbd;
+                text-decoration: none;
+                &:hover{
+                    color:#1565c0
+                }
+            }
+            .required-field{
+                color:#fc6680;
+            }
+        }
+        .form-control{
+            display: block;
+            width: 100%;
+            border: 1px solid $form-input-border-color;
+            border-radius: 2.5px;
+            margin-top:7px;
+            height: 32px;
+            padding-left: 13px;
+            box-sizing: border-box;
+     
+        }
+        ::placeholder{
+            font-size: 10.59px;
+            color:$form-placeholder-color;
+        }
+        
+
+
+    }
+}
+.btn{
+    display: block;
+    width: 100%;
+    border-radius:2.5px;
+    cursor: pointer;
+    font-size: 10.59px;
+    a{
+        color:inherit;
+    }
+}
+.btn-action{
+    background: $btn-color;
+    border:none;
+    margin-top:16px;
+    color:#ffffff;
+    height: 34px;
+    &:hover{
+        background:#01579b;
+    }
+}
+.btn-social{
+    border: 1px solid $form-input-border-color;
+    background: transparent;
+    height: 32px;
+    color:#424242;
+    position: relative;
+    margin-top:20px;
+    display: block;
+    img{
+        width: 19px;
+        position: absolute;
+        left: 33px;
+        top:5px;
+        width: 19px;
+        height: 19px;
+    }
+}
+.btn-fb{
+    &:hover{
+        background: #0288d1;
+        color:white;
+    }
+}
+.btn-gg{
+    &:hover{
+        background: #ef9a9a;
+        color:white;
+    }
+}

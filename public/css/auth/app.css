@@ -1,0 +1,278 @@
+aside {
+  padding-top: 20px; }
+  aside p {
+    color: #a3a3a3;
+    font-size: 12.61px;
+    text-align: center;
+    margin-top: 50px; }
+  aside img {
+    width: 462px; }
+
+footer {
+  width: 100%;
+  background: #ededed;
+  position: fixed;
+  bottom: 0px;
+  font-size: 10px;
+  color: #979797;
+  padding: 22px 30px;
+  box-sizing: border-box; }
+  footer a {
+    color: #979797; }
+    footer a:hover {
+      color: #757575; }
+  footer b {
+    font-weight: black; }
+  footer .link {
+    float: right; }
+    footer .link a {
+      padding-left: 10px; }
+
+form {
+  width: 300px;
+  margin-left: auto; }
+  form .form-title {
+    font-size: 21.18px;
+    color: #191919;
+    font-weight: 400; }
+  form .form-description {
+    font-size: 12.61px;
+    color: #cfcfcf;
+    margin-top: 10px;
+    padding-right: 9px; }
+  form .register-link {
+    font-size: 10.59px;
+    display: block;
+    text-align: center;
+    margin-top: 27px; }
+    form .register-link a {
+      color: #077fbd;
+      text-decoration: none; }
+      form .register-link a:hover {
+        color: #1565c0; }
+  form .divider {
+    position: relative;
+    margin-top: 18px; }
+    form .divider hr {
+      height: 0px;
+      border: none;
+      border-top: 1px solid #cccccc; }
+    form .divider span {
+      position: absolute;
+      font-size: 10.59px;
+      padding: 0 10px;
+      top: -7px;
+      left: 128px;
+      background: #ffffff; }
+  form .form-group {
+    margin-top: 8px; }
+    form .form-group p {
+      font-size: 10.59px;
+      color: #343434;
+      letter-spacing: -0.5px;
+      padding: 2px 0; }
+    form .form-group label {
+      font-size: 10.59px;
+      color: #343434; }
+      form .form-group label a {
+        float: right;
+        color: #077fbd;
+        text-decoration: none; }
+        form .form-group label a:hover {
+          color: #1565c0; }
+      form .form-group label .required-field {
+        color: #fc6680; }
+    form .form-group .form-control {
+      display: block;
+      width: 100%;
+      border: 1px solid #cccccc;
+      border-radius: 2.5px;
+      margin-top: 7px;
+      height: 32px;
+      padding-left: 13px;
+      box-sizing: border-box; }
+    form .form-group ::placeholder {
+      font-size: 10.59px;
+      color: #dddddd; }
+
+.btn {
+  display: block;
+  width: 100%;
+  border-radius: 2.5px;
+  cursor: pointer;
+  font-size: 10.59px; }
+
+.btn-action {
+  background: #087fbd;
+  border: none;
+  margin-top: 16px;
+  color: #ffffff;
+  height: 34px; }
+  .btn-action:hover {
+    background: #01579b; }
+
+.btn-social {
+  border: 1px solid #cccccc;
+  background: transparent;
+  height: 32px;
+  color: #424242;
+  position: relative;
+  margin-top: 20px;
+  display: block; }
+  .btn-social img {
+    width: 19px;
+    position: absolute;
+    left: 33px;
+    top: 5px;
+    width: 19px;
+    height: 19px; }
+
+.btn-fb:hover {
+  background: #0288d1;
+  color: white; }
+
+.btn-gg:hover {
+  background: #ef9a9a;
+  color: white; }
+
+@font-face {
+  font-family: 'UTM-Hanzel';
+  src: url(/fonts/UTM\ Hanzel.ttf); }
+header {
+  width: 100%;
+  border-bottom: 2px solid #e5e5e5;
+  padding-top: 12px;
+  height: 60px;
+  position: fixed;
+  top: 0px;
+  background: #ffffff;
+  box-sizing: border-box; }
+  header .brand {
+    font-family: 'UTM-Hanzel';
+    padding-top: 5px;
+    padding-left: 55px;
+    font-size: 12.27px;
+    color: #077fbd;
+    width: 200px;
+    box-sizing: border-box;
+    position: relative; }
+    header .brand span {
+      display: inline-block;
+      padding-top: 4px; }
+  header .breadcrumb {
+    position: relative;
+    bottom: 18px;
+    width: 200px;
+    font-weight: 500;
+    font-size: 12px;
+    color: #b2b2b2;
+    margin: auto; }
+    header .breadcrumb a {
+      color: #b4d8eb; }
+  header img {
+    width: 40px;
+    position: absolute;
+    right: 140px; }
+
+.service {
+  padding: 0 70px;
+  text-align: center; }
+  .service .service-img {
+    height: 200px;
+    width: 100%; }
+  .service .service-name {
+    font-size: 21.18px; }
+  .service .service-description {
+    font-size: 12.61px;
+    padding: 10px 0px;
+    line-height: 20px; }
+  .service .service-price {
+    font-size: 32px;
+    padding: 5px 0px; }
+
+@media screen and (max-width: 1024px) {
+  header {
+    padding-left: 0;
+    padding-top: 8px;
+    height: 70px; }
+    header .brand {
+      margin: auto; }
+    header .breadcrumb {
+      position: static;
+      margin-top: 10px; }
+
+  .container {
+    flex-direction: column;
+    margin-bottom: 100px !important;
+    justify-content: center !important;
+    align-items: center; }
+    .container .service {
+      padding-top: 60px;
+      width: 60%; }
+      .container .service .service-img {
+        height: auto; }
+        .container .service .service-img img {
+          max-width: 100%; }
+
+  aside {
+    width: 100% !important;
+    text-align: center; }
+
+  section {
+    width: 100% !important; }
+    section form {
+      margin-left: none;
+      margin: auto;
+      width: 500px; }
+      section form .divider span {
+        left: 230px; }
+
+  footer span {
+    display: block;
+    text-align: center; }
+  footer .link {
+    margin-top: 10px;
+    float: none;
+    text-align: center; }
+
+  .email-confirmation, .organization-information, .register, .login {
+    padding-top: 70px !important; } }
+body {
+  background: #ffffff;
+  font-family: "Roboto", sans-serif;
+  margin: 0;
+  padding: 0;
+  max-width: 100%; }
+
+.container {
+  max-width: 1000px;
+  display: flex;
+  margin: auto;
+  margin-bottom: 80px; }
+
+aside {
+  width: 45%;
+  padding-top: 140px; }
+
+section {
+  width: 55%; }
+
+a {
+  text-decoration: none; }
+
+.login {
+  padding-top: 140px; }
+
+.register {
+  padding-top: 90px; }
+
+.email-confirmation, .organization-information {
+  padding-top: 240px; }
+  .email-confirmation .form-description, .organization-information .form-description {
+    margin-bottom: 50px; }
+
+.service {
+  width: 33.33%;
+  margin-top: 140px; }
+
+/*# sourceMappingURL=app.css.map */

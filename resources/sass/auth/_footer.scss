@@ -1,0 +1,26 @@
+footer{
+    width: 100%;
+    background: #ededed;
+    position: fixed;
+    bottom: 0px;
+    font-size: 10px;
+    color: #979797;
+    padding: 22px 30px;
+    box-sizing: border-box;
+    a{
+        color: #979797;
+        &:hover{
+            color:#757575;
+        }
+    }
+    b{
+        font-weight: black;
+    }
+    .link{
+        
+        float:right;
+        a{
+            padding-left: 10px;
+        }
+    }
+}

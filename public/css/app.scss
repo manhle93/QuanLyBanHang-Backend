@@ -1,0 +1,47 @@
+@import './aside';
+@import './footer';
+@import './form';
+@import './header';
+@import './variables';
+@import './service';
+@import './responsive';
+body{
+    background: $bg-body;
+    font-family: $font;
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+}
+.container{
+
+    max-width: 1000px;
+    display: flex;
+    margin:auto;
+    margin-bottom: 80px;
+}
+aside{
+    width: 45%;
+    padding-top:140px;
+}
+section{
+    width: 55%;
+}
+a{
+    text-decoration: none;
+}
+.login{
+    padding-top:140px;
+}
+.register{
+    padding-top:90px;
+}
+.email-confirmation,.organization-information{
+    padding-top:240px;
+    .form-description{
+        margin-bottom: 50px;
+    }
+}
+.service{
+    width: 33.33%;
+    margin-top:140px;
+}

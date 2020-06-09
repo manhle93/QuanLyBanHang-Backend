@@ -1,0 +1,20 @@
+.service{
+    padding: 0 70px;
+    text-align: center;
+    .service-img{
+        height:200px;
+        width: 100%;
+    }
+    .service-name{
+        font-size: 21.18px;
+    }
+    .service-description{
+        font-size: 12.61px;
+        padding: 10px 0px;
+        line-height: 20px;
+    }
+    .service-price{
+        font-size: 32px;
+        padding: 5px 0px;
+    }
+}

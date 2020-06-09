@@ -1,0 +1,69 @@
+@media screen and (max-width: 1024px) {
+    header{
+        padding-left: 0;
+        padding-top:8px;
+        height: 70px;
+        .brand{
+            margin:auto;
+        }
+        .breadcrumb{
+          position: static;
+            margin-top:10px;
+        }
+    }
+   .container{
+       flex-direction: column;
+       margin-bottom: 100px !important;
+       justify-content: center !important;
+       align-items: center;
+       .service{
+            padding-top: 60px;
+            width:60%;
+            .service-img{
+                height: auto;
+                img{
+                    max-width: 100%;
+                }
+            }
+       }
+   }
+    aside{
+       width: 100% !important;
+       text-align: center;
+    //    img{
+    //        padding: 0 10px;
+    //    }
+    }
+    section{
+        width: 100% !important;
+        form{
+            margin-left: none;
+            margin:auto;
+            width: 500px;
+            .divider{
+                span{
+                    left: 230px;
+                }
+            }
+        }
+    }
+    footer{
+        span{
+            display: block;
+            text-align: center;
+        }
+        .link{
+            margin-top:10px;
+        float: none;
+           text-align: center;
+        }
+    }
+    .email-confirmation,.organization-information,.register,.login{
+        padding-top:70px !important;
+    }
+    // form{
+    //     .form-title,.form-description{
+    //         text-align: center;
+    //     }
+    // }
+}
