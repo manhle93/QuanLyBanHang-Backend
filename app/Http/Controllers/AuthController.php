@@ -16,6 +16,7 @@ use App\Mail\VerifyEmail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Mews\Captcha\Facades\Captcha;
+use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
 use Validator;
 
 class AuthController extends Controller
@@ -35,18 +36,18 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(RegisterRequest $request)
+    public function register(Request $request)
     {
         $info = $request->all();
-        $info['username'] = $info['email'];
         $info['password'] = Hash::make($info['password']);
-        $info['role_id'] = 2;
-        $info['email_token'] = substr(md5(mt_rand()), 0, 15);
+        $info['role_id'] = 1;
+
+        // $info['email_token'] = substr(md5(mt_rand()), 0, 15);
         $user = User::create($info);
 
-        if ($user) {
-            Mail::to($user)->send(new VerifyEmail($user->email_token));
-        }
+        // if ($user) {
+        //     Mail::to($user)->send(new VerifyEmail($user->email_token));
+        // }
         return response(['user_id' => $user->id], Response::HTTP_CREATED);
     }
 
