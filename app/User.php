@@ -33,14 +33,6 @@ class User extends Authenticatable implements JWTSubject
      *
      * @var array
      */
-    public function company()
-    {
-        return $this->belongsTo('App\Company');
-    }
-    public function employee()
-    {
-        return $this->hasOne('App\Employee');
-    }
     public function role()
     {
         return $this->belongsTo('App\Role');
@@ -54,19 +46,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo('App\QuyanHuyen','quan_huyen_id', 'id')->select('id','name','code','tinh_thanh_id');
     }
-    public function toaNha()
-    {
-        return $this->belongsTo('App\ToaNha','toa_nha_id', 'id');
-    }
 
     public function getJWTIdentifier()
     {
         return $this->getKey();
     }
-    public function dayOffs()
-    {
-        return $this->hasMany('App\DayOff', 'user_approve', 'id');
-    }
+
 
     /**
      * Return a key value array, containing any custom claims to be added to the JWT.

@@ -15,22 +15,15 @@ class UserController extends Controller
         $perPage = $request->get('per_page', 10);
         $page = $request->get('page', 1);
         $user = auth()->user();
-        $query = User::query()->with('tinhThanh', 'toaNha');
+        $query = User::query()->with('tinhThanh');
         $search = $request->get('search');
         $active = $request->get('active');
         $toa_nha_id = $request->get('toa_nha_id');
-        $tinh_thanh_id = $request->get('tinh_thanh_id');
         if (!empty($active)) {
             $query->where('active', $active);
         }
         if (!empty($toa_nha_id)) {
             $query->whereIn('toa_nha_id', $toa_nha_id);
-        }
-        if (!empty($tinh_thanh_id)) {
-            $query->whereIn('tinh_thanh_id', $tinh_thanh_id);
-        }
-        if($user->tinh_thanh_id && $user->role_id == 2){
-            $query->where('tinh_thanh_id', $user->tinh_thanh_id);
         }
         if (isset($search)) {
             $search = trim($search);

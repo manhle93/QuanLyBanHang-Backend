@@ -31,6 +31,10 @@ class CreateUsersTable extends Migration
             $table->boolean('trang_thai_khoa')->default(false);
             $table->dateTime('thoi_gian_bat_dau_khoa')->nullable();
             $table->integer('so_lan_nhap_sai')->nullable();
+            $table->unsignedInteger('tinh_thanh_id')->nullable();
+            // $table->foreign('tinh_thanh_id')->references('id')->on('tinh_thanhs');
+            $table->unsignedInteger('quan_huyen_id')->nullable();
+            // $table->foreign('quan_huyen_id')->references('id')->on('quan_huyens');
         });
     }
 
