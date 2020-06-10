@@ -298,3 +298,10 @@ Route::get('banthongbao', 'BaoCaoController@senNotify');
 
 Route::get('xuatfileword/{id}', 'BuildingController@table');
 Route::get('in/{id}', 'BuildingController@table');
+
+
+
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::post('danhmuc', 'DanhMucSanPhamController@addDanhMucSanPham');
+});
