@@ -73,7 +73,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('building/{id}/edit', 'BuildingController@edit');
     Route::delete('building/{id}/delete', 'BuildingController@delete');
     Route::get('building/{id}/file', 'BuildingController@getDownload');
-    Route::post('building/diemchay/toanha/{id}','BuildingController@addToaNha');
+    Route::post('building/diemchay/toanha/{id}', 'BuildingController@addToaNha');
 
     Route::get('kiemtratoanha', 'KiemTraToaNhaController@index');
     Route::get('trangthaikiemtra', 'KiemTraToaNhaController@getTrangThaiKiemTra');
@@ -175,111 +175,110 @@ Route::get('search1', 'DanCuController@search');
 
 Route::group(['middleware' => 'auth'], function () {
 
-Route::get('taodiemchay', 'DonViHoTroController@create');
-Route::get('toanha/{id}', 'BuildingController@getToaNhaTheoTinhThanh');
+    Route::get('taodiemchay', 'DonViHoTroController@create');
+    Route::get('toanha/{id}', 'BuildingController@getToaNhaTheoTinhThanh');
 
-Route::get('baocaothietbi/{id}', 'BaoCaoController@excelThietBiTinhThanh');
-Route::get('sothietbitinhthanh', 'BaoCaoController@getThietBiTheoTinh');
-Route::get('trangthaithietbi', 'BaoCaoController@getTrangThaiThietBi');
-Route::get('databieudothietbi', 'BaoCaoController@getDataBieuDoThietBi');
-Route::get('databieudovuchay', 'BaoCaoController@getDataBieuDoVuChay');
-Route::get('databieudothiethai', 'BaoCaoController@getDataBieuDoThietHai');
-Route::get('polygoltinhthanh', 'BaoCaoController@getPolygon');
+    Route::get('baocaothietbi/{id}', 'BaoCaoController@excelThietBiTinhThanh');
+    Route::get('sothietbitinhthanh', 'BaoCaoController@getThietBiTheoTinh');
+    Route::get('trangthaithietbi', 'BaoCaoController@getTrangThaiThietBi');
+    Route::get('databieudothietbi', 'BaoCaoController@getDataBieuDoThietBi');
+    Route::get('databieudovuchay', 'BaoCaoController@getDataBieuDoVuChay');
+    Route::get('databieudothiethai', 'BaoCaoController@getDataBieuDoThietHai');
+    Route::get('polygoltinhthanh', 'BaoCaoController@getPolygon');
 
-Route::get('baocaodiemchay/{id}', 'BaoCaoController@excelDiemChayTinhThanh');
+    Route::get('baocaodiemchay/{id}', 'BaoCaoController@excelDiemChayTinhThanh');
 
-Route::get('baocaosochiensi/{id}', 'BaoCaoController@excelCanBoThamGiaChuaChay');
+    Route::get('baocaosochiensi/{id}', 'BaoCaoController@excelCanBoThamGiaChuaChay');
 
-Route::get('sothietbionline', 'BaoCaoController@getSoThietBiOnlineOffline');
-Route::get('danhsachthongbao', 'BaoCaoController@getThongBao');
-Route::get('docthongbao', 'BaoCaoController@docThongBao');
-Route::get('danhsachvuchay', 'BaoCaoController@getDiemChay');
-Route::get('danhsachdonvi', 'BaoCaoController@getDonVi');
+    Route::get('sothietbionline', 'BaoCaoController@getSoThietBiOnlineOffline');
+    Route::get('danhsachthongbao', 'BaoCaoController@getThongBao');
+    Route::get('docthongbao', 'BaoCaoController@docThongBao');
+    Route::get('danhsachvuchay', 'BaoCaoController@getDiemChay');
+    Route::get('danhsachdonvi', 'BaoCaoController@getDonVi');
 
-Route::get('danhsachcongtrinh', 'BaoCaoController@getToaNha');
-Route::get('diemdangchay', 'BaoCaoController@getDiemDangChay');
+    Route::get('danhsachcongtrinh', 'BaoCaoController@getToaNha');
+    Route::get('diemdangchay', 'BaoCaoController@getDiemDangChay');
 
-Route::post('uploadthietbi', 'ImportExcelController@importThietBi');
+    Route::post('uploadthietbi', 'ImportExcelController@importThietBi');
 
-Route::get('qltinhthanh', 'QuanLyChungController@getTinhThanh');
-Route::get('danhsachxe', 'QuanLyChungController@getPT');
-Route::get('dsdonvi', 'QuanLyChungController@getDV');
-Route::get('chitiettinhthanh', 'QuanLyChungController@getChiTietTinhThanh');
+    Route::get('qltinhthanh', 'QuanLyChungController@getTinhThanh');
+    Route::get('danhsachxe', 'QuanLyChungController@getPT');
+    Route::get('dsdonvi', 'QuanLyChungController@getDV');
+    Route::get('chitiettinhthanh', 'QuanLyChungController@getChiTietTinhThanh');
 
-Route::post('themcanbochiensi', 'CanBoChienSiController@add');
-Route::get('danhsachcanbochiensi', 'CanBoChienSiController@index');
-Route::put('editcanbochiensi/{id}', 'CanBoChienSiController@update');
-Route::delete('xoacanbochiensi/{id}', 'CanBoChienSiController@destroy');
-Route::get('capbac', 'CapBacController@index');
-Route::get('chucvu', 'ChucVuController@index');
-
-
-Route::post('uploadtoanha', 'ImportExcelController@importToaNha');
-Route::post('uploadnhansu', 'ImportExcelController@importNhanSu');
-Route::post('uploadphuongtien', 'ImportExcelController@importPhuongTien');
-Route::post('uploaddonvihotro', 'ImportExcelController@importDonViHoTro');
-Route::post('uploaddiemlaynuoc', 'ImportExcelController@importDiemLayNuoc');
-
-Route::post('phuonganthuctapchuachay', 'ThucTapPhuongAnChuaChayController@create');
-Route::get('phuonganthuctapchuachay', 'ThucTapPhuongAnChuaChayController@index');
-Route::delete('phuonganthuctapchuachay/{id}', 'ThucTapPhuongAnChuaChayController@delete');
-Route::get('phuonganthuctapchuachay/{id}', 'ThucTapPhuongAnChuaChayController@show');
-Route::put('phuonganthuctapchuachay/{id}', 'ThucTapPhuongAnChuaChayController@update');
-
-Route::post('huanluyenboiduong', 'HuanLuyenBoiDuongController@create');
-Route::get('huanluyenboiduong', 'HuanLuyenBoiDuongController@index');
-Route::get('huanluyenboiduong/{id}', 'HuanLuyenBoiDuongController@show');
-Route::put('huanluyenboiduong/{id}', 'HuanLuyenBoiDuongController@update');
-Route::delete('huanluyenboiduong/{id}', 'HuanLuyenBoiDuongController@delete');
+    Route::post('themcanbochiensi', 'CanBoChienSiController@add');
+    Route::get('danhsachcanbochiensi', 'CanBoChienSiController@index');
+    Route::put('editcanbochiensi/{id}', 'CanBoChienSiController@update');
+    Route::delete('xoacanbochiensi/{id}', 'CanBoChienSiController@destroy');
+    Route::get('capbac', 'CapBacController@index');
+    Route::get('chucvu', 'ChucVuController@index');
 
 
-Route::post('thamdinhpheduyet', 'ThamDinhPheDuyetController@add');
-Route::get('thamdinhpheduyet', 'ThamDinhPheDuyetController@index');
-Route::get('thamdinhpheduyet/{id}', 'ThamDinhPheDuyetController@show');
-Route::put('thamdinhpheduyet/{id}', 'ThamDinhPheDuyetController@update');
-Route::delete('thamdinhpheduyet/{id}', 'ThamDinhPheDuyetController@delete');
+    Route::post('uploadtoanha', 'ImportExcelController@importToaNha');
+    Route::post('uploadnhansu', 'ImportExcelController@importNhanSu');
+    Route::post('uploadphuongtien', 'ImportExcelController@importPhuongTien');
+    Route::post('uploaddonvihotro', 'ImportExcelController@importDonViHoTro');
+    Route::post('uploaddiemlaynuoc', 'ImportExcelController@importDiemLayNuoc');
 
-Route::post('thaydoipccc', 'ToaNhaThayDoiPcccController@store');
-Route::delete('thaydoipccc/{id}', 'ToaNhaThayDoiPcccController@destroy');
-Route::put('thaydoipccc', 'ToaNhaThayDoiPcccController@edit');
+    Route::post('phuonganthuctapchuachay', 'ThucTapPhuongAnChuaChayController@create');
+    Route::get('phuonganthuctapchuachay', 'ThucTapPhuongAnChuaChayController@index');
+    Route::delete('phuonganthuctapchuachay/{id}', 'ThucTapPhuongAnChuaChayController@delete');
+    Route::get('phuonganthuctapchuachay/{id}', 'ThucTapPhuongAnChuaChayController@show');
+    Route::put('phuonganthuctapchuachay/{id}', 'ThucTapPhuongAnChuaChayController@update');
 
-Route::get('nhomhanhvi', 'XuLyViPhamController@getNhomHanhVi');
-Route::post('xulyvipham', 'XuLyViPhamController@create');
-Route::get('xulyvipham', 'XuLyViPhamController@index');
-Route::get('xulyvipham/{id}', 'XuLyViPhamController@show');
-Route::put('xulyvipham/{id}', 'XuLyViPhamController@update');
-Route::delete('xulyvipham/{id}', 'XuLyViPhamController@destroy');
-
-Route::get('lichsudangnhap', 'AuthController@getLichSuDangNhap');
-Route::get('lichsuhoatdong', 'AuthController@getLichSuHoatDong');
-
-// Route::get('antrunuoc', 'XuLyViPhamController@anTruNuoc');
-Route::get('getdatapolygon', 'ReportController@getDataPolygon');
-
-Route::post('cuunancuuho', 'CuuHoCuuNanController@create');
-Route::get('cuunancuuho', 'CuuHoCuuNanController@list');
-Route::get('cuunancuuho/{id}', 'CuuHoCuuNanController@show');
-Route::put('cuunancuuho/{id}', 'CuuHoCuuNanController@update');
-Route::delete('cuunancuuho/{id}', 'CuuHoCuuNanController@delete');
-
-Route::post('lichtruc', 'LichTrucController@add');
-Route::get('lichtruc', 'LichTrucController@index');
-Route::get('lichtruc/{id}', 'LichTrucController@show');
-Route::put('lichtruc/{id}', 'LichTrucController@update');
-Route::delete('lichtruc/{id}', 'LichTrucController@delete');
-Route::get('thongbaomobile', 'BaoCaoController@getThongmobile');
+    Route::post('huanluyenboiduong', 'HuanLuyenBoiDuongController@create');
+    Route::get('huanluyenboiduong', 'HuanLuyenBoiDuongController@index');
+    Route::get('huanluyenboiduong/{id}', 'HuanLuyenBoiDuongController@show');
+    Route::put('huanluyenboiduong/{id}', 'HuanLuyenBoiDuongController@update');
+    Route::delete('huanluyenboiduong/{id}', 'HuanLuyenBoiDuongController@delete');
 
 
-Route::post('pccccoso', 'PhuongTienToaNhaController@addPcccCoSo');
-Route::put('pccccoso', 'PhuongTienToaNhaController@updatePcccCoSo');
-Route::delete('pccccoso/{id}', 'PhuongTienToaNhaController@xoaPcccCoSo');
+    Route::post('thamdinhpheduyet', 'ThamDinhPheDuyetController@add');
+    Route::get('thamdinhpheduyet', 'ThamDinhPheDuyetController@index');
+    Route::get('thamdinhpheduyet/{id}', 'ThamDinhPheDuyetController@show');
+    Route::put('thamdinhpheduyet/{id}', 'ThamDinhPheDuyetController@update');
+    Route::delete('thamdinhpheduyet/{id}', 'ThamDinhPheDuyetController@delete');
 
-Route::post('phuongtientoanha', 'PhuongTienToaNhaController@addPhuongtien');
-Route::put('phuongtientoanha', 'PhuongTienToaNhaController@updatePhuongTien');
-Route::delete('phuongtientoanha/{id}', 'PhuongTienToaNhaController@xoaPhuongTien');
+    Route::post('thaydoipccc', 'ToaNhaThayDoiPcccController@store');
+    Route::delete('thaydoipccc/{id}', 'ToaNhaThayDoiPcccController@destroy');
+    Route::put('thaydoipccc', 'ToaNhaThayDoiPcccController@edit');
 
-Route::get('danhmucmobile', 'DanhMucController@getDanhMucMobile');
+    Route::get('nhomhanhvi', 'XuLyViPhamController@getNhomHanhVi');
+    Route::post('xulyvipham', 'XuLyViPhamController@create');
+    Route::get('xulyvipham', 'XuLyViPhamController@index');
+    Route::get('xulyvipham/{id}', 'XuLyViPhamController@show');
+    Route::put('xulyvipham/{id}', 'XuLyViPhamController@update');
+    Route::delete('xulyvipham/{id}', 'XuLyViPhamController@destroy');
 
+    Route::get('lichsudangnhap', 'AuthController@getLichSuDangNhap');
+    Route::get('lichsuhoatdong', 'AuthController@getLichSuHoatDong');
+
+    // Route::get('antrunuoc', 'XuLyViPhamController@anTruNuoc');
+    Route::get('getdatapolygon', 'ReportController@getDataPolygon');
+
+    Route::post('cuunancuuho', 'CuuHoCuuNanController@create');
+    Route::get('cuunancuuho', 'CuuHoCuuNanController@list');
+    Route::get('cuunancuuho/{id}', 'CuuHoCuuNanController@show');
+    Route::put('cuunancuuho/{id}', 'CuuHoCuuNanController@update');
+    Route::delete('cuunancuuho/{id}', 'CuuHoCuuNanController@delete');
+
+    Route::post('lichtruc', 'LichTrucController@add');
+    Route::get('lichtruc', 'LichTrucController@index');
+    Route::get('lichtruc/{id}', 'LichTrucController@show');
+    Route::put('lichtruc/{id}', 'LichTrucController@update');
+    Route::delete('lichtruc/{id}', 'LichTrucController@delete');
+    Route::get('thongbaomobile', 'BaoCaoController@getThongmobile');
+
+
+    Route::post('pccccoso', 'PhuongTienToaNhaController@addPcccCoSo');
+    Route::put('pccccoso', 'PhuongTienToaNhaController@updatePcccCoSo');
+    Route::delete('pccccoso/{id}', 'PhuongTienToaNhaController@xoaPcccCoSo');
+
+    Route::post('phuongtientoanha', 'PhuongTienToaNhaController@addPhuongtien');
+    Route::put('phuongtientoanha', 'PhuongTienToaNhaController@updatePhuongTien');
+    Route::delete('phuongtientoanha/{id}', 'PhuongTienToaNhaController@xoaPhuongTien');
+
+    Route::get('danhmucmobile', 'DanhMucController@getDanhMucMobile');
 });
 
 Route::post('baochay', 'DiemChayController@baoChay');
@@ -304,4 +303,8 @@ Route::get('in/{id}', 'BuildingController@table');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::post('danhmuc', 'DanhMucSanPhamController@addDanhMucSanPham');
+    Route::get('danhmuc', 'DanhMucSanPhamController@getDanhMucSanPham');
+    Route::put('danhmuc', 'DanhMucSanPhamController@editDanhMucSanPham');
+    Route::delete('danhmuc/{id}', 'DanhMucSanPhamController@xoaDanhMuc');
+    Route::post('anhdanhmuc', 'DanhMucSanPhamController@uploadAnhDanhMuc');
 });

@@ -23,6 +23,10 @@ class CreateSanPhamsTable extends Migration
             $table->double('gia_ban')->nullable();
             $table->double('gia_sale')->nullable();
             $table->string('don_vi_tinh')->nullable();
+            $table->boolean('dang_khuyen_mai')->default(false);
+            $table->text('mo_ta_san_pham')->nullable();
+            $table->dateTime('bat_dau_khuyen_mai')->nullable();
+            $table->dateTime('ket_thuc_khuyen_mai')->nullable();
         });
     }
 

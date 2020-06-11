@@ -11,8 +11,8 @@ class DanhMucSanPhamController extends Controller
 {
     public function getDanhMucSanPham(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
-        $page = $request->get('page', 1);
+        // $perPage = $request->get('per_page', 10);
+        // $page = $request->get('page', 1);
         $query = DanhMucSanPham::query();
         $search = $request->get('search');
         if (isset($search)) {
@@ -23,7 +23,7 @@ class DanhMucSanPhamController extends Controller
             });
         }
         $query->orderBy('updated_at', 'desc');
-        $data = $query->paginate($perPage, ['*'], 'page', $page);
+        $data = $query->get();
 
         return response()->json([
             'data' => $data,
@@ -67,7 +67,7 @@ class DanhMucSanPhamController extends Controller
             ], 500);
         }
     }
-    public function editDanhMucSanPham($id, Request $request)
+    public function editDanhMucSanPham(Request $request)
     {
         $user = auth()->user();
         $data = $request->all();
@@ -84,11 +84,10 @@ class DanhMucSanPhamController extends Controller
             ], 400);
         }
         try {
-            $user = DanhMucSanPham::where('id', $id)->first->update([
+            $user = DanhMucSanPham::where('id', $data['id'])->first()->update([
                 'ten_danh_muc' => $data['ten_danh_muc'],
                 'mo_ta' => $data['mo_ta'],
                 'anh_dai_dien' => $data['anh_dai_dien'],
-                'user_tao' => $user->id
             ]);
 
             return response()->json([
@@ -102,6 +101,30 @@ class DanhMucSanPhamController extends Controller
                 'code' => 500,
                 'data' => $e,
             ], 500);
+        }
+    }
+
+    public function uploadAnhDanhMuc(Request $request)
+    {
+        if ($request->file) {
+            $image = $request->file;
+            $name = time() . '.' . $image->getClientOriginalExtension();
+            $image->move('storage/images/avatar/', $name);
+            // $danhMuc = DanhMucSanPham::find($id);
+            // $danhMuc->update(['anh_dai_dien' => 'storage/images/avatar/' . $name]);
+            return 'storage/images/avatar/' . $name;
+        } else {
+            return response(['message' => 'File không tồn tại'], 500);
+        }
+    }
+
+    public function xoaDanhMuc($id)
+    {
+        try {
+            DanhMucSanPham::find($id)->delete();
+            return response(['message' => 'Thành công'], 200);
+        } catch (\Exception $e) {
+            return response(['message' => 'Không thể xóa danh mục này'], 500);
         }
     }
 }
