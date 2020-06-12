@@ -307,4 +307,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('danhmuc', 'DanhMucSanPhamController@editDanhMucSanPham');
     Route::delete('danhmuc/{id}', 'DanhMucSanPhamController@xoaDanhMuc');
     Route::post('anhdanhmuc', 'DanhMucSanPhamController@uploadAnhDanhMuc');
+
+    Route::post('uploadanhsanpham', 'SanPhamController@upload');
+    Route::post('sanpham', 'SanPhamController@addSanPham');
+    Route::get('sanpham', 'SanPhamController@getSanPham');
+    Route::delete('sanpham/{id}', 'SanPhamController@xoaSanPham');
+    Route::get('sanpham/{id}', 'SanPhamController@getSanPhamDetail');
+    Route::post('uploadedit/{id}', 'SanPhamController@uploadEdit');
+    Route::delete('xoahinhanh', 'SanPhamController@xoaAnhSanPham');
+    Route::put('sanpham/{id}', 'SanPhamController@editSanPham');
+
 });

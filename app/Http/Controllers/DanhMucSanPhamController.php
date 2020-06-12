@@ -11,8 +11,6 @@ class DanhMucSanPhamController extends Controller
 {
     public function getDanhMucSanPham(Request $request)
     {
-        // $perPage = $request->get('per_page', 10);
-        // $page = $request->get('page', 1);
         $query = DanhMucSanPham::query();
         $search = $request->get('search');
         if (isset($search)) {
