@@ -11,7 +11,6 @@
 |
 */
 
-
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {
     Route::post('check-company', 'AuthController@checkExistCompanyCode');
     Route::post('setup', 'AuthController@setup');
@@ -316,5 +315,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('uploadedit/{id}', 'SanPhamController@uploadEdit');
     Route::delete('xoahinhanh', 'SanPhamController@xoaAnhSanPham');
     Route::put('sanpham/{id}', 'SanPhamController@editSanPham');
+
+    Route::post('themdonhang', 'DonHangNhaCungCapController@addDonHang');
+    Route::get('danhsachdonhang', 'DonHangNhaCungCapController@getDonHang');
+    Route::get('donhang/{id}', 'DonHangNhaCungCapController@getChiTietDonHang');
 
 });
