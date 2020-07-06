@@ -319,5 +319,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('themdonhang', 'DonHangNhaCungCapController@addDonHang');
     Route::get('danhsachdonhang', 'DonHangNhaCungCapController@getDonHang');
     Route::get('donhang/{id}', 'DonHangNhaCungCapController@getChiTietDonHang');
+    Route::put('donhang/{id}', 'DonHangNhaCungCapController@update');
+    Route::put('duyetdon/{id}', 'DonHangNhaCungCapController@duyetDon');
+    Route::put('huydon/{id}', 'DonHangNhaCungCapController@huyDon');
+    Route::delete('donhang/{id}', 'DonHangNhaCungCapController@xoaDon');
 
 });
