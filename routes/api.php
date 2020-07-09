@@ -11,6 +11,7 @@
 |
 */
 
+
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {
     Route::post('check-company', 'AuthController@checkExistCompanyCode');
     Route::post('setup', 'AuthController@setup');
@@ -323,5 +324,34 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('duyetdon/{id}', 'DonHangNhaCungCapController@duyetDon');
     Route::put('huydon/{id}', 'DonHangNhaCungCapController@huyDon');
     Route::delete('donhang/{id}', 'DonHangNhaCungCapController@xoaDon');
+    Route::post('nhapkho/{id}', 'DonHangNhaCungCapController@nhapKho');
 
+    Route::get('phieunhap', 'QuanLyKhoController@getPhieuNhap');
+
+    Route::get('thuonghieu', 'ThuongHieuController@getThuongHieu');
+    Route::post('addthuonghieu', 'ThuongHieuController@addThuongHieu');
+    Route::put('thuonghieu/{id}', 'ThuongHieuController@editThuongHieu');
+    Route::delete('thuonghieu/{id}', 'ThuongHieuController@xoaThuongHieu');
+
+    Route::get('kho', 'KhoController@getKho');
+    Route::post('kho', 'KhoController@addKho');
+    Route::put('kho/{id}', 'KhoController@editKho');
+    Route::delete('kho/{id}', 'KhoController@xoaKho');
+
+    Route::get('khachhang', 'KhachHangNhaCungCapController@getKhachHang');
+    Route::post('khachhang', 'KhachHangNhaCungCapController@addKhachHang');
+    Route::put('khachhang/{id}', 'KhachHangNhaCungCapController@editKhachHang');
+    Route::delete('khachhang/{id}', 'KhachHangNhaCungCapController@xoaKhachHang');
+
+    Route::get('nhaccungcap', 'KhachHangNhaCungCapController@getNhaCungCap');
+    Route::post('nhaccungcap', 'KhachHangNhaCungCapController@addNhaCungCap');
+    Route::put('nhaccungcap/{id}', 'KhachHangNhaCungCapController@editNhaCungCap');
+    Route::delete('nhaccungcap/{id}', 'KhachHangNhaCungCapController@xoaNhaCungCap');
+
+    Route::get('banggia', 'BangGiaController@getBangGia');
+    Route::post('banggia', 'BangGiaController@addBangGia');
+    Route::put('banggia/{id}', 'BangGiaController@editBangGia');
+    Route::delete('banggia/{id}', 'BangGiaController@xoaBangGia');
 });
+Route::get('tonkho', 'QuanLyKhoController@hangTonKho');
+

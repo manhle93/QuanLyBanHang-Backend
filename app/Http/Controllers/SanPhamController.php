@@ -76,10 +76,10 @@ class SanPhamController extends Controller
                 'gia_ban' => $data['gia_ban'],
                 'gia_sale' => $data['gia_sale'],
                 'don_vi_tinh' => $data['don_vi_tinh'],
-                'dang_khuyen_mai' => $data['dang_khuyen_mai'],
+                'gia_von' => $data['gia_von'],
                 'mo_ta_san_pham' => $data['mo_ta_san_pham'],
-                'bat_dau_khuyen_mai' => $data['bat_dau_khuyen_mai'],
-                'ket_thuc_khuyen_mai' => $data['ket_thuc_khuyen_mai'],
+                'vi_tri' => $data['vi_tri'],
+                'thuong_hieu_id' => $data['thuong_hieu_id'],
             ]);
             if (count($files) > 0) {
                 foreach ($files as $item) {
@@ -218,10 +218,10 @@ class SanPhamController extends Controller
                 'gia_ban' => $data['gia_ban'],
                 'gia_sale' => $data['gia_sale'],
                 'don_vi_tinh' => $data['don_vi_tinh'],
-                'dang_khuyen_mai' => $data['dang_khuyen_mai'],
+                'gia_von' => $data['gia_von'],
                 'mo_ta_san_pham' => $data['mo_ta_san_pham'],
-                'bat_dau_khuyen_mai' => $data['bat_dau_khuyen_mai'],
-                'ket_thuc_khuyen_mai' => $data['ket_thuc_khuyen_mai'],
+                'vi_tri' => $data['vi_tri'],
+                'thuong_hieu_id' => $data['thuong_hieu_id'],
             ]);
         } catch (\Exception $e) {
             return response(['message' => 'Không thể thêm sản phẩm'], 500);

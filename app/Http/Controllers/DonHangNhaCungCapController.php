@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DonHangNhaCungCap;
+use App\PhieuNhapKho;
 use App\SanPhamDonHangNhaCungCap;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -153,7 +154,7 @@ class DonHangNhaCungCapController extends Controller
             }
         } else  return response(['message' => "Không có quyền duyệt đơn"], 401);
     }
-    
+
     public function huyDon($id)
     {
         $user = auth()->user();
@@ -187,5 +188,23 @@ class DonHangNhaCungCapController extends Controller
                 return response(['message' => "Không thể xóa đơn hàng"], 500);
             }
         } else return response(['message' => "Không có quyền xóa đơn"], 401);
+    }
+
+    public function nhapKho($id)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response(['message' => "Chưa đăng nhập"], 400);
+        }
+        if($user->role_id != 1 && $user->role_id != 2){
+            return response(['message' => "Không có quyền nhập kho"], 402);
+        }
+        try {
+            DonHangNhaCungCap::where('id', $id)->first()->update(['trang_thai' => 'nhap_kho']);
+            PhieuNhapKho::create(['don_hang_id' => $id, 'ma' => 'PNK' . $id, 'user_id' => $user->id]);
+            return response(['message' => 'Thành công'], 200);
+        } catch (\Exception $e) {
+            return response(['message' => 'Không thể tạo phiếu nhập'], 500);
+        }
     }
 }
