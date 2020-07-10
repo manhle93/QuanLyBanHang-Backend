@@ -100,7 +100,7 @@ class SanPhamController extends Controller
         $query = SanPham::with('danhMuc');
         $search = $request->get('search');
         $danh_muc_id = $request->get('danh_muc_id');
-        if (isset($toa_nha_id)) {
+        if (isset($danh_muc_id)) {
             $query->where('danh_muc_id', $danh_muc_id);
         }
         if (isset($search)) {

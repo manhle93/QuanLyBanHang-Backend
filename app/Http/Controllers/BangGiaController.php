@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\BangGia;
+use App\BangGiaSanPham;
+use App\SanPham;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Validator;
@@ -43,7 +45,8 @@ class BangGiaController extends Controller
             return response(['message' => 'Không thể tạo bảng giá'], 500);
         }
     }
-    public function getBangGia(Request $request){
+    public function getBangGia(Request $request)
+    {
         $user = auth()->user();
         $perPage = $request->query('per_page', 5);
         $page = $request->get('page', 1);
@@ -52,12 +55,14 @@ class BangGiaController extends Controller
         $data = [];
         if (isset($search)) {
             $search = trim($search);
-            $query->where(function ($query) use ($search) {
-                $query->where('ten', 'ilike', "%{$search}%");
-            });
+            $query->where('ten', 'ilike', "%{$search}%");
         }
         if ($user->role_id == 1 || $user->role_id == 2) {
             $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        }
+        foreach ($data as $item) {
+            $soSanPham = BangGiaSanPham::where('bang_gia_id', $item->id)->count();
+            $item['so_san_pham'] = $soSanPham;
         }
         return response()->json([
             'data' => $data,
@@ -65,7 +70,8 @@ class BangGiaController extends Controller
             'code' => '200',
         ], 200);
     }
-    public function editBangGia($id, Request $request){
+    public function editBangGia($id, Request $request)
+    {
         $data = $request->all();
         $validator = Validator::make($data, [
             'ten' => 'required',
@@ -97,12 +103,58 @@ class BangGiaController extends Controller
             return response(['message' => 'Không thể cập nhật bảng giá'], 500);
         }
     }
-    public function xoaBangGia($id){
-        try{
+    public function xoaBangGia($id)
+    {
+        try {
             BangGia::find($id)->delete();
             return response(['message' => 'Thành công'], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response(['message' => 'Không thể xóa bảng giá'], 500);
         }
+    }
+
+    public function addSanPhamBangGia($id, Request $request)
+    {
+        try {
+            $data = $request->all();
+            BangGiaSanPham::where('bang_gia_id', $id)->delete();
+            if (count($data) > 0) {
+                foreach ($data as $item) {
+                    BangGiaSanPham::create(['san_pham_id' => $item['san_pham']['id'], 'bang_gia_id' => $id, 'gia_ban' => $item['gia_ban']]);
+                }
+            }
+            return response(['message' => 'Thành công'], 200);
+        } catch (\Exception $e) {
+            return response(['message' => 'Không thể cập nhật bảng giá'], 500);
+        }
+    }
+    public function getSanPhamBangGia($id)
+    {
+        $data = BangGiaSanPham::with('sanPham')->where('bang_gia_id', $id)->get();
+        return  response(['message' => 'Thành công', 'data' => $data], 200);
+    }
+
+    public function getSanPham(Request $request)
+    {
+        $user = auth()->user();
+        $perPage = $request->query('per_page', 5);
+        $page = $request->get('page', 1);
+        $query = SanPham::with('bangGias', 'danhMuc');
+        $search = $request->get('search');
+        $data = [];
+        if (isset($search)) {
+            $search = trim($search);
+            $query->where('ten_san_pham', 'ilike', "%{$search}%");
+            $query->orWhere('mo_ta_san_pham', 'ilike', "%{$search}%");
+        }
+        if ($user->role_id == 1 || $user->role_id == 2) {
+            $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        }
+
+        return response()->json([
+            'data' => $data,
+            'message' => 'Lấy dữ liệu thành công',
+            'code' => '200',
+        ], 200);
     }
 }

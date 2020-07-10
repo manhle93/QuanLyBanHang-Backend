@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\DonHangNhaCungCap;
+use App\HangTonKho;
+use App\Kho;
 use App\PhieuNhapKho;
 use App\SanPhamDonHangNhaCungCap;
 use Carbon\Carbon;
@@ -54,6 +56,12 @@ class DonHangNhaCungCapController extends Controller
         if (!$user) {
             return response(['message' => 'Chưa đăng nhập'], 500);
         }
+        if($user->role_id == 3){
+            $data['nha_cung_cap_id'] = null;
+        }
+        if($user->role_id != 3 && $user->role_id != 2 && $user->role_id != 1){
+            return response(['message' => 'Không có quyền'], 4001);
+        }
         try {
             DB::beginTransaction();
             $data['thoi_gian'] = Carbon::parse($data['thoi_gian'])->timezone('Asia/Ho_Chi_Minh');
@@ -64,7 +72,7 @@ class DonHangNhaCungCapController extends Controller
                 'chiet_khau' => $data['chiet_khau'],
                 'tong_tien' => $data['tong_tien'],
                 'thoi_gian' => $data['thoi_gian'],
-                'user_id' => $user->id,
+                'user_id' => $data['nha_cung_cap_id'] ? $data['nha_cung_cap_id'] : $user->id,
                 'trang_thai' => 'moi_tao'
             ]);
             foreach ($data['danhSachHang'] as $item) {
@@ -108,6 +116,12 @@ class DonHangNhaCungCapController extends Controller
         if (!$user) {
             return response(['message' => 'Chưa đăng nhập'], 500);
         }
+        if($user->role_id == 3){
+            $data['nha_cung_cap_id'] = null;
+        }
+        if($user->role_id != 3 && $user->role_id != 2 && $user->role_id != 1){
+            return response(['message' => 'Không có quyền'], 4001);
+        }
         try {
             DB::beginTransaction();
             $data['thoi_gian'] = Carbon::parse($data['thoi_gian'])->timezone('Asia/Ho_Chi_Minh');
@@ -118,7 +132,7 @@ class DonHangNhaCungCapController extends Controller
                 'chiet_khau' => $data['chiet_khau'],
                 'tong_tien' => $data['tong_tien'],
                 'thoi_gian' => $data['thoi_gian'],
-                'user_id' => $user->id,
+                'user_id' => $data['nha_cung_cap_id'] ? $data['nha_cung_cap_id'] : $user->id,
                 'trang_thai' => 'moi_tao'
             ]);
             SanPhamDonHangNhaCungCap::where('don_hang_id', $id)->delete();
@@ -182,6 +196,9 @@ class DonHangNhaCungCapController extends Controller
 
         if ($user->role_id == 1 || $donHang->user_id == $user->id) {
             try {
+                if($donHang->trang_thai == 'nhap_kho'){
+                    return response(['message' => "Không thể xóa đơn hàng đã nhập kho"], 500);
+                }
                 $donHang->delete();
                 return response(['message' => "Xóa đơn thành công"], 200);
             } catch (\Exception $e) {
@@ -190,20 +207,36 @@ class DonHangNhaCungCapController extends Controller
         } else return response(['message' => "Không có quyền xóa đơn"], 401);
     }
 
-    public function nhapKho($id)
+    public function nhapKho($id, Request $request)
     {
         $user = auth()->user();
+        $kho_id = $request->kho_id;
         if (!$user) {
             return response(['message' => "Chưa đăng nhập"], 400);
         }
-        if($user->role_id != 1 && $user->role_id != 2){
+        if (!$kho_id) {
+            return response(['message' => "Chưa chọn kho"], 400);
+        }
+        if ($user->role_id != 1 && $user->role_id != 2) {
             return response(['message' => "Không có quyền nhập kho"], 402);
         }
         try {
+            DB::beginTransaction();
             DonHangNhaCungCap::where('id', $id)->first()->update(['trang_thai' => 'nhap_kho']);
-            PhieuNhapKho::create(['don_hang_id' => $id, 'ma' => 'PNK' . $id, 'user_id' => $user->id]);
+            PhieuNhapKho::create(['don_hang_id' => $id, 'ma' => 'PNK' . $id, 'user_id' => $user->id, 'kho_id' => $kho_id]);
+            $hangHoa = SanPhamDonHangNhaCungCap::where('don_hang_id', $id)->get();
+            foreach ($hangHoa as $item) {
+                $checkKho = HangTonKho::where('san_pham_id', $item->san_pham_id)->where('kho_id', $kho_id)->first();
+                if ($checkKho) {
+                    $checkKho->update(['so_luong' => $checkKho->so_luong + $item->so_luong]);
+                } else {
+                    HangTonKho::create(['san_pham_id' => $item->san_pham_id, 'so_luong' => $item->so_luong, 'kho_id' => $kho_id]);
+                }
+            }
+            DB::commit();
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
+            DB::rollback();
             return response(['message' => 'Không thể tạo phiếu nhập'], 500);
         }
     }

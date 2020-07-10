@@ -16,4 +16,8 @@ class SanPham extends Model
     {
         return $this->hasMany('App\HinhAnhSanPham', 'san_pham_id', 'id');
     }
+    public function bangGias()
+    {
+        return $this->belongsToMany('App\BangGia', 'bang_gia_san_phams');
+    }
 }

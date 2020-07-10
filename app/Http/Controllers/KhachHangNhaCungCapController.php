@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\BangGiaSanPham;
 use App\KhachHang;
 use App\NhaCungCap;
 use App\User;
