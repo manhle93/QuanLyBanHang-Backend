@@ -50,7 +50,7 @@ class BangGiaController extends Controller
         $user = auth()->user();
         $perPage = $request->query('per_page', 5);
         $page = $request->get('page', 1);
-        $query = BangGia::query();
+        $query = BangGia::with('sanPham');
         $search = $request->get('search');
         $data = [];
         if (isset($search)) {
@@ -156,5 +156,11 @@ class BangGiaController extends Controller
             'message' => 'Lấy dữ liệu thành công',
             'code' => '200',
         ], 200);
+    }
+
+    public function getBangGiaSanPham($id){
+       $bangGia =  BangGiaSanPham::where('san_pham_id', $id)->pluck('bang_gia_id')->toArray();
+       $data = BangGia::with('sanPham')->whereIn('id', $bangGia)->get();
+       return $data;
     }
 }

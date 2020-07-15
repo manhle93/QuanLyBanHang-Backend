@@ -239,4 +239,9 @@ class UserController extends Controller
        $khach_hang =  User::where('toa_nha_id', $id)->get();
         return \response(['data'=>$khach_hang],200);
     }
+
+    public function getShipper(){
+        $data = User::where('role_id', 5)->get();
+        return $data;
+    }
 }

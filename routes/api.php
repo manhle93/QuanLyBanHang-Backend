@@ -11,6 +11,7 @@
 |
 */
 
+use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {
     Route::post('check-company', 'AuthController@checkExistCompanyCode');
@@ -357,6 +358,26 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('banggiasanpham/{id}', 'BangGiaController@getSanPhamBangGia');
 
     Route::get('sanphambanggia', 'BangGiaController@getSanPham');
+
+    Route::post('thembaogia', 'BaoGiaController@addBaoGia');
+    Route::get('baogia', 'BaoGiaController@getBaoGia');
+    Route::get('baogia/{id}', 'BaoGiaController@getChiTietBaoGia');
+    Route::put('baogia/{id}', 'BaoGiaController@duyetBaoGia');
+    Route::put('giabansanpham', 'BaoGiaController@capNhatGiaBan');
+    Route::get('sanphamnhacungcap', 'BaoGiaController@getSanPhamBaoGiaNhaCungCap');
+
+    Route::get('banggiasanpham/{id}', 'BangGiaController@getBangGiaSanPham');
+    
+    Route::post('dondathang', 'DonDatHangController@addDonDatHang');
+    Route::get('dondathang', 'DonDatHangController@getDonHang');
+    Route::delete('dondathang/{id}', 'DonDatHangController@xoaDonHang');
+    Route::get('dondathang/{id}', 'DonDatHangController@getChiTietDonDatHang');
+    Route::put('dondathang/{id}', 'DonDatHangController@updateDonDatHang');
+    Route::put('huydondathang/{id}', 'DonDatHangController@huyDon');
+    Route::put('chuyenhoadon/{id}', 'DonDatHangController@chuyenHoaDon');
+
+    Route::get('shipper', 'System\UserController@getShipper');
+
 
 });
 Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
