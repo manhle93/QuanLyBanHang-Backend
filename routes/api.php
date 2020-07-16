@@ -348,6 +348,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('nhaccungcap', 'KhachHangNhaCungCapController@addNhaCungCap');
     Route::put('nhaccungcap/{id}', 'KhachHangNhaCungCapController@editNhaCungCap');
     Route::delete('nhaccungcap/{id}', 'KhachHangNhaCungCapController@xoaNhaCungCap');
+    Route::post('noptien', 'KhachHangNhaCungCapController@nopTien');
+    Route::get('noptien', 'KhachHangNhaCungCapController@lichSuNopTien');
+    Route::post('hoantac/{id}', 'KhachHangNhaCungCapController@hoanTac');
 
     Route::get('banggia', 'BangGiaController@getBangGia');
     Route::post('banggia', 'BangGiaController@addBangGia');

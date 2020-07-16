@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 class DonDatHangController extends Controller
 {
-    public function addDonDatHang(Request $request){
+    public function addDonDatHang(Request $request)
+    {
         $data = $request->all();
         $validator = Validator::make($data, [
             'ten' => 'required',
@@ -28,20 +29,25 @@ class DonDatHangController extends Controller
             ], 400);
         }
         $user = auth()->user();
-        if(!$user || ($user->role_id != 1 && $user->role_id !=2)){
+        if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
             return response(['message' => 'Không có quyền'], 500);
         }
-        try{
+        if ($data['trang_thai'] == 'hoa_don') {
+            $data['da_thanh_toan'] = $data['tong_tien'] -  $data['giam_gia'];
+            $data['con_phai_thanh_toan'] = 0;
+        }
+        try {
             DB::beginTransaction();
-             $donHang = DonDatHang::create([
+            $donHang = DonDatHang::create([
                 'ma' => $data['ma'],
                 'tong_tien' => $data['tong_tien'],
                 'ten' => $data['ten'],
                 'user_id' => $data['khach_hang_id'],
                 'ghi_chu' => $data['ghi_chu'],
                 'giam_gia' => $data['giam_gia'],
+                'bang_gia_id' => $data['bang_gia_id'],
                 'da_thanh_toan' => $data['da_thanh_toan'],
-                'trang_thai' => 'moi_tao',
+                'trang_thai' => $data['trang_thai'],
                 'con_phai_thanh_toan' => $data['con_phai_thanh_toan'],
 
             ]);
@@ -55,12 +61,13 @@ class DonDatHangController extends Controller
             }
             DB::commit();
             return response(['message' => 'Thêm mới thành công'], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response(['message' => 'Không thể đặt hàng'], 500);
         }
     }
 
-    public function getDonHang(Request $request){
+    public function getDonHang(Request $request)
+    {
         $user = auth()->user();
         $perPage = $request->query('per_page', 5);
         $page = $request->get('page', 1);
@@ -79,19 +86,20 @@ class DonDatHangController extends Controller
         ], 200);
     }
 
-    public function xoaDonHang($id){
+    public function xoaDonHang($id)
+    {
         $user = auth()->user();
-        if(!$user || ($user->role_id != 1 && $user->role_id !=2)){
+        if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
             return response(['message' => 'Không có quyền'], 500);
         }
         try {
             $donHang = DonDatHang::where('id', $id)->first();
-            if($donHang->trang_thai == 'hoa_don'){
+            if ($donHang->trang_thai == 'hoa_don') {
                 return response(['message' => 'Không thể xóa đơn đặt hàng đã chuyển hóa đơn'], 500);
             }
             $donHang->delete();
             return response(['message' => 'Thành công'], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response(['message' => 'Không thể xóa đơn đặt hàng này'], 500);
         }
     }
@@ -102,7 +110,8 @@ class DonDatHangController extends Controller
         return response(['data' => $donHang], 200);
     }
 
-    public function updateDonDatHang($id, Request $request){
+    public function updateDonDatHang($id, Request $request)
+    {
         $data = $request->all();
         $validator = Validator::make($data, [
             'ten' => 'required',
@@ -118,12 +127,16 @@ class DonDatHangController extends Controller
             ], 400);
         }
         $user = auth()->user();
-        if(!$user || ($user->role_id != 1 && $user->role_id !=2)){
+        if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
             return response(['message' => 'Không có quyền'], 500);
         }
-        try{
+        if ($data['trang_thai'] == 'hoa_don') {
+            $data['da_thanh_toan'] = $data['tong_tien'] -  $data['giam_gia'];
+            $data['con_phai_thanh_toan'] = 0;
+        }
+        try {
             DB::beginTransaction();
-             $donHang = DonDatHang::where('id', $id)->first()->update([
+            $donHang = DonDatHang::where('id', $id)->first()->update([
                 'ma' => $data['ma'],
                 'tong_tien' => $data['tong_tien'],
                 'ten' => $data['ten'],
@@ -131,8 +144,9 @@ class DonDatHangController extends Controller
                 'ghi_chu' => $data['ghi_chu'],
                 'giam_gia' => $data['giam_gia'],
                 'da_thanh_toan' => $data['da_thanh_toan'],
-                'trang_thai' => 'moi_tao',
+                'trang_thai' => $data['trang_thai'],
                 'con_phai_thanh_toan' => $data['con_phai_thanh_toan'],
+                'bang_gia_id' => $data['bang_gia_id'],
 
             ]);
             SanPhamDonDatHang::where('don_dat_hang_id', $id)->delete();
@@ -146,31 +160,40 @@ class DonDatHangController extends Controller
             }
             DB::commit();
             return response(['message' => 'Cập nhật thành công'], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response(['message' => 'Không thể cập nhật'], 500);
         }
     }
-    public function huyDon($id){
+    public function huyDon($id)
+    {
         $user = auth()->user();
-        if(!$user || ($user->role_id != 1 && $user->role_id !=2)){
+        if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
             return response(['message' => 'Không có quyền'], 500);
         }
-        try{
+        try {
             DonDatHang::where('id', $id)->first()->update(['trang_thai' => 'huy_bo']);
             return response(['message' => 'Cập nhật thành công'], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response(['message' => 'Không thể hủy đơn'], 500);
         }
     }
-    public function chuyenHoaDon($id){
+    public function chuyenHoaDon($id, Request $request)
+    {
         $user = auth()->user();
-        if(!$user || ($user->role_id != 1 && $user->role_id !=2)){
+        $shipper_id = $request->get('nhan_vien_giao_hang');
+        if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
             return response(['message' => 'Không có quyền'], 500);
         }
-        try{
-            DonDatHang::where('id', $id)->first()->update(['trang_thai' => 'hoa_don']);
+        try {
+            $donHang = DonDatHang::where('id', $id)->first();
+            $donHang->update([
+                'trang_thai' => 'hoa_don',
+                'nhan_vien_giao_hang' => $shipper_id,
+                'da_thanh_toan' => $donHang->tong_tien - $donHang->giam_gia,
+                'con_phai_thanh_toan' => 0
+            ]);
             return response(['message' => 'Cập nhật thành công'], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response(['message' => 'Không thể chuyển hóa đơn'], 500);
         }
     }

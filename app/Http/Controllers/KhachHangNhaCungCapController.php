@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\BangGiaSanPham;
 use App\KhachHang;
 use App\NhaCungCap;
+use App\NopTien;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Validator;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class KhachHangNhaCungCapController extends Controller
 {
@@ -358,5 +359,106 @@ class KhachHangNhaCungCapController extends Controller
         }catch(\Exception $e){
             return response(['message' => 'Không thể xóa nhà cung cấp'], 500);
         }
+    }
+
+    public function nopTien(Request $request){
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'id_user_khach_hang' => 'required',
+            'so_tien' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Không thể thêm mới'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+        $user = auth()->user();
+        if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
+            return response(['message' => 'Không có quyền'], 500);
+        }
+        try {
+            DB::beginTransaction();
+            $khachHang = KhachHang::where('user_id', $data['id_user_khach_hang'])->first();
+            $so_du = $khachHang->so_du;
+            NopTien::create([
+                'id_user_khach_hang' => $data['id_user_khach_hang'],
+                'user_id' => $user->id,
+                'so_tien' => $data['so_tien'],
+                'noi_dung' => $data['noi_dung'],
+                'so_du' => $so_du + $data['so_tien'],
+                'ma' => 'GD'.time()
+            ]);
+            $khachHang->update([
+                'so_du' => $so_du + $data['so_tien'],
+                'chuyen_khoan_cuoi' => Carbon::now()
+            ]);
+            DB::commit();
+            return response(['message' => 'Thành công'],200);
+        }catch(\Exception $e){
+            DB::rollback();
+            return response(['message' => 'Không thể nạp tiền'],500);
+        }
+
+    }
+
+    public function hoanTac($id){
+        $user = auth()->user();
+        if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
+            return response(['message' => 'Không có quyền'], 500);
+        }
+        try {
+            DB::beginTransaction();
+            $nopTien = NopTien::where('id', $id)->first();
+            $khachHang = KhachHang::where('user_id', $nopTien->id_user_khach_hang)->first();
+            $so_du = $khachHang->so_du;
+            NopTien::create([
+                'trang_thai' => false, 
+                'noi_dung' => 'Hoàn tác cho giao dịch mã: '.$nopTien->ma,
+                'id_user_khach_hang' => $nopTien->id_user_khach_hang,
+                'user_id' => $user->id,
+                'so_tien' => 0 - $nopTien->so_tien,
+                'so_du' => $so_du - $nopTien->so_tien,
+                'ma' => 'GD'.time()
+                ]);
+
+            $khachHang->update([
+                'so_du' => $so_du - $nopTien->so_tien,
+                'chuyen_khoan_cuoi' => Carbon::now()
+            ]);
+            DB::commit();
+            return response(['message' => 'Thành công'],200);
+        }catch(\Exception $e){
+            DB::rollback();
+            return response(['message' => 'Không thể hoàn tác'],500);
+        }
+
+    }
+
+    public function lichSuNopTien(Request $request){
+        $user = auth()->user();
+        $perPage = $request->query('per_page', 5);
+        $page = $request->get('page', 1);
+        $query = NopTien::with('nguoiTao:id,name', 'khachHang:user_id,ten');
+        $search = $request->get('search');
+        $data = [];
+        if (isset($search)) {
+            $search = trim($search);
+            $query->where(function ($query) use ($search) {
+                $query->where('noi_dung', 'ilike', "%{$search}%");
+                $query->orWhere('so_tien', 'ilike', "%{$search}%");
+            });
+        }
+        if ($user->role_id == 1 || $user->role_id == 2) {
+            $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        }
+        return response()->json([
+            'data' => $data,
+            'message' => 'Lấy dữ liệu thành công',
+            'code' => '200',
+        ], 200);
     }
 }
