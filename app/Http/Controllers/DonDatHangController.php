@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\DonDatHang;
+use App\HangTonKho;
+use App\KhachHang;
+use App\NopTien;
+use App\PhieuNhapKho;
 use App\SanPhamDonDatHang;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -36,8 +40,18 @@ class DonDatHangController extends Controller
             $data['da_thanh_toan'] = $data['tong_tien'] -  $data['giam_gia'];
             $data['con_phai_thanh_toan'] = 0;
         }
+        $khacHang = null;
+        if (isset($data['khach_hang_id'])) {
+            $khacHang = KhachHang::where('user_id', $data['khach_hang_id'])->first();
+        }
+        if (!$khacHang && $data['thanh_toan'] == 'tai_khoan') {
+            return response(['message' => 'Tài khoản không tồn tại'], 500);
+        }
         try {
             DB::beginTransaction();
+            if ($khacHang && $data['thanh_toan'] == 'tai_khoan' && $khacHang->so_du < $data['con_phai_thanh_toan']) {
+                return response(['message' => 'Số dư tài khoản không đủ'], 500);
+            }
             $donHang = DonDatHang::create([
                 'ma' => $data['ma'],
                 'tong_tien' => $data['tong_tien'],
@@ -49,9 +63,18 @@ class DonDatHangController extends Controller
                 'da_thanh_toan' => $data['da_thanh_toan'],
                 'trang_thai' => $data['trang_thai'],
                 'con_phai_thanh_toan' => $data['con_phai_thanh_toan'],
+                'thanh_toan' => $data['thanh_toan'],
 
             ]);
             foreach ($data['danhSachHang'] as $item) {
+                if ($data['trang_thai'] == 'hoa_don') {
+                    $tonKho = HangTonKho::where('san_pham_id', $item['hang_hoa']['id'])->first();
+                    if (!$tonKho || $tonKho->so_luong < $item['so_luong']) {
+                        DB::rollback();
+                        return response(['message' => $item['hang_hoa']['ten_san_pham'] . ' Vượt quá số lượng tồn kho'], 500);
+                    }
+                    $tonKho->update(['so_luong' => $tonKho->so_luong - $item['so_luong']]);
+                }
                 SanPhamDonDatHang::create([
                     'san_pham_id' => $item['hang_hoa']['id'],
                     'gia_ban' => $item['don_gia'],
@@ -59,9 +82,22 @@ class DonDatHangController extends Controller
                     'don_dat_hang_id' => $donHang->id
                 ]);
             }
+            if ($khacHang && $data['thanh_toan'] == 'tai_khoan') {
+                $khacHang->update(['so_du' =>  $khacHang->so_du - ($donHang->tong_tien - $donHang->giam_gia)]);
+                NopTien::create([
+                    'trang_thai' => 'mua_hang',
+                    'noi_dung' => 'Giao dịch mua hàng, đơn hàng: ' . $donHang->ten . ', mã đơn hàng: ' . $donHang->ma,
+                    'id_user_khach_hang' => $khacHang->user_id,
+                    'user_id' => $user->id,
+                    'so_tien' => 0 - ($donHang->tong_tien - $donHang->giam_gia),
+                    'so_du' => $khacHang->so_du - ($donHang->tong_tien - $donHang->giam_gia),
+                    'ma' => 'GD' . time()
+                ]);
+            }
             DB::commit();
             return response(['message' => 'Thêm mới thành công'], 200);
         } catch (\Exception $e) {
+            DB::rollback();
             return response(['message' => 'Không thể đặt hàng'], 500);
         }
     }
@@ -134,8 +170,18 @@ class DonDatHangController extends Controller
             $data['da_thanh_toan'] = $data['tong_tien'] -  $data['giam_gia'];
             $data['con_phai_thanh_toan'] = 0;
         }
+        $khacHang = null;
+        if (isset($data['khach_hang_id'])) {
+            $khacHang = KhachHang::where('user_id', $data['khach_hang_id'])->first();
+        }
+        if (!$khacHang && $data['thanh_toan'] == 'tai_khoan') {
+            return response(['message' => 'Tài khoản không tồn tại'], 500);
+        }
         try {
             DB::beginTransaction();
+            if ($khacHang && $data['thanh_toan'] == 'tai_khoan' && $khacHang->so_du < $data['con_phai_thanh_toan']) {
+                return response(['message' => 'Số dư tài khoản không đủ'], 500);
+            }
             $donHang = DonDatHang::where('id', $id)->first()->update([
                 'ma' => $data['ma'],
                 'tong_tien' => $data['tong_tien'],
@@ -147,8 +193,21 @@ class DonDatHangController extends Controller
                 'trang_thai' => $data['trang_thai'],
                 'con_phai_thanh_toan' => $data['con_phai_thanh_toan'],
                 'bang_gia_id' => $data['bang_gia_id'],
+                'thanh_toan' => $data['thanh_toan'],
 
             ]);
+            foreach ($data['danhSachHang'] as $item) {
+                if ($data['trang_thai'] == 'hoa_don') {
+                    $tonKho = HangTonKho::where('san_pham_id', $item['hang_hoa']['id'])->first();
+                    if (!$tonKho || $tonKho->so_luong < $item['so_luong']) {
+                        DB::rollback();
+                        return response(['message' => $item['hang_hoa']['ten_san_pham'] . ' Vượt quá số lượng tồn kho'], 500);
+                        break;
+                    }
+                    $tonKho->update(['so_luong' => $tonKho->so_luong - $item['so_luong']]);
+                }
+            }
+
             SanPhamDonDatHang::where('don_dat_hang_id', $id)->delete();
             foreach ($data['danhSachHang'] as $item) {
                 SanPhamDonDatHang::create([
@@ -158,9 +217,23 @@ class DonDatHangController extends Controller
                     'don_dat_hang_id' => $id
                 ]);
             }
+            if ($khacHang && $data['thanh_toan'] == 'tai_khoan') {
+                $khacHang->update(['so_du' =>  $khacHang->so_du - ($donHang->tong_tien - $donHang->giam_gia)]);
+                NopTien::create([
+                    'trang_thai' => 'mua_hang',
+                    'noi_dung' => 'Giao dịch mua hàng, đơn hàng: ' . $donHang->ten . ', mã đơn hàng: ' . $donHang->ma,
+                    'id_user_khach_hang' => $khacHang->user_id,
+                    'user_id' => $user->id,
+                    'so_tien' => 0 - ($donHang->tong_tien - $donHang->giam_gia),
+                    'so_du' => $khacHang->so_du - ($donHang->tong_tien - $donHang->giam_gia),
+                    'ma' => 'GD' . time()
+                ]);
+            }
             DB::commit();
             return response(['message' => 'Cập nhật thành công'], 200);
         } catch (\Exception $e) {
+            DB::rollback();
+            dd($e);
             return response(['message' => 'Không thể cập nhật'], 500);
         }
     }
@@ -171,29 +244,92 @@ class DonDatHangController extends Controller
             return response(['message' => 'Không có quyền'], 500);
         }
         try {
-            DonDatHang::where('id', $id)->first()->update(['trang_thai' => 'huy_bo']);
+            DB::beginTransaction();
+            $donHang = DonDatHang::where('id', $id)->first();
+            $sanPham = SanPhamDonDatHang::where('don_dat_hang_id', $id)->get();
+            if ($donHang->trang_thai == 'hoa_don') {
+                $donHang->update(['trang_thai' => 'huy_hoa_don']);
+                foreach ($sanPham as $item) {
+                    $tonKho = HangTonKho::where('san_pham_id', $item['san_pham_id'])->first();
+                    if ($tonKho)
+                        $tonKho->update(['so_luong' => $tonKho->so_luong + $item['so_luong']]);
+                }
+                PhieuNhapKho::create(['don_hang_id' => $id, 'ma' => 'PNK' . $id, 'user_id' => $user->id, 'kho_id' => $kho_id]);
+                $khachHang = KhachHang::where('user_id', $donHang->user_id)->first();
+                NopTien::create([
+                    'trang_thai' => 'hoan_tien',
+                    'id_user_khach_hang' => $donHang->user_id,
+                    'user_id' => $user->id,
+                    'so_tien' =>  $donHang->da_thanh_toan,
+                    'noi_dung' => 'Hoàn tiền đơn hàng: ' . $donHang->ten . ', mã đơn hàng: ' . $donHang->ma,
+                    'so_du' => $khachHang->so_du + $donHang->da_thanh_toan,
+                    'ma' => 'GD' . time()
+                ]);
+            } else {
+                $donHang->update(['trang_thai' => 'huy_bo']);
+            }
+            DB::commit();
             return response(['message' => 'Cập nhật thành công'], 200);
         } catch (\Exception $e) {
+            DB::rollback();
             return response(['message' => 'Không thể hủy đơn'], 500);
         }
     }
     public function chuyenHoaDon($id, Request $request)
     {
         $user = auth()->user();
-        $shipper_id = $request->get('nhan_vien_giao_hang');
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'thanh_toan' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Thiếu dữ liệu, không thể đặt hàng'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
         if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
             return response(['message' => 'Không có quyền'], 500);
         }
+        if (!$data['khach_hang_id'] && $data['thanh_toan'] == 'tai_khoan') {
+            return response(['message' => 'Tài khoản không tồn tại'], 500);
+        }
+        $khacHang = KhachHang::where('user_id', $data['khach_hang_id'])->first();
+        if (!$khacHang && $data['thanh_toan'] == 'tai_khoan') {
+            return response(['message' => 'Tài khoản không tồn tại'], 500);
+        }
         try {
+            DB::beginTransaction();
             $donHang = DonDatHang::where('id', $id)->first();
+            if ($khacHang && $data['thanh_toan'] == 'tai_khoan' && $khacHang->so_du < ($donHang->tong_tien - $donHang->giam_gia)) {
+                return response(['message' => 'Số dư tài khoản không đủ'], 500);
+            }
+            if ($khacHang && $data['thanh_toan'] == 'tai_khoan') {
+                $khacHang->update(['so_du' =>  $khacHang->so_du - ($donHang->tong_tien - $donHang->giam_gia)]);
+                NopTien::create([
+                    'trang_thai' => 'mua_hang',
+                    'noi_dung' => 'Giao dịch mua hàng, đơn hàng: ' . $donHang->ten . ', mã đơn hàng: ' . $donHang->ma,
+                    'id_user_khach_hang' => $khacHang->user_id,
+                    'user_id' => $user->id,
+                    'so_tien' => 0 - ($donHang->tong_tien - $donHang->giam_gia),
+                    'so_du' => $khacHang->so_du - ($donHang->tong_tien - $donHang->giam_gia),
+                    'ma' => 'GD' . time()
+                ]);
+            }
             $donHang->update([
+                'thanh_toan' => $data['thanh_toan'],
                 'trang_thai' => 'hoa_don',
-                'nhan_vien_giao_hang' => $shipper_id,
+                'nhan_vien_giao_hang' => $data['nhan_vien_giao_hang'],
                 'da_thanh_toan' => $donHang->tong_tien - $donHang->giam_gia,
                 'con_phai_thanh_toan' => 0
             ]);
+            DB::commit();
             return response(['message' => 'Cập nhật thành công'], 200);
         } catch (\Exception $e) {
+            DB::rollback();
             return response(['message' => 'Không thể chuyển hóa đơn'], 500);
         }
     }

@@ -385,6 +385,7 @@ class KhachHangNhaCungCapController extends Controller
             $khachHang = KhachHang::where('user_id', $data['id_user_khach_hang'])->first();
             $so_du = $khachHang->so_du;
             NopTien::create([
+                'trang_thai' => 'nop_tien', 
                 'id_user_khach_hang' => $data['id_user_khach_hang'],
                 'user_id' => $user->id,
                 'so_tien' => $data['so_tien'],
@@ -416,7 +417,7 @@ class KhachHangNhaCungCapController extends Controller
             $khachHang = KhachHang::where('user_id', $nopTien->id_user_khach_hang)->first();
             $so_du = $khachHang->so_du;
             NopTien::create([
-                'trang_thai' => false, 
+                'trang_thai' => 'hoan_tac_nop_tien', 
                 'noi_dung' => 'Hoàn tác cho giao dịch mã: '.$nopTien->ma,
                 'id_user_khach_hang' => $nopTien->id_user_khach_hang,
                 'user_id' => $user->id,
@@ -429,6 +430,7 @@ class KhachHangNhaCungCapController extends Controller
                 'so_du' => $so_du - $nopTien->so_tien,
                 'chuyen_khoan_cuoi' => Carbon::now()
             ]);
+            $nopTien->update(['da_hoan_tien' => true]);
             DB::commit();
             return response(['message' => 'Thành công'],200);
         }catch(\Exception $e){
@@ -450,6 +452,7 @@ class KhachHangNhaCungCapController extends Controller
             $query->where(function ($query) use ($search) {
                 $query->where('noi_dung', 'ilike', "%{$search}%");
                 $query->orWhere('so_tien', 'ilike', "%{$search}%");
+                $query->orWhere('ma', 'ilike', "%{$search}%");
             });
         }
         if ($user->role_id == 1 || $user->role_id == 2) {
