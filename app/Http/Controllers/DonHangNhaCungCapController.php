@@ -10,7 +10,8 @@ use App\SanPhamDonHangNhaCungCap;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Validator;
-use DB;
+use Illuminate\Support\Facades\DB;
+
 use Exception;
 
 class DonHangNhaCungCapController extends Controller
@@ -20,8 +21,17 @@ class DonHangNhaCungCapController extends Controller
         $user = auth()->user();
         $perPage = $request->query('per_page', 5);
         $page = $request->get('page', 1);
+        $date = $request->get('date');
+        $nhac_cung_cap = $request->get('nha_cung_cap');
         $query = DonHangNhaCungCap::with('user', 'sanPhams');
         $donHang = [];
+        if (isset($nhac_cung_cap)) {
+            $query = $query->where('user_id', $nhac_cung_cap);
+        }
+        if (isset($date)) {
+            $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
         if ($user->role_id == 1 || $user->role_id == 2) {
             $donHang = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
         }

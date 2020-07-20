@@ -80,6 +80,8 @@ class SanPhamController extends Controller
                 'mo_ta_san_pham' => $data['mo_ta_san_pham'],
                 'vi_tri' => $data['vi_tri'],
                 'thuong_hieu_id' => $data['thuong_hieu_id'],
+                'thoi_gian_bao_quan' => $data['thoi_gian_bao_quan'],
+                'ton_kho_thap_nhat' => $data['ton_kho_thap_nhat']
             ]);
             if (count($files) > 0) {
                 foreach ($files as $item) {
@@ -88,6 +90,7 @@ class SanPhamController extends Controller
                     }
                 }
             }
+            return response(['message' => 'Thành công'],200);
         } catch (\Exception $e) {
             return response(['message' => 'Không thể thêm sản phẩm'], 500);
         }
@@ -222,6 +225,8 @@ class SanPhamController extends Controller
                 'mo_ta_san_pham' => $data['mo_ta_san_pham'],
                 'vi_tri' => $data['vi_tri'],
                 'thuong_hieu_id' => $data['thuong_hieu_id'],
+                'thoi_gian_bao_quan' => $data['thoi_gian_bao_quan'],
+                'ton_kho_thap_nhat' => $data['ton_kho_thap_nhat']
             ]);
         } catch (\Exception $e) {
             return response(['message' => 'Không thể thêm sản phẩm'], 500);

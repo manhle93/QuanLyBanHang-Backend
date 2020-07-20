@@ -8,7 +8,8 @@ use App\SanPham;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Validator;
-use DB;
+use Illuminate\Support\Facades\DB;
+
 
 class BangGiaController extends Controller
 {

@@ -69,15 +69,24 @@ class BaoGiaController extends Controller
         $perPage = $request->query('per_page', 5);
         $page = $request->get('page', 1);
         $query = BaoGia::with('user');
-        $search = $request->get('search');
+        $nha_cung_cap = $request->get('nha_cung_cap');
+        $date = $request->get('date');
         $data = [];
         if (isset($search)) {
             $search = trim($search);
             $query->where('ten', 'ilike', "%{$search}%");
         }
+        if (isset($nha_cung_cap)) {
+            $query = $query->where('user_id', $nha_cung_cap);
+        }
+        if (isset($date)) {
+            $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
         if ($user->role_id == 1 || $user->role_id == 2) {
             $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
         }
+
         return response()->json([
             'data' => $data,
             'message' => 'Lấy dữ liệu thành công',
@@ -137,17 +146,18 @@ class BaoGiaController extends Controller
         }
     }
 
-    public function getSanPhamBaoGiaNhaCungCap(Request $request){
+    public function getSanPhamBaoGiaNhaCungCap(Request $request)
+    {
         $nhaCungCapID = $request->get('nha_cung_cap_id');
         $data = [];
-        if(!$nhaCungCapID){
+        if (!$nhaCungCapID) {
             return $data;
         }
         $query = SanPhamBaoGia::with('baoGia', 'sanPham:id,ten_san_pham,don_vi_tinh')->where('lua_chon', true);
-        $query = $query->whereHas('baoGia', function ($query) use ($nhaCungCapID){
+        $query = $query->whereHas('baoGia', function ($query) use ($nhaCungCapID) {
             $query->where('user_id', $nhaCungCapID);
         });
-        $data = $query->get();
+        $data = collect($query->get())->unique('san_pham_id')->all();
         return $data;
     }
 }

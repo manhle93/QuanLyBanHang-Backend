@@ -108,13 +108,31 @@ class DonDatHangController extends Controller
         $perPage = $request->query('per_page', 5);
         $page = $request->get('page', 1);
         $query = DonDatHang::with('user', 'sanPhams', 'sanPhams.sanPham:id,ten_san_pham,don_vi_tinh');
+        $date = $request->get('date');
+        $khach_hang = $request->get('khach_hang');
+        $hoaDon = $request->get('hoa_don');
+        $trahang = $request->get('tra_hang');
+        $don_hang = $request->get('don_hang');
         $donHang = [];
+        if (isset($khach_hang)) {
+            $query = $query->where('user_id', $khach_hang);
+        }
+        if($hoaDon){
+            $query = $query->where('trang_thai', 'hoa_don');
+        }
+        if($don_hang){
+            $query = $query->whereIn('trang_thai', ['moi_tao', 'huy_bo']);
+        }
+        if($trahang){
+            $query = $query->where('trang_thai', 'huy_hoa_don');
+        }
+        if (isset($date)) {
+            $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
         if ($user->role_id == 1 || $user->role_id == 2) {
             $donHang = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
         }
-        // if ($user->role_id == 3) {
-        //     $donHang = $query->where('user_id', $user->id)->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
-        // }
         return response()->json([
             'data' => $donHang,
             'message' => 'Lấy dữ liệu thành công',
@@ -254,7 +272,7 @@ class DonDatHangController extends Controller
                     if ($tonKho)
                         $tonKho->update(['so_luong' => $tonKho->so_luong + $item['so_luong']]);
                 }
-                PhieuNhapKho::create(['don_hang_id' => $id, 'ma' => 'PNK' . $id, 'user_id' => $user->id, 'kho_id' => $kho_id]);
+                PhieuNhapKho::create(['don_hang_id' => $id, 'ma' => 'PNK' . $id, 'user_id' => $user->id, 'kho_id' => null]);
                 $khachHang = KhachHang::where('user_id', $donHang->user_id)->first();
                 NopTien::create([
                     'trang_thai' => 'hoan_tien',

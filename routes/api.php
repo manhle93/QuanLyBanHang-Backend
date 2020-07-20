@@ -381,6 +381,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('shipper', 'System\UserController@getShipper');
 
+    Route::get('sanphamtonkho', 'KiemKhoController@getSanPhamTonKho');
+
+
 
 });
 Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
