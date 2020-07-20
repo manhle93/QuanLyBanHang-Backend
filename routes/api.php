@@ -382,6 +382,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('shipper', 'System\UserController@getShipper');
 
     Route::get('sanphamtonkho', 'KiemKhoController@getSanPhamTonKho');
+    Route::post('kiemkho', 'KiemKhoController@addKiemKe');
+    Route::get('kiemkho', 'KiemKhoController@getKiemKho');
+    Route::get('kiemkho/{id}', 'KiemKhoController@getChiTietKiemKho');
 
 
 
