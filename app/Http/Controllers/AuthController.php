@@ -220,9 +220,9 @@ class AuthController extends Controller
             return response()->json(['message' => 'Sai tài khoản hoặc mật khẩu'], 401);
         }
 
-        if (auth()->user()->role_id == 3) {
-            return response()->json(['message' => 'Quản lý tòa nhà không thể đăng nhập'], 401);
-        }
+        // if (auth()->user()->role_id == 3) {
+        //     return response()->json(['message' => 'Quản lý tòa nhà không thể đăng nhập'], 401);
+        // }
         if (!auth()->user()->active) return response(['message' => 'Tài khoản chưa kích hoạt', 'user_id' => auth()->user()->id], Response::HTTP_NOT_ACCEPTABLE);
 
         $user = User::where('username', $request->username)->first();

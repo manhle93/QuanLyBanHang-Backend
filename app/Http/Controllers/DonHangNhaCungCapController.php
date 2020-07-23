@@ -169,7 +169,7 @@ class DonHangNhaCungCapController extends Controller
             return response(['message' => "Chưa đăng nhập"], 400);
         }
         $donHang = DonHangNhaCungCap::where('id', $id)->first();
-        if ($user->role_id == 1 || $user->id == $donHang->id) {
+        if ($user->role_id == 1 || $user->id == $donHang->user_id) {
             try {
                 DonHangNhaCungCap::find($id)->update(['trang_thai' => 'da_duyet']);
                 return response(['message' => "Duyệt đơn thành công"], 200);
@@ -186,7 +186,7 @@ class DonHangNhaCungCapController extends Controller
             return response(['message' => "Chưa đăng nhập"], 400);
         }
         $donHang = DonHangNhaCungCap::where('id', $id)->first();
-        if ($user->role_id == 1 || $user->id == $donHang->id) {
+        if ($user->role_id == 1 || $user->id == $donHang->user_id) {
             try {
                 DonHangNhaCungCap::find($id)->update(['trang_thai' => 'huy_bo']);
                 return response(['message' => "Duyệt đơn thành công"], 200);

@@ -83,6 +83,9 @@ class BaoGiaController extends Controller
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
         }
+        if ($user->role_id == 3) {
+            $data = $query->where('user_id', $user->id)->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        }
         if ($user->role_id == 1 || $user->role_id == 2) {
             $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
         }
@@ -113,6 +116,10 @@ class BaoGiaController extends Controller
     public function duyetBaoGia($id, Request $request)
     {
         $sanPham = $request->get('san_phams');
+        $user = auth()->user();
+        if($user->role_id != 1 && $user->role_id != 2){
+            return response(['message' => 'Không có quyền'], 420);
+        }
         if (isset($sanPham) && count($sanPham) > 0) {
             try {
                 SanPhamBaoGia::whereIn('id', $sanPham)->update(['lua_chon' => true]);

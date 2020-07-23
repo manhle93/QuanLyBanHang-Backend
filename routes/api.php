@@ -385,8 +385,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('kiemkho', 'KiemKhoController@addKiemKe');
     Route::get('kiemkho', 'KiemKhoController@getKiemKho');
     Route::get('kiemkho/{id}', 'KiemKhoController@getChiTietKiemKho');
+    Route::delete('kiemkho/{id}', 'KiemKhoController@xoaKiemKho');
+    Route::put('kiemkho/{id}', 'KiemKhoController@kiemKho');
+    Route::put('duyetkiemkho/{id}', 'KiemKhoController@duyetKiemKho');
+    Route::put('huykiemkho/{id}', 'KiemKhoController@huyKiemKho');
+    Route::get('nhanvien', 'KiemKhoController@getNhanVien');
 
-
+    Route::post('xuathuy', 'XuatHuyController@addXuaHuy');
+    Route::get('xuathuy', 'XuatHuyController@getXuatHuy');
+    Route::put('xuathuy/{id}', 'XuatHuyController@getChiTietXuatHuy');
 
 });
 Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');

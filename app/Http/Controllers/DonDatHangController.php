@@ -117,13 +117,13 @@ class DonDatHangController extends Controller
         if (isset($khach_hang)) {
             $query = $query->where('user_id', $khach_hang);
         }
-        if($hoaDon){
+        if ($hoaDon) {
             $query = $query->where('trang_thai', 'hoa_don');
         }
-        if($don_hang){
+        if ($don_hang) {
             $query = $query->whereIn('trang_thai', ['moi_tao', 'huy_bo']);
         }
-        if($trahang){
+        if ($trahang) {
             $query = $query->where('trang_thai', 'huy_hoa_don');
         }
         if (isset($date)) {
@@ -272,17 +272,20 @@ class DonDatHangController extends Controller
                     if ($tonKho)
                         $tonKho->update(['so_luong' => $tonKho->so_luong + $item['so_luong']]);
                 }
-                PhieuNhapKho::create(['don_hang_id' => $id, 'ma' => 'PNK' . $id, 'user_id' => $user->id, 'kho_id' => null]);
+                PhieuNhapKho::create(['don_hang_id' => null, 'ma' => 'PNK' . $id, 'user_id' => $user->id, 'kho_id' => null]);
                 $khachHang = KhachHang::where('user_id', $donHang->user_id)->first();
-                NopTien::create([
-                    'trang_thai' => 'hoan_tien',
-                    'id_user_khach_hang' => $donHang->user_id,
-                    'user_id' => $user->id,
-                    'so_tien' =>  $donHang->da_thanh_toan,
-                    'noi_dung' => 'Hoàn tiền đơn hàng: ' . $donHang->ten . ', mã đơn hàng: ' . $donHang->ma,
-                    'so_du' => $khachHang->so_du + $donHang->da_thanh_toan,
-                    'ma' => 'GD' . time()
-                ]);
+                if ($khachHang) {
+                    NopTien::create([
+                        'trang_thai' => 'hoan_tien',
+                        'id_user_khach_hang' => $donHang->user_id,
+                        'user_id' => $user->id,
+                        'so_tien' =>  $donHang->da_thanh_toan,
+                        'noi_dung' => 'Hoàn tiền đơn hàng: ' . $donHang->ten . ', mã đơn hàng: ' . $donHang->ma,
+                        'so_du' => $khachHang->so_du + $donHang->da_thanh_toan,
+                        'ma' => 'GD' . time()
+                    ]);
+                    $khachHang->update(['so_du' => $khachHang->so_du + $donHang->da_thanh_toan]);
+                }
             } else {
                 $donHang->update(['trang_thai' => 'huy_bo']);
             }
@@ -333,7 +336,7 @@ class DonDatHangController extends Controller
                     'id_user_khach_hang' => $khacHang->user_id,
                     'user_id' => $user->id,
                     'so_tien' => 0 - ($donHang->tong_tien - $donHang->giam_gia),
-                    'so_du' => $khacHang->so_du - ($donHang->tong_tien - $donHang->giam_gia),
+                    'so_du' => $khacHang->so_du,
                     'ma' => 'GD' . time()
                 ]);
             }
