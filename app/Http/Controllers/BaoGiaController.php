@@ -164,7 +164,8 @@ class BaoGiaController extends Controller
         $query = $query->whereHas('baoGia', function ($query) use ($nhaCungCapID) {
             $query->where('user_id', $nhaCungCapID);
         });
-        $data = collect($query->get())->unique('san_pham_id')->all();
+
+        $data = collect($query->get())->unique('san_pham_id')->values()->all();
         return $data;
     }
 }

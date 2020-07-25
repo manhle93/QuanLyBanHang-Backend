@@ -395,6 +395,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('xuathuy', 'XuatHuyController@getXuatHuy');
     Route::put('xuathuy/{id}', 'XuatHuyController@getChiTietXuatHuy');
 
+    Route::get('sanphambanchay', 'BieuDoController@getSanPhamBanChay');
+    Route::get('doanhthu', 'BieuDoController@getDoanhThu');
+    Route::get('dashboard', 'BieuDoController@getThongTinDashBoard');
+
 });
 Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
 
