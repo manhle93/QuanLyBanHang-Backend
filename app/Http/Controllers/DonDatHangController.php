@@ -348,6 +348,12 @@ class DonDatHangController extends Controller
                 'da_thanh_toan' => $donHang->tong_tien - $donHang->giam_gia,
                 'con_phai_thanh_toan' => 0
             ]);
+            $sanPhams = SanPhamDonDatHang::where('don_dat_hang_id', $id)->get();
+            foreach($sanPhams as $item){
+                SanPhamDonDatHang::where('id', $item->id)->first()->update([
+                    'doanh_thu' => $item->gia_ban * $item->so_luong
+                ]);
+            }
             DB::commit();
             return response(['message' => 'Cập nhật thành công'], 200);
         } catch (\Exception $e) {
