@@ -60,7 +60,13 @@ class MobileController extends Controller
     public function getChiTietDonHang($id)
     {
         $donHang = DonHangNhaCungCap::with('sanPhams', 'sanPhams.sanPham')->where('id', $id)->first();
-        return response(['data' => $donHang], 200);
+        return $donHang;
+    }
+
+    public function getChiTietBaoGia($id)
+    {
+        $donHang = BaoGia::with('user', 'sanPhams', 'sanPhams.sanPham')->where('id', $id)->first();
+        return $donHang;
     }
     public function getBaoGia(Request $request)
     {

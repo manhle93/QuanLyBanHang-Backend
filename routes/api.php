@@ -404,6 +404,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('mobile/dondathang', 'MobileController@getDonDatHang');
     Route::get('mobile/dondathang/{id}', 'MobileController@getChiTietDonHang');
     Route::get('mobile/baogia', 'MobileController@getBaoGia');
+    Route::get('mobile/baogia/{id}', 'MobileController@getChiTietBaoGia');
     Route::get('mobile/me', 'MobileController@me');
 
 });
