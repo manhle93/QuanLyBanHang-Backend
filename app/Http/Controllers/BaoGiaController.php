@@ -117,7 +117,7 @@ class BaoGiaController extends Controller
     {
         $sanPham = $request->get('san_phams');
         $user = auth()->user();
-        if($user->role_id != 1 && $user->role_id != 2){
+        if ($user->role_id != 1 && $user->role_id != 2) {
             return response(['message' => 'Không có quyền'], 420);
         }
         if (isset($sanPham) && count($sanPham) > 0) {
@@ -157,6 +157,10 @@ class BaoGiaController extends Controller
     {
         $nhaCungCapID = $request->get('nha_cung_cap_id');
         $data = [];
+        $user = auth()->user();
+        if ($user->role_id == 3) {
+            $nhaCungCapID = $user->id;
+        }
         if (!$nhaCungCapID) {
             return $data;
         }

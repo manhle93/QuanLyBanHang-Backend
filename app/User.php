@@ -42,6 +42,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo('App\TinhThanh','tinh_thanh_id')->select('id','name','code');
     }
+    public function nhaCungCap()
+    {
+        return $this->belongsTo('App\NhaCungCap','user_id');
+    }
     public function quyanHuyen()
     {
         return $this->belongsTo('App\QuyanHuyen','quan_huyen_id', 'id')->select('id','name','code','tinh_thanh_id');

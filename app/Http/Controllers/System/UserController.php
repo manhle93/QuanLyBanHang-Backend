@@ -55,8 +55,8 @@ class UserController extends Controller
             'email' => 'required|email',
             'password' => 'required|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
             'role_id' => 'required',
-            'password_confirmation'=>'required|same:password'
-        ],[
+            'password_confirmation' => 'required|same:password'
+        ], [
             'password.regex' => 'Mật khẩu không đủ mạnh',
             'password.min' => 'Mật khẩu tối thiểu 6 ký tự',
             'password_confirmation.same' => 'Mật khẩu 2 lần nhập không khớp',
@@ -75,8 +75,8 @@ class UserController extends Controller
         }
         if ($validator->fails()) {
             $loi = "";
-            foreach ($validator->errors()->all() as $it){
-                $loi = $loi.''.$it.", ";
+            foreach ($validator->errors()->all() as $it) {
+                $loi = $loi . '' . $it . ", ";
             };
             return response()->json([
                 'code' => 400,
@@ -86,7 +86,7 @@ class UserController extends Controller
                 ],
             ], 400);
         }
-        $check_user = User::where('username','ilike', $data['username'])->get()->count();
+        $check_user = User::where('username', 'ilike', $data['username'])->get()->count();
         if ($check_user != 0) {
             return response()->json([
                 'code' => 400,
@@ -124,14 +124,14 @@ class UserController extends Controller
             'username' => 'required',
             'email' => 'required|email',
             'role_id' => 'required',
-        ],[
+        ], [
             'password_confirmation.same' => 'Mật khẩu 2 lần nhập không khớp',
             'name.required' => 'Tên không thể bỏ trống',
             'email.required' => 'Email không thể bỏ trống',
             'username.required' => 'Tên đăng nhập không thể bỏ trống',
             'role_id.required' => 'Quyền không thể bỏ trống',
         ]);
-        if(isset($data['password'])){
+        if (isset($data['password'])) {
             $validator = Validator::make($data, [
                 'name' => 'required',
                 'username' => 'required',
@@ -139,7 +139,7 @@ class UserController extends Controller
                 'role_id' => 'required',
                 'password' => 'min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
                 'password_confirmation' => 'same:password',
-            ],[
+            ], [
                 'password.regex' => 'Mật khẩu không đủ mạnh',
                 'password.min' => 'Mật khẩu tối thiểu 6 ký tự',
                 'password_confirmation.same' => 'Mật khẩu 2 lần nhập không khớp',
@@ -150,7 +150,7 @@ class UserController extends Controller
             ]);
         }
 
-        $check_email = User::where('email','ilike', $data['email'])->where('id', '<>', $id)->get()->count();
+        $check_email = User::where('email', 'ilike', $data['email'])->where('id', '<>', $id)->get()->count();
         if ($check_email != 0) {
             return response()->json([
                 'code' => 400,
@@ -160,8 +160,8 @@ class UserController extends Controller
         }
         if ($validator->fails()) {
             $loi = "";
-            foreach ($validator->errors()->all() as $it){
-                $loi = $loi.''.$it.", ";
+            foreach ($validator->errors()->all() as $it) {
+                $loi = $loi . '' . $it . ", ";
             };
             return response()->json([
                 'code' => 400,
@@ -171,7 +171,7 @@ class UserController extends Controller
                 ],
             ], 400);
         }
-        $check_user = User::where('username', 'ilike',$data['username'])->where('id', '<>', $id)->get()->count();
+        $check_user = User::where('username', 'ilike', $data['username'])->where('id', '<>', $id)->get()->count();
         if ($check_user != 0) {
             return response()->json([
                 'code' => 400,
@@ -227,20 +227,23 @@ class UserController extends Controller
     {
         if ($request->file) {
             $image = $request->file;
-            $name = time().'.'.$image->getClientOriginalExtension();
+            $name = time() . '.' . $image->getClientOriginalExtension();
             $image->move('storage/images/avatar/', $name);
-            $user = User::find($id);
-            $user->update(['avatar_url' => 'storage/images/avatar/'.$name]);
-
-            return 'storage/images/avatar/'.$name;
+            if ($id != 'false') {
+                $user = User::find($id);
+                $user->update(['avatar_url' => 'storage/images/avatar/' . $name]);
+            }
+            return 'storage/images/avatar/' . $name;
         }
     }
-    public function getKhachHang($id){
-       $khach_hang =  User::where('toa_nha_id', $id)->get();
-        return \response(['data'=>$khach_hang],200);
+    public function getKhachHang($id)
+    {
+        $khach_hang =  User::where('toa_nha_id', $id)->get();
+        return \response(['data' => $khach_hang], 200);
     }
 
-    public function getShipper(){
+    public function getShipper()
+    {
         $data = User::where('role_id', 5)->get();
         return $data;
     }

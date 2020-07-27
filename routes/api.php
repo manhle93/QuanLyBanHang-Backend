@@ -399,6 +399,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('doanhthu', 'BieuDoController@getDoanhThu');
     Route::get('dashboard', 'BieuDoController@getThongTinDashBoard');
 
+
+    Route::get('mobile/sanpham', 'MobileController@getSanPham');
+    Route::get('mobile/dondathang', 'MobileController@getDonDatHang');
+    Route::get('mobile/dondathang/{id}', 'MobileController@getChiTietDonHang');
+    Route::get('mobile/baogia', 'MobileController@getBaoGia');
+    Route::get('mobile/me', 'MobileController@me');
+
 });
 Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
 
