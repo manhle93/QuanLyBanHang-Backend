@@ -237,14 +237,14 @@ class DonDatHangController extends Controller
                 ]);
             }
             if ($khacHang && $data['thanh_toan'] == 'tai_khoan') {
-                $khacHang->update(['so_du' =>  $khacHang->so_du - ($donHang->tong_tien - $donHang->giam_gia)]);
+                $khacHang->update(['so_du' => (float) $khacHang->so_du - ((float)$data['tong_tien'] - (float) $data['giam_gia'])]);
                 NopTien::create([
                     'trang_thai' => 'mua_hang',
-                    'noi_dung' => 'Giao dịch mua hàng, đơn hàng: ' . $donHang->ten . ', mã đơn hàng: ' . $donHang->ma,
+                    'noi_dung' => 'Giao dịch mua hàng, đơn hàng: ' . $data['ten'] . ', mã đơn hàng: ' . $data['ma'],
                     'id_user_khach_hang' => $khacHang->user_id,
                     'user_id' => $user->id,
-                    'so_tien' => 0 - ($donHang->tong_tien - $donHang->giam_gia),
-                    'so_du' => $khacHang->so_du - ($donHang->tong_tien - $donHang->giam_gia),
+                    'so_tien' => 0 - ((float)$data['tong_tien'] - (float) $data['giam_gia']),
+                    'so_du' => (float) $khacHang->so_du - ((float)$data['tong_tien'] - (float) $data['giam_gia']),
                     'ma' => 'GD' . time()
                 ]);
             }

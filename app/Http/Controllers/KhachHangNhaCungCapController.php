@@ -456,7 +456,7 @@ class KhachHangNhaCungCapController extends Controller
             });
         }
         if ($user->role_id == 1 || $user->role_id == 2) {
-            $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+            $data = $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $page);
         }
         return response()->json([
             'data' => $data,

@@ -31,7 +31,6 @@ class UserController extends Controller
             $query->orWhere('phone', 'ilike', "%{$search}%");
             $query->orWhere('email', 'ilike', "%{$search}%");
             $query->orWhere('username', 'ilike', "%{$search}%");
-            $query->orWhere('search', 'ilike', "%{$search}%");
         }
         $query->orderBy('updated_at', 'desc');
         $users = $query->paginate($perPage, ['*'], 'page', $page);
