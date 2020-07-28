@@ -20,9 +20,13 @@ class KiemKhoController extends Controller
         $search = $request->get('search');
         $tonKho = HangTonKho::pluck('san_pham_id')->toArray();
         $sanPham = SanPham::query();
+        $danhMuc = $request->get('danh_muc');
         if (isset($search)) {
             $search = trim($search);
             $sanPham =  $sanPham->where('ten_san_pham', 'ilike', "%{$search}%");
+        }
+        if (isset($danhMuc)) {
+            $sanPham =  $sanPham->where('danh_muc_id', $danhMuc);
         }
         $sanPham = $sanPham->take($per_page)->get();
         foreach ($sanPham as $item) {
