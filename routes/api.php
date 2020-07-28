@@ -369,7 +369,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('giabansanpham', 'BaoGiaController@capNhatGiaBan');
     Route::get('sanphamnhacungcap', 'BaoGiaController@getSanPhamBaoGiaNhaCungCap');
 
-    Route::get('banggiasanpham/{id}', 'BangGiaController@getBangGiaSanPham');
+    // Route::get('banggiasanpham/{id}', 'BangGiaController@getBangGiaSanPham');
     
     Route::post('dondathang', 'DonDatHangController@addDonDatHang');
     Route::get('dondathang', 'DonDatHangController@getDonHang');

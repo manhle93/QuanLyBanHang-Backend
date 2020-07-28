@@ -244,7 +244,7 @@ class DonDatHangController extends Controller
                     'id_user_khach_hang' => $khacHang->user_id,
                     'user_id' => $user->id,
                     'so_tien' => 0 - ((float)$data['tong_tien'] - (float) $data['giam_gia']),
-                    'so_du' => (float) $khacHang->so_du - ((float)$data['tong_tien'] - (float) $data['giam_gia']),
+                    'so_du' => (float) $khacHang->so_du,
                     'ma' => 'GD' . time()
                 ]);
             }
@@ -252,7 +252,6 @@ class DonDatHangController extends Controller
             return response(['message' => 'Cập nhật thành công'], 200);
         } catch (\Exception $e) {
             DB::rollback();
-            dd($e);
             return response(['message' => 'Không thể cập nhật'], 500);
         }
     }
