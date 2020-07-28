@@ -447,6 +447,7 @@ class KhachHangNhaCungCapController extends Controller
         $query = NopTien::with('nguoiTao:id,name', 'khachHang:user_id,ten');
         $search = $request->get('search');
         $data = [];
+        $date = $request->get('date');
         if (isset($search)) {
             $search = trim($search);
             $query->where(function ($query) use ($search) {
@@ -454,6 +455,10 @@ class KhachHangNhaCungCapController extends Controller
                 $query->orWhere('so_tien', 'ilike', "%{$search}%");
                 $query->orWhere('ma', 'ilike', "%{$search}%");
             });
+        }
+        if (isset($date)) {
+            $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
         }
         if ($user->role_id == 1 || $user->role_id == 2) {
             $data = $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $page);

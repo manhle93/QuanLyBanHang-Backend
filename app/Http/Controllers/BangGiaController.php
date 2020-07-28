@@ -53,13 +53,18 @@ class BangGiaController extends Controller
         $page = $request->get('page', 1);
         $query = BangGia::with('sanPham');
         $search = $request->get('search');
+        $date = $request->get('date');
         $data = [];
         if (isset($search)) {
             $search = trim($search);
             $query->where('ten', 'ilike', "%{$search}%");
         }
+        if (isset($date)) {
+            $query->where('ngay_bat_dau', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('ngay_ket_thuc', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
         if ($user->role_id == 1 || $user->role_id == 2) {
-            $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+            $data = $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
         }
         foreach ($data as $item) {
             $soSanPham = BangGiaSanPham::where('bang_gia_id', $item->id)->count();
@@ -107,7 +112,11 @@ class BangGiaController extends Controller
     public function xoaBangGia($id)
     {
         try {
-            BangGia::find($id)->delete();
+            $bangGia = BangGia::where('id', $id)->first();
+            if ($bangGia->ap_dung) {
+                return response(['message' => 'Không thể xóa bảng giá đang áp dụng'], 500);
+            }
+            $bangGia->delete();
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
             return response(['message' => 'Không thể xóa bảng giá'], 500);
@@ -159,9 +168,31 @@ class BangGiaController extends Controller
         ], 200);
     }
 
-    public function getBangGiaSanPham($id){
-       $bangGia =  BangGiaSanPham::where('san_pham_id', $id)->pluck('bang_gia_id')->toArray();
-       $data = BangGia::with('sanPham')->whereIn('id', $bangGia)->get();
-       return $data;
+    public function getBangGiaSanPham($id)
+    {
+        $bangGia =  BangGiaSanPham::where('san_pham_id', $id)->pluck('bang_gia_id')->toArray();
+        $data = BangGia::with('sanPham')->whereIn('id', $bangGia)->get();
+        return $data;
+    }
+
+    public function saoChep($id)
+    {
+        $bangGia = BangGia::where('id', $id)->first();
+        try {
+            $new =  BangGia::create([
+                'ten' => $bangGia->ten . ' Copy',
+                'ngay_bat_dau' => $bangGia->ngay_bat_dau,
+                'ngay_ket_thuc' => $bangGia->ngay_ket_thuc,
+                'ap_dung' => false
+            ]);
+            $sanPham = BangGiaSanPham::where('bang_gia_id', $id)->get();
+            if (count($sanPham) > 0) {
+                foreach ($sanPham as $item) {
+                    BangGiaSanPham::create(['san_pham_id' => $item['san_pham_id'], 'bang_gia_id' => $new->id, 'gia_ban' => $item['gia_ban']]);
+                }
+            }
+        } catch (\Exception $e) {
+            return response(['message' => 'Không thể sao chép bảng giá'], 500);
+        }
     }
 }

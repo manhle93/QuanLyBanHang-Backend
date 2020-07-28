@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\DonDatHang;
 use App\DonHangNhaCungCap;
 use App\HangTonKho;
 use App\PhieuNhapKho;
 use App\SanPham;
+use App\SanPhamDonDatHang;
 use App\SanPhamDonHangNhaCungCap;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,6 +18,7 @@ class QuanLyKhoController extends Controller
     public function getPhieuNhap(Request $request)
     {
         $user = auth()->user();
+        $date = $request->get('date');
         if (!$user) {
             return response(['message' => 'Chưa đăng nhập'], 401);
         }
@@ -26,7 +30,12 @@ class QuanLyKhoController extends Controller
         $search = $request->get('search');
         $query = PhieuNhapKho::with('donHang', 'donHang.sanPhams', 'donHang.sanPhams.sanPham:id,ten_san_pham');
         if (isset($search)) {
-            $query->where('ma', 'ilike', "%{{$search}}&");
+            $search = trim($search);
+            $query->where('ma', 'ilike', "%{$search}%");
+        }
+        if (isset($date)) {
+            $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
         }
         $query->orderBy('created_at', 'desc');
         $data = $query->paginate($perPage, ['*'], 'page', $page);
@@ -55,6 +64,7 @@ class QuanLyKhoController extends Controller
         $query = HangTonKho::with('sanPham', 'kho');
         $search = $request->get('search');
         $danh_muc_id = $request->get('danh_muc_id');
+        $hoaDons = DonDatHang::where('trang_thai', 'hoa_don')->pluck('id')->toArray();
         if (isset($danh_muc_id)) {
             $query->whereHas('sanPham', function ($query) use ($danh_muc_id) {
                 $query->where('danh_muc_id', $danh_muc_id);
@@ -70,6 +80,10 @@ class QuanLyKhoController extends Controller
 
         $query->orderBy('updated_at', 'desc');
         $data = $query->paginate($perPage, ['*'], 'page', $page);
+        foreach($data as $item){
+            $soLuong = SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDons)->where('san_pham_id', $item['san_pham_id'])->sum('so_luong');
+            $item['da_ban'] =  $soLuong;
+        }
 
         return response()->json([
             'data' => $data,

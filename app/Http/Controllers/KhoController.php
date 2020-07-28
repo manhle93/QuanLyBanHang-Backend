@@ -8,8 +8,22 @@ use Validator;
 
 class KhoController extends Controller
 {
-    public function getKho(){
+    public function getKho(Request $request){
+        $search = $request->get('search');
        $kho = Kho::get();
+       if(isset($search)){
+           $search = trim($search);
+           $query = Kho::query();
+           $query = Kho::where(function ($query) use ($search) {
+            $query->where('ten', 'ilike', "%{$search}%")
+            ->orWhere('ma', 'ilike', "%{$search}%")
+            ->orWhere('dia_chi', 'ilike', "%{$search}%")
+            ->orWhere('so_dien_thoai', 'ilike', "%{$search}%")
+            ->orWhere('nguoi_quan_ly', 'ilike', "%{$search}%")
+            ->orWhere('mo_ta', 'ilike', "%{$search}%");
+           });
+           $kho = $query->get();
+       }
        return $kho;
     }
     public function addKho(Request $request){

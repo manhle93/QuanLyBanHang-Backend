@@ -356,6 +356,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('banggia', 'BangGiaController@addBangGia');
     Route::put('banggia/{id}', 'BangGiaController@editBangGia');
     Route::delete('banggia/{id}', 'BangGiaController@xoaBangGia');
+    Route::post('banggia/{id}', 'BangGiaController@saoChep');
 
     Route::post('banggiasanpham/{id}', 'BangGiaController@addSanPhamBangGia');
     Route::get('banggiasanpham/{id}', 'BangGiaController@getSanPhamBangGia');

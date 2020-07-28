@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DanhMucSanPham;
+use App\SanPham;
 use Illuminate\Http\Request;
 use Validator;
 
@@ -22,7 +23,10 @@ class DanhMucSanPhamController extends Controller
         }
         $query->orderBy('updated_at', 'desc');
         $data = $query->get();
-
+        foreach($data as $item){
+            $sanPham = SanPham::where('danh_muc_id', $item->id)->count();
+            $item['so_mat_hang'] = $sanPham;
+        }
         return response()->json([
             'data' => $data,
             'message' => 'Lấy dữ liệu thành công',
