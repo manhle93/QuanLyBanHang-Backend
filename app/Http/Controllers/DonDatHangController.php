@@ -91,7 +91,7 @@ class DonDatHangController extends Controller
                     'id_user_khach_hang' => $khacHang->user_id,
                     'user_id' => $user->id,
                     'so_tien' => 0 - ($donHang->tong_tien - $donHang->giam_gia),
-                    'so_du' => $khacHang->so_du - ($donHang->tong_tien - $donHang->giam_gia),
+                    'so_du' => $khacHang->so_du,
                     'ma' => 'GD' . time()
                 ]);
             }
