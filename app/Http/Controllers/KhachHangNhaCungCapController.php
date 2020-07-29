@@ -82,7 +82,7 @@ class KhachHangNhaCungCapController extends Controller
                 'diem_quy_doi' => $data['diem_quy_doi'],
                 'tien_vay' => $data['tien_vay'],
                 'trang_thai' => 'moi_tao',
-                'nguoi_tao_id' => auth()->user()->id
+                'nguoi_tao_id' => auth()->user()->id,
             ]);
             $user = User::create([
                 'username' => $data['username'],
@@ -92,7 +92,8 @@ class KhachHangNhaCungCapController extends Controller
                 'role_id' => 4,
                 'dia_chi' => $data['dia_chi'],
                 'password' => Hash::make($data['password']),
-                'active' => false
+                'avatar_url' => $data['anh_dai_dien'],
+                'active' => true
             ]);
             $khachHang->update(['user_id' => $user->id]);
             DB::commit();
@@ -202,7 +203,7 @@ class KhachHangNhaCungCapController extends Controller
         $user = auth()->user();
         $perPage = $request->query('per_page', 5);
         $page = $request->get('page', 1);
-        $query = NhaCungCap::query();
+        $query = NhaCungCap::with('user');
         $search = $request->get('search');
         $data = [];
         if (isset($search)) {
@@ -261,7 +262,7 @@ class KhachHangNhaCungCapController extends Controller
                 'data' => [],
             ], 400);
         }
-        if (KhachHang::where('ma', $data['ma'])->first()) {
+        if (NhaCungCap::where('ma', $data['ma'])->first()) {
             return response()->json([
                 'code' => 400,
                 'message' => __('Mã nhà cung cấp đã tồn tại'),
@@ -278,6 +279,7 @@ class KhachHangNhaCungCapController extends Controller
                 'anh_dai_dien' => $data['anh_dai_dien'],
                 'ma_so_thue' => $data['ma_so_thue'],
                 'email' => $data['email'],
+                'anh_dai_dien' => $data['anh_dai_dien'],
                 'ghi_chu' => $data['ghi_chu'],
                 'tin_nhiem' => $data['tin_nhiem'],
                 'cong_ty' => $data['cong_ty'],
@@ -289,17 +291,17 @@ class KhachHangNhaCungCapController extends Controller
                 'name' => $data['ten'],
                 'email' => $data['email'],
                 'phone' => $data['so_dien_thoai'],
+                'avatar_url' => $data['anh_dai_dien'],
                 'role_id' => 3,
                 'dia_chi' => $data['dia_chi'],
                 'password' => Hash::make($data['password']),
-                'active' => false
+                'active' => $data['trang_thai'],
             ]);
             $khachHang->update(['user_id' => $user->id]);
             DB::commit();
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
             DB::rollback();
-            dd($e);
             return response(['message' => 'Không thể tạo nhà cung cấp'], 500);
         }
     }
@@ -330,7 +332,7 @@ class KhachHangNhaCungCapController extends Controller
             ], 400);
         }
         try {
-            NhaCungCap::find($id)->update([
+              NhaCungCap::find($id)->update([
                 'ma' => $data['ma'],
                 'ten' => $data['ten'],
                 'dia_chi' => $data['dia_chi'],
@@ -344,6 +346,7 @@ class KhachHangNhaCungCapController extends Controller
                 'trang_thai' => $data['trang_thai'],
                 'nguoi_tao_id' => auth()->user()->id
             ]);
+            User::where('id', NhaCungCap::where('id', $id)->first()->user_id)->first()->update(['active'=> $data['trang_thai']]);
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
             return response(['message' => 'Không thể cập nhật nhà cung cấp'], 500);

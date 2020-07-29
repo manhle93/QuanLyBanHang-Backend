@@ -410,4 +410,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 });
 Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
+Route::get('inhoadon/{id}', 'DonDatHangController@inHoaDon');
+Route::get('tien', 'DonDatHangController@test');
+
 
