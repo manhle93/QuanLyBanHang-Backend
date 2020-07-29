@@ -59,7 +59,7 @@ class MobileController extends Controller
     }
     public function getChiTietDonHang($id)
     {
-        $donHang = DonHangNhaCungCap::with('sanPhams', 'sanPhams.sanPham')->where('id', $id)->first();
+        $donHang = DonHangNhaCungCap::where('id', $id)->with('sanPhams', 'sanPhams.sanPham')->first();
         return $donHang;
     }
 

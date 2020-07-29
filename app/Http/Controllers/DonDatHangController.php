@@ -84,6 +84,9 @@ class DonDatHangController extends Controller
                 ]);
             }
             if ($khacHang && $data['thanh_toan'] == 'tai_khoan') {
+                if($khacHang->so_du <  $data['con_phai_thanh_toan']){
+                    return response(['message' => 'Số dư tài khoản không đủ'], 500);
+                }
                 $khacHang->update(['so_du' =>  $khacHang->so_du - ($donHang->tong_tien - $donHang->giam_gia)]);
                 NopTien::create([
                     'trang_thai' => 'mua_hang',
@@ -237,6 +240,9 @@ class DonDatHangController extends Controller
                 ]);
             }
             if ($khacHang && $data['thanh_toan'] == 'tai_khoan') {
+                if($khacHang->so_du <  $data['con_phai_thanh_toan']){
+                    return response(['message' => 'Số dư tài khoản không đủ'], 500);
+                }
                 $khacHang->update(['so_du' => (float) $khacHang->so_du - ((float)$data['tong_tien'] - (float) $data['giam_gia'])]);
                 NopTien::create([
                     'trang_thai' => 'mua_hang',

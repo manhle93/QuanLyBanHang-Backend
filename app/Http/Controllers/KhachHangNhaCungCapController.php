@@ -175,7 +175,7 @@ class KhachHangNhaCungCapController extends Controller
         $user = auth()->user();
         $perPage = $request->query('per_page', 5);
         $page = $request->get('page', 1);
-        $query = KhachHang::query();
+        $query = KhachHang::with('user:id,name,avatar_url');
         $search = $request->get('search');
         $data = [];
         if (isset($search)) {
@@ -445,7 +445,7 @@ class KhachHangNhaCungCapController extends Controller
 
     public function lichSuNopTien(Request $request){
         $user = auth()->user();
-        $perPage = $request->query('per_page', 5);
+        $perPage = $request->get('per_page', 5);
         $page = $request->get('page', 1);
         $query = NopTien::with('nguoiTao:id,name', 'khachHang:user_id,ten');
         $search = $request->get('search');
