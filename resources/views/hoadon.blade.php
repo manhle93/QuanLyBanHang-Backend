@@ -8,11 +8,11 @@
 <body onload="window.print(); myFunction()">
     <div id="app">
         <div style="display:flex; flex-direction: row;  align-items: center; justify-content: center">
-            <div> <img src="http://ruongbacthang.skymapglobal.vn/static/img/logorbt.5dcc5da9.jpg" style="width: 80px"></div>
-            <div style="margin-left: 20px">
-                <p style="font-size: 11px; font-weight: bold;">RUỘNG BẬC THANG</p>
-                <p style="font-size: 8px;">Địa chỉ: 54 Ngọc Hân Công Chúa - Ninh Xá - Tp Bắc Ninh</p>
-                <p style="font-size: 8px;">SĐT: 0988.861.479 - 0862968081</p>
+            <div> <img src="http://ruongbacthang.skymapglobal.vn/static/img/logorbt.5dcc5da9.jpg" style="width: 100px"></div>
+            <div style="margin-left: 15px">
+                <p style="font-size: 12px; font-weight: bold;">RUỘNG BẬC THANG</p>
+                <p style="font-size: 10px;">Địa chỉ: 54 Ngọc Hân Công Chúa - Ninh Xá - Tp Bắc Ninh</p>
+                <p style="font-size: 10px;">SĐT: 0988.861.479 - 0862968081</p>
             </div>
         </div>
         <br>
@@ -25,7 +25,7 @@
         <div class="line"><strong>Phương thức thanh toán: </strong>{{$data->thanh_toan}}</div>
         <div class="line"><strong>Ghi chú: </strong>{{ $data->ghi_chu}}</div>
         <br>
-        <table style="border: 1px solid black; border-collapse: collapse; width: 100%; font-size: 8px">
+        <table style="border: 1px solid black; border-collapse: collapse; width: 100%; font-size: 10px">
             <thead>
                 <tr>
                     <th>Mặt hàng</th>
@@ -65,7 +65,7 @@
 
     .line {
         margin-bottom: 10px;
-        font-size: 8px;
+        font-size: 10px;
     }
 
     table,
