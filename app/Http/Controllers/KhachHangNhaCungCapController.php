@@ -21,7 +21,6 @@ class KhachHangNhaCungCapController extends Controller
         $validator = Validator::make($data, [
             'ma' => 'required',
             'ten' => 'required',
-            'email' => 'required',
             'so_dien_thoai' => 'required',
             'username' => 'required',
             'password' => 'required|min:6',
@@ -49,6 +48,9 @@ class KhachHangNhaCungCapController extends Controller
                 'message' => __('Tên đăng nhập đã tồn tại'),
                 'data' => [],
             ], 400);
+        }
+        if(!isset($data['email']) || !$data['email']){
+            $data['email'] = $data['so_dien_thoai'].'@email.com';
         }
         if (KhachHang::where('ma', $data['ma'])->first()) {
             return response()->json([
