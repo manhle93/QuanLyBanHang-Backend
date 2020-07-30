@@ -10,14 +10,14 @@
         <div style="display:flex; flex-direction: row;  align-items: center; justify-content: center">
             <div> <img src="http://ruongbacthang.skymapglobal.vn/static/img/logorbt.5dcc5da9.jpg" style="width: 80px"></div>
             <div style="margin-left: 20px">
-                <p style="font-size: 14px; font-weight: bold;">RUỘNG BẬC THANG</p>
-                <p style="font-size: 12px;">Địa chỉ: 54 Ngọc Hân Công Chúa - Ninh Xá - Tp Bắc Ninh</p>
-                <p style="font-size: 12px;">SĐT: 0988.861.479 - 0862968081</p>
+                <p style="font-size: 11px; font-weight: bold;">RUỘNG BẬC THANG</p>
+                <p style="font-size: 8px;">Địa chỉ: 54 Ngọc Hân Công Chúa - Ninh Xá - Tp Bắc Ninh</p>
+                <p style="font-size: 8px;">SĐT: 0988.861.479 - 0862968081</p>
             </div>
         </div>
         <br>
-        <h3 style="text-align: center; font-size: 13px">HÓA ĐƠN BÁN HÀNG</h3>
-        <div style="text-align: center; font-size: 11px">Ngày {{$ngay}} tháng {{$thang}} năm {{$nam}}</div>
+        <h3 style="text-align: center; font-size: 11px">HÓA ĐƠN BÁN HÀNG</h3>
+        <div style="text-align: center; font-size: 9px">Ngày {{$ngay}} tháng {{$thang}} năm {{$nam}}</div>
         <br>
         <div class="line"><strong>Đơn hàng </strong>{{$data->ten}}</div>
         <div class="line"><strong>Mã đơn hàng: </strong>{{$data->ma}}</div>
@@ -25,7 +25,7 @@
         <div class="line"><strong>Phương thức thanh toán: </strong>{{$data->thanh_toan}}</div>
         <div class="line"><strong>Ghi chú: </strong>{{ $data->ghi_chu}}</div>
         <br>
-        <table style="border: 2px solid black; border-collapse: collapse; width: 100%">
+        <table style="border: 1px solid black; border-collapse: collapse; width: 100%; font-size: 8px">
             <thead>
                 <tr>
                     <th>Mặt hàng</th>
@@ -53,7 +53,7 @@
         <div class="line"><strong>Còn phải thanh toán: </strong><span id="conphaithanhtoan">{{ $data->con_phai_thanh_toan}}</span></div>
         <div style="display:flex; flex-direction: column;  align-items: center; justify-content: center">
                 <div>-------------------------------------------------</div>
-                <div style="font-size: 13px; font-weight: bold; ">CẢM ƠN QUÝ KHÁCH VÀ HẸN GẶP LẠI!</div>
+                <div style="font-size: 11px; font-weight: bold; ">CẢM ƠN QUÝ KHÁCH VÀ HẸN GẶP LẠI!</div>
                 <div>website:ruongbacthang.com.vn</div>
         </div>
     </div>
@@ -65,7 +65,7 @@
 
     .line {
         margin-bottom: 10px;
-        font-size: 11px;
+        font-size: 8px;
     }
 
     table,
