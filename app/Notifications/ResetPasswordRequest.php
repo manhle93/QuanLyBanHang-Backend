@@ -41,7 +41,7 @@ class ResetPasswordRequest extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        $url = url('http://pccc.howizbiz.com/#/matkhaumoi/' . $this->token);
+        $url = url('http://ruongbacthang.skymapglobal.vn/matkhaumoi/' . $this->token);
         return (new MailMessage)
                     ->subject('Quên mật khẩu đăng nhập!')
                     ->line('Bạn quên mật khẩu đăng nhập! Nhấp vào nút bên dưới để đặt lại mật khẩu')
