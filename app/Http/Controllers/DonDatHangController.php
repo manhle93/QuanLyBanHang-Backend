@@ -64,6 +64,8 @@ class DonDatHangController extends Controller
                 'trang_thai' => $data['trang_thai'],
                 'con_phai_thanh_toan' => $data['con_phai_thanh_toan'],
                 'thanh_toan' => $data['thanh_toan'],
+                'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
+                'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
 
             ]);
             foreach ($data['danhSachHang'] as $item) {
@@ -216,6 +218,8 @@ class DonDatHangController extends Controller
                 'con_phai_thanh_toan' => $data['con_phai_thanh_toan'],
                 'bang_gia_id' => $data['bang_gia_id'],
                 'thanh_toan' => $data['thanh_toan'],
+                'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
+                'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
 
             ]);
             foreach ($data['danhSachHang'] as $item) {

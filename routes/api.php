@@ -413,5 +413,8 @@ Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
 Route::get('inhoadon/{id}', 'DonDatHangController@inHoaDon');
 Route::get('inhoadonnhacungcap/{id}', 'DonHangNhaCungCapController@inHoaDon');
 Route::get('tien', 'DonDatHangController@test');
+Route::get('mobile/showdangky', 'AuthController@showDangKy');
+Route::post('mobile/dangkynhacungcap', 'System\UserController@dangKyNhaCungCap');
+
 
 

@@ -23,7 +23,7 @@ class UserObserver
                     'reference_id' => $user->id,
                     'type' => 'user',
                     'hanh_dong' => 'created',
-                    'user_id' => $userLogin->id,
+                    'user_id' => $userLogin ? $userLogin->id : null,
                     'noi_dung' => 'Tạo tài khoản người dùng'
                 ]);
             } catch (Exception $e) {

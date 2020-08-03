@@ -28,7 +28,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'loginMobile', 'register', 'verifyEmail', 'resendVerifyEmail', 'getTokenByCheckingCode', 'refreshCaptcha', 'checkUser', 'refresh']]);
+        $this->middleware('auth:api', ['except' => ['login', 'loginMobile', 'register', 'verifyEmail', 'resendVerifyEmail', 'getTokenByCheckingCode', 'refreshCaptcha', 'checkUser', 'refresh', 'showDangKy']]);
     }
 
     /**
@@ -436,5 +436,9 @@ class AuthController extends Controller
             $data = $query->paginate($per_page, ['*'], 'page', $page);
         }
         return response($data, 200);
+    }
+
+    public function showDangKy(){
+        return 1;
     }
 }

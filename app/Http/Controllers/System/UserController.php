@@ -5,6 +5,7 @@ namespace App\Http\Controllers\System;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\NhaCungCap;
 use Illuminate\Support\Facades\Hash;
 use Validator;
 
@@ -242,4 +243,79 @@ class UserController extends Controller
         $data = User::where('role_id', 5)->get();
         return $data;
     }
+
+    public function dangKyNhaCungCap(Request $request){
+
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'name' => 'required',
+            'username' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:6',
+            'password_confirmation' => 'required|same:password'
+        ], [
+            'password.regex' => 'Mật khẩu không đủ mạnh',
+            'password.min' => 'Mật khẩu tối thiểu 6 ký tự',
+            'password_confirmation.same' => 'Mật khẩu 2 lần nhập không khớp',
+            'name.required' => 'Tên không thể bỏ trống',
+            'email.required' => 'Email không thể bỏ trống',
+            'username.required' => 'Tên đăng nhập không thể bỏ trống',
+        ]);
+        $check_email = User::where('email', 'ilike', $data['email'])->first();
+        if ($check_email) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Email đã tồn tại'),
+                'data' => [],
+            ], 400);
+        }
+        if ($validator->fails()) {
+            $loi = "";
+            foreach ($validator->errors()->all() as $it) {
+                $loi = $loi . '' . $it . ", ";
+            };
+            return response()->json([
+                'code' => 400,
+                'message' => $loi,
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+        $check_user = User::where('username', 'ilike', $data['username'])->first();
+        if ($check_user) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Tên đăng nhập đã tồn tại'),
+                'data' => [],
+            ], 400);
+        }
+        try {
+            if (isset($data['password'])) {
+                $data['password'] = Hash::make($data['password']);
+            }
+            $data['active'] = true;
+            $data['role_id'] = 3;
+            $user = User::create($data);
+            NhaCungCap::create([
+                'ten' => $data['name'],
+                'ma' =>'NCC'. time(),
+                'trang_thai' => 'moi_tao',
+                'user_id' => $user->id,
+                'email' => $data['email']
+            ]);
+            return response()->json([
+                'message' => 'Thành công',
+                'data' => $user,
+                'code' => 200,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Lỗi ! Không thể tạo người dùng',
+                'code' => 500,
+                'data' => $e,
+            ], 500);
+        }
+    }
+
 }
