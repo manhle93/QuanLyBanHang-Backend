@@ -7,15 +7,24 @@
 
 <body onload="window.print(); myFunction()">
     <div id="app">
-        <h3 style="text-align: center">ĐƠN NHẬP HÀNG</h3>
-        <div style="text-align: center; font-size: 18px">Ngày {{$ngay}} tháng {{$thang}} năm {{$nam}}</div>
+        <div style="display:flex; flex-direction: row;  align-items: center; justify-content: center">
+            <div> <img src="http://ruongbacthang.skymapglobal.vn/static/img/logorbt.5dcc5da9.jpg" style="width: 100px"></div>
+            <div style="margin-left: 15px">
+                <p style="font-size: 12px; font-weight: bold;">RUỘNG BẬC THANG</p>
+                <p style="font-size: 10px;">Địa chỉ: 54 Ngọc Hân Công Chúa - Ninh Xá - Tp Bắc Ninh</p>
+                <p style="font-size: 10px;">SĐT: 0988.861.479 - 0862968081</p>
+            </div>
+        </div>
+
+        <h3 style="text-align: center; font-size: 11px">ĐƠN NHẬP HÀNG</h3>
+        <div style="text-align: center; font-size: 9px">Ngày {{$ngay}} tháng {{$thang}} năm {{$nam}}</div>
         <br>
         <div class="line"><strong>1. Đơn hàng </strong>{{$data->ten}}</div>
         <div class="line"><strong>2. Mã đơn hàng: </strong>{{$data->ma}}</div>
         <div class="line"><strong>3. Nhà cung cấp: </strong>{{$data->user_id ? $data->user->name : '......'}}</div>
         <div class="line"><strong>5. Ghi chú </strong>{{ $data->ghi_chu}}</div>
         <br>
-        <table style="border: 2px solid black; border-collapse: collapse; width: 100%">
+        <table style="border: 2px solid black; border-collapse: collapse; width: 100%; font-size: 10px">
             <thead>
                 <tr>
                     <th>STT</th>
@@ -53,6 +62,7 @@
 
     .line {
         margin-bottom: 10px;
+        font-size: 10px;
     }
 
     table,

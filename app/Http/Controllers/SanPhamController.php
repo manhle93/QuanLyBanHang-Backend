@@ -90,7 +90,7 @@ class SanPhamController extends Controller
                     }
                 }
             }
-            return response(['message' => 'Thành công'],200);
+            return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
             return response(['message' => 'Không thể thêm sản phẩm'], 500);
         }
@@ -103,6 +103,10 @@ class SanPhamController extends Controller
         $query = SanPham::with('danhMuc');
         $search = $request->get('search');
         $danh_muc_id = $request->get('danh_muc_id');
+        $san_pham_id = $request->get('san_pham_id');
+        if (isset($san_pham_id) && count($san_pham_id) > 0) {
+            $query->whereIn('id', $san_pham_id);
+        }
         if (isset($danh_muc_id)) {
             $query->where('danh_muc_id', $danh_muc_id);
         }

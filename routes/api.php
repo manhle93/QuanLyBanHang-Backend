@@ -278,8 +278,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('phuongtientoanha', 'PhuongTienToaNhaController@addPhuongtien');
     Route::put('phuongtientoanha', 'PhuongTienToaNhaController@updatePhuongTien');
     Route::delete('phuongtientoanha/{id}', 'PhuongTienToaNhaController@xoaPhuongTien');
-
     Route::get('danhmucmobile', 'DanhMucController@getDanhMucMobile');
+
 });
 
 Route::post('baochay', 'DiemChayController@baoChay');
@@ -311,7 +311,6 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('uploadanhsanpham', 'SanPhamController@upload');
     Route::post('sanpham', 'SanPhamController@addSanPham');
-    Route::get('sanpham', 'SanPhamController@getSanPham');
     Route::delete('sanpham/{id}', 'SanPhamController@xoaSanPham');
     Route::get('sanpham/{id}', 'SanPhamController@getSanPhamDetail');
     Route::post('uploadedit/{id}', 'SanPhamController@uploadEdit');
@@ -408,7 +407,19 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('mobile/baogia/{id}', 'MobileController@getChiTietBaoGia');
     Route::get('mobile/me', 'MobileController@me');
 
+
+    Route::post('voucher', 'VoucherController@addVoucher');
+    Route::get('voucher', 'VoucherController@getVoucher');
+    Route::put('voucher/{id}', 'VoucherController@updateVoucher');
+    Route::delete('voucher/{id}', 'VoucherController@xoaVoucher');
+
+    Route::post('diemthuong', 'DiemThuongController@addDiemThuong');
+    Route::get('diemthuong', 'DiemThuongController@getCauHinhDiemthuong');
+    Route::put('diemthuong/{id}', 'DiemThuongController@updateCauHinhDiemthuong');
+    Route::delete('diemthuong/{id}', 'DiemThuongController@xoaCauHinh');
+
 });
+Route::get('sanpham', 'SanPhamController@getSanPham');
 Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
 Route::get('inhoadon/{id}', 'DonDatHangController@inHoaDon');
 Route::get('inhoadonnhacungcap/{id}', 'DonHangNhaCungCapController@inHoaDon');
