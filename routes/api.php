@@ -304,7 +304,6 @@ Route::get('in/{id}', 'BuildingController@table');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::post('danhmuc', 'DanhMucSanPhamController@addDanhMucSanPham');
-    Route::get('danhmuc', 'DanhMucSanPhamController@getDanhMucSanPham');
     Route::put('danhmuc', 'DanhMucSanPhamController@editDanhMucSanPham');
     Route::delete('danhmuc/{id}', 'DanhMucSanPhamController@xoaDanhMuc');
     Route::post('anhdanhmuc', 'DanhMucSanPhamController@uploadAnhDanhMuc');
@@ -419,6 +418,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('diemthuong/{id}', 'DiemThuongController@xoaCauHinh');
 
 });
+Route::get('danhmuc', 'DanhMucSanPhamController@getDanhMucSanPham');
 Route::get('sanpham', 'SanPhamController@getSanPham');
 Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
 Route::get('inhoadon/{id}', 'DonDatHangController@inHoaDon');

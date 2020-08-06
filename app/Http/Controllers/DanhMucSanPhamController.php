@@ -32,6 +32,7 @@ class DanhMucSanPhamController extends Controller
             'message' => 'Lấy dữ liệu thành công',
         ], 200);
     }
+    
     public function addDanhMucSanPham(Request $request)
     {
         $user = auth()->user();
