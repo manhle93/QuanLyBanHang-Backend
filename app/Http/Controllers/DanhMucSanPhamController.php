@@ -14,6 +14,7 @@ class DanhMucSanPhamController extends Controller
     {
         $query = DanhMucSanPham::query();
         $search = $request->get('search');
+        $per_page = $request->get('per_page');
         if (isset($search)) {
             $search = trim($search);
             $query->where(function ($query) use ($search) {
@@ -23,6 +24,9 @@ class DanhMucSanPhamController extends Controller
         }
         $query->orderBy('updated_at', 'desc');
         $data = $query->get();
+        if(isset($per_page)){
+            $data = $query->take($per_page)->get();
+        }
         foreach($data as $item){
             $sanPham = SanPham::where('danh_muc_id', $item->id)->count();
             $item['so_mat_hang'] = $sanPham;
@@ -32,7 +36,7 @@ class DanhMucSanPhamController extends Controller
             'message' => 'Lấy dữ liệu thành công',
         ], 200);
     }
-    
+
     public function addDanhMucSanPham(Request $request)
     {
         $user = auth()->user();
