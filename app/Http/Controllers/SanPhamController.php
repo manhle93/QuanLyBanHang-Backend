@@ -138,7 +138,7 @@ class SanPhamController extends Controller
 
     public function getSanPhamDetail($id)
     {
-        $sanPham = SanPham::where('id', $id)->with('hinhAnhs')->first();
+        $sanPham = SanPham::where('id', $id)->with('hinhAnhs', 'danhMuc:id,ten_danh_muc')->first();
         return response($sanPham, 200);
     }
     public function uploadEdit($id, Request $request)
@@ -235,5 +235,11 @@ class SanPhamController extends Controller
         } catch (\Exception $e) {
             return response(['message' => 'Không thể thêm sản phẩm'], 500);
         }
+    }
+
+    public function getSanPhamDetailTrangChu($id)
+    {
+        $sanPham = SanPham::where('id', $id)->with('hinhAnhs', 'danhMuc:id,ten_danh_muc', 'thuongHieu')->first();
+        return response($sanPham, 200);
     }
 }

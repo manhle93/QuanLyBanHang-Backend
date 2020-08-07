@@ -20,4 +20,8 @@ class SanPham extends Model
     {
         return $this->belongsToMany('App\BangGia', 'bang_gia_san_phams');
     }
+    public function thuongHieu()
+    {
+        return $this->belongsTo('App\ThuongHieu', 'thuong_hieu_id', 'id');
+    }
 }
