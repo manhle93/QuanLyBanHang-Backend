@@ -242,4 +242,12 @@ class SanPhamController extends Controller
         $sanPham = SanPham::where('id', $id)->with('hinhAnhs', 'danhMuc:id,ten_danh_muc', 'thuongHieu')->first();
         return response($sanPham, 200);
     }
+    public function getSanPhamGioHang(Request $request){
+        $data = $request->get('san_pham_id');
+        if(!isset($data) || count($data) < 1){
+            return [];
+        }
+       $sanPham =  SanPham::with('danhMuc')->whereIn('id', $data)->get();
+       return $sanPham;
+    }
 }

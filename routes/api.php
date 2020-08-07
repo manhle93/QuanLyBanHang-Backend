@@ -420,6 +420,7 @@ Route::group(['middleware' => 'auth'], function () {
 });
 Route::get('danhmuc', 'DanhMucSanPhamController@getDanhMucSanPham');
 Route::get('sanpham', 'SanPhamController@getSanPham');
+Route::get('sanphamgiohang', 'SanPhamController@getSanPhamGioHang');
 Route::get('sanphamtrangchu/{id}', 'SanPhamController@getSanPhamDetailTrangChu');
 Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
 Route::get('inhoadon/{id}', 'DonDatHangController@inHoaDon');
