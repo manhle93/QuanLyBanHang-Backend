@@ -338,7 +338,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('kho/{id}', 'KhoController@xoaKho');
 
     Route::get('khachhang', 'KhachHangNhaCungCapController@getKhachHang');
-    Route::post('khachhang', 'KhachHangNhaCungCapController@addKhachHang');
     Route::put('khachhang/{id}', 'KhachHangNhaCungCapController@editKhachHang');
     Route::delete('khachhang/{id}', 'KhachHangNhaCungCapController@xoaKhachHang');
 
@@ -419,6 +418,8 @@ Route::group(['middleware' => 'auth'], function () {
 
 });
 Route::get('danhmuc', 'DanhMucSanPhamController@getDanhMucSanPham');
+Route::post('khachhang', 'KhachHangNhaCungCapController@addKhachHang');
+Route::post('loginkhachhang', 'KhachHangNhaCungCapController@loginKhachHang');
 Route::get('sanpham', 'SanPhamController@getSanPham');
 Route::get('sanphamgiohang', 'SanPhamController@getSanPhamGioHang');
 Route::get('sanphamtrangchu/{id}', 'SanPhamController@getSanPhamDetailTrangChu');

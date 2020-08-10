@@ -46,6 +46,20 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if ($exception instanceof UnauthorizedException) {
+            if ($exception->getMessage() == "token_expire") {
+                return response([
+                    'code' => 'token_expire',
+                    'message' => 'Unauthorized.'
+                ], 401);
+            } else {
+                return response([
+                    'code' => 'unauthorized',
+                    'message' => 'Unauthorized.'
+                ], 401);
+            }
+
+        }
         return parent::render($request, $exception);
     }
 }
