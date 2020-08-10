@@ -50,22 +50,23 @@ class Authenticate extends Middleware
      * @throws UnauthorizedException
      * @throws \Tymon\JWTAuth\Exceptions\JWTException
      */
-    protected function authenticate($request, array $guards)
-    {
-        $this->checkForToken($request);
+    
+    // protected function authenticate($request, array $guards)
+    // {
+    //     $this->checkForToken($request);
 
-        try {
-            if (!$this->jwtAuth->parseToken()->authenticate()) {
-                $this->unauthenticated($request, $guards);
-            }
-        } catch (JWTException $e) {
-            if ($e->getMessage() == "Token has expired") {
-                throw new UnauthorizedException("token_expire");
-            }
-            $this->unauthenticated($request, $guards);
-        }
-        return $this->auth->shouldUse($guards);
-    }
+    //     try {
+    //         if (!$this->jwtAuth->parseToken()->authenticate()) {
+    //             $this->unauthenticated($request, $guards);
+    //         }
+    //     } catch (JWTException $e) {
+    //         if ($e->getMessage() == "Token has expired") {
+    //             throw new UnauthorizedException("token_expire");
+    //         }
+    //         $this->unauthenticated($request, $guards);
+    //     }
+    //     return $this->auth->shouldUse($guards[0]);
+    // }
 
     /**
      * Get the path the user should be redirected to when they are not authenticated.
