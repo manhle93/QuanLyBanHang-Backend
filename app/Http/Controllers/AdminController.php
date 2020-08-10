@@ -128,17 +128,6 @@ class AdminController extends Controller
     public function getInfor()
     {
         $user = auth()->user();
-        if (!empty($user->quan_huyen_id)) {
-            $user['quanhuyen'] = QuanHuyen::where('id', $user->quan_huyen_id)->select('id', 'name', 'code')->first();
-        } else {
-            $user['quanhuyen'] = null;
-        }
-        if (!empty($user->tinh_thanh_id)) {
-            $user['tinhthanh'] = TinhThanh::where('id', $user->tinh_thanh_id)->select('id', 'name', 'code')->first();
-        } else {
-            $user['tinhthanh'] = null;
-        }
-
         $user['role'] = Role::where('id', $user->role_id)->first();
         return response()->json([
             'message' => 'Lấy dữ liệu thành công',

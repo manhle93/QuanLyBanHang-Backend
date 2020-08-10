@@ -64,7 +64,7 @@ class Authenticate extends Middleware
             }
             $this->unauthenticated($request, $guards);
         }
-        return $this->auth->shouldUse($guards[0]);
+        return $this->auth->shouldUse($guards);
     }
 
     /**
