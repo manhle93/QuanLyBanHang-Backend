@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\BangGiaSanPham;
+use App\DonDatHang;
 use App\KhachHang;
 use App\LichSuDangNhap;
 use App\NhaCungCap;
@@ -504,7 +505,7 @@ class KhachHangNhaCungCapController extends Controller
         if (!$token = auth()->attempt($credentials)) {
             return response()->json(['message' => 'Sai tài khoản hoặc mật khẩu'], 401);
         }
-        if(auth()->user()->role_id != 4){
+        if (auth()->user()->role_id != 4) {
             return response(['message' => 'Chức năng đăng nhập chỉ dành cho khách hàng'], 500);
         }
         if (!auth()->user()->active) return response(['message' => 'Tài khoản chưa kích hoạt', 'user_id' => auth()->user()->id], Response::HTTP_NOT_ACCEPTABLE);
@@ -524,5 +525,27 @@ class KhachHangNhaCungCapController extends Controller
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60,
         ]);
+    }
+
+    public function thongTinCaNhanKhachHang()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response(['message' => 'Chưa đăng nhập', 'data' => []], 400);
+        }
+        $khachHang = KhachHang::with('user')->where('user_id', $user->id)->first();
+        $donHang = DonDatHang::with('sanPhams', 'sanPhams.sanPham')->where('user_id', $user->id)->orderBy('updated_at', 'DESC')->get();
+        $lichSuGD = NopTien::where('id_user_khach_hang', $user->id)->get();
+        return response(['message' => 'Thành công', 'data' => $khachHang, 'don_hang' => $donHang, 'giao_dich' => $lichSuGD], 200);
+    }
+
+    public function getThongTinDatHang()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return response(['message' => 'Chưa đăng nhập', 'data' => []], 400);
+        }
+        $khachHang = KhachHang::with('user')->where('user_id', $user->id)->select('id','ten', 'so_dien_thoai', 'dia_chi')->first();
+        return response(['message' => 'Thành công', 'data' => $khachHang], 200);
     }
 }

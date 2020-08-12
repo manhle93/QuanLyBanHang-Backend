@@ -21,7 +21,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {
     Route::post('login', 'AuthController@login');
     Route::post('mobile/login', 'AuthController@loginMobile');
     Route::post('logout', 'AuthController@logout');
-    Route::post('refresh', 'AuthController@refresh');
+    Route::get('refresh', 'AuthController@refresh');
     Route::get('me', 'AuthController@me');
 });
 
@@ -128,6 +128,8 @@ Route::get('user', 'System\UserController@index');
 Route::put('user/{id}/edit', 'System\UserController@edit');
 Route::delete('user/{id}/delete', 'System\UserController@delete');
 Route::get('khachhang/{id}', 'System\UserController@getKhachHang');
+Route::get('thongtindathang', 'KhachHangNhaCungCapController@getThongTinDatHang');
+
 
 Route::post('tinhthanh', 'TinhThanhController@store');
 Route::get('tinhthanh/don-vi-pccc/{tinh_thanh}', 'TinhThanhController@getDonViPccc');
@@ -337,9 +339,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('kho/{id}', 'KhoController@editKho');
     Route::delete('kho/{id}', 'KhoController@xoaKho');
 
+    Route::post('khachhuy/{id}', 'DonDatHangController@khachHuyDon');
     Route::get('khachhang', 'KhachHangNhaCungCapController@getKhachHang');
     Route::put('khachhang/{id}', 'KhachHangNhaCungCapController@editKhachHang');
     Route::delete('khachhang/{id}', 'KhachHangNhaCungCapController@xoaKhachHang');
+    Route::get('profilekhachhang', 'KhachHangNhaCungCapController@thongTinCaNhanKhachHang');
+
 
     Route::get('nhaccungcap', 'KhachHangNhaCungCapController@getNhaCungCap');
     Route::post('nhaccungcap', 'KhachHangNhaCungCapController@addNhaCungCap');
@@ -419,7 +424,9 @@ Route::group(['middleware' => 'auth'], function () {
 });
 Route::get('danhmuc', 'DanhMucSanPhamController@getDanhMucSanPham');
 Route::post('khachhang', 'KhachHangNhaCungCapController@addKhachHang');
-Route::post('loginkhachhang', 'KhachHangNhaCungCapController@loginKhachHang');
+Route::post('khachdathang', 'DonDatHangController@datHang');
+
+Route::post('loginkhachhang', 'DonDatHangController@loginKhachHang');
 Route::get('sanpham', 'SanPhamController@getSanPham');
 Route::get('sanphamgiohang', 'SanPhamController@getSanPhamGioHang');
 Route::get('sanphamtrangchu/{id}', 'SanPhamController@getSanPhamDetailTrangChu');

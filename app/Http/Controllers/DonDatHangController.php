@@ -494,4 +494,88 @@ class DonDatHangController extends Controller
 
         return $string;
     }
+
+    public function datHang(Request $request){
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'ma' => 'required',
+            'nguoi_mua_hang' => 'required',
+            'so_dien_thoai' => 'required',
+            'dia_chi' => 'required'
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Thiếu dữ liệu, không thể đặt hàng'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+        $user = auth()->user();
+        $data['ten'] = 'Đặt hàng online';
+        try {
+            DB::beginTransaction();
+            $donHang = DonDatHang::create([
+                'ma' => $data['ma'],
+                'tong_tien' => $data['tong_tien'],
+                'ten' => $data['ten'],
+                'nguoi_mua_hang' => $data['nguoi_mua_hang'],
+                'so_dien_thoai' => $data['so_dien_thoai'],
+                'dia_chi' => $data['dia_chi'],
+                'user_id' => $user ? $user->id : null,
+                'ghi_chu' => $data['ghi_chu'],
+                'trang_thai' => 'moi_tao',
+                'giam_gia' => $data['giam_gia'],
+                // 'bang_gia_id' => $data['bang_gia_id'],
+                // 'da_thanh_toan' => $data['da_thanh_toan'],        
+                // 'con_phai_thanh_toan' => $data['con_phai_thanh_toan'],
+                // 'thanh_toan' => $data['thanh_toan'],
+                // 'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
+                // 'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
+
+            ]);
+            foreach ($data['danhSachHang'] as $item) {
+
+                SanPhamDonDatHang::create([
+                    'san_pham_id' => $item['id'],
+                    'gia_ban' => $item['gia_ban'],
+                    'so_luong' => $item['so_luong'],
+                    'don_dat_hang_id' => $donHang->id,
+                    'doanh_thu' =>  $item['gia_ban'] * $item['so_luong']
+                ]);
+            }
+            DB::commit();
+            return response(['message' => 'Thành công', 'don_hang_id' => $donHang->id], 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response(['message' => 'Không thể đặt hàng'], 500);
+        }
+    }
+
+    public function khachHuyDon($id)
+    {
+        $user = auth()->user();
+        $donHang = DonDatHang::where('id', $id)->first();
+        if(!$donHang){
+            return response(['message' => 'Đơn hàng không tồn tại'], 501);
+        }
+        if (!$user || $user->id != $donHang->user_id) {
+            return response(['message' => 'Không có quyền'], 500);
+        }
+        try {
+            DB::beginTransaction();
+            if($donHang->trang_thai != 'moi_tao'){
+                return response(['message' => 'Không thể hủy đơn'], 500);
+            }
+            $donHang->update([
+                'trang_thai' => 'khach_huy'
+            ]);
+            DB::commit();
+            return response(['message' => 'Cập nhật thành công'], 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response(['message' => 'Không thể hủy đơn'], 500);
+        }
+    }
 }
