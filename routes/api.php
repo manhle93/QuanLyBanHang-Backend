@@ -426,7 +426,7 @@ Route::get('danhmuc', 'DanhMucSanPhamController@getDanhMucSanPham');
 Route::post('khachhang', 'KhachHangNhaCungCapController@addKhachHang');
 Route::post('khachdathang', 'DonDatHangController@datHang');
 
-Route::post('loginkhachhang', 'DonDatHangController@loginKhachHang');
+Route::post('loginkhachhang', 'KhachHangNhaCungCapController@loginKhachHang');
 Route::get('sanpham', 'SanPhamController@getSanPham');
 Route::get('sanphamgiohang', 'SanPhamController@getSanPhamGioHang');
 Route::get('sanphamtrangchu/{id}', 'SanPhamController@getSanPhamDetailTrangChu');
