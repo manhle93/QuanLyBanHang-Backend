@@ -16,6 +16,7 @@ class BieuDoController extends Controller
         $date = $request->get('date');
         $month = Carbon::now()->month;
         $year = Carbon::now()->year;
+        $type = $request->get('type');
         if($date){
             $date = Carbon::parse($date)->timezone('Asia/Ho_Chi_Minh');
             $year = $date->year;
@@ -29,7 +30,14 @@ class BieuDoController extends Controller
         $sanPhams =  collect($sanPhams)->unique('san_pham_id')->values()->all();
         foreach($sanPhams as $item){
             $query = SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDon)->whereYear('created_at', '=', $year)->whereMonth('created_at', '=', $month);
-            $doanhThu = $query->where('san_pham_id', $item->san_pham_id)->sum('doanh_thu');
+            $doanhThu = 0;
+            if($type == 'doanh_thu'){
+                $doanhThu = $query->where('san_pham_id', $item->san_pham_id)->sum('doanh_thu');
+            }
+            if($type == 'so_luong'){
+                $doanhThu = $query->where('san_pham_id', $item->san_pham_id)->sum('so_luong');
+            }
+            
             $item['tong_doanh_thu'] = $doanhThu;
         };
         $sanPhams =  collect($sanPhams)->sortByDesc('tong_doanh_thu')->values()->take(8);

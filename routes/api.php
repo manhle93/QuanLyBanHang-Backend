@@ -420,6 +420,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('diemthuong', 'DiemThuongController@getCauHinhDiemthuong');
     Route::put('diemthuong/{id}', 'DiemThuongController@updateCauHinhDiemthuong');
     Route::delete('diemthuong/{id}', 'DiemThuongController@xoaCauHinh');
+    Route::post('avatarkhachhang', 'KhachHangNhaCungCapController@uploadAvatar');
+    Route::post('changepasskhachhang', 'KhachHangNhaCungCapController@updatePassword');
+
+
 
 });
 Route::get('danhmuc', 'DanhMucSanPhamController@getDanhMucSanPham');
@@ -427,6 +431,7 @@ Route::post('khachhang', 'KhachHangNhaCungCapController@addKhachHang');
 Route::post('khachdathang', 'DonDatHangController@datHang');
 
 Route::post('loginkhachhang', 'KhachHangNhaCungCapController@loginKhachHang');
+Route::post('capnhatkhachhang', 'KhachHangNhaCungCapController@updateThongTinCaNhan');
 Route::get('sanpham', 'SanPhamController@getSanPham');
 Route::get('sanphamgiohang', 'SanPhamController@getSanPhamGioHang');
 Route::get('sanphamtrangchu/{id}', 'SanPhamController@getSanPhamDetailTrangChu');

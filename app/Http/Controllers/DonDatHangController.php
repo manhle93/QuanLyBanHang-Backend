@@ -127,7 +127,7 @@ class DonDatHangController extends Controller
             $query = $query->where('trang_thai', 'hoa_don');
         }
         if ($don_hang) {
-            $query = $query->whereIn('trang_thai', ['moi_tao', 'huy_bo']);
+            $query = $query->whereIn('trang_thai', ['moi_tao', 'huy_bo', 'khach_huy']);
         }
         if ($trahang) {
             $query = $query->where('trang_thai', 'huy_hoa_don');

@@ -8,6 +8,7 @@ use App\KhachHang;
 use App\LichSuDangNhap;
 use App\NhaCungCap;
 use App\NopTien;
+use App\SanPhamDonDatHang;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
-
+use Illuminate\Support\Facades\Auth;
 
 class KhachHangNhaCungCapController extends Controller
 {
@@ -199,6 +200,11 @@ class KhachHangNhaCungCapController extends Controller
         }
         if ($user->role_id == 1 || $user->role_id == 2) {
             $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+            foreach($data as $item){
+                $hoaDonID = DonDatHang::where('trang_thai', 'hoa_don')->where('user_id', $item->user_id)->pluck('id');
+                $tongTien = SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDonID)->sum('doanh_thu');
+                $item['tong_hoa_don'] = $tongTien;
+            }
         }
         return response()->json([
             'data' => $data,
@@ -545,7 +551,134 @@ class KhachHangNhaCungCapController extends Controller
         if (!$user) {
             return response(['message' => 'Chưa đăng nhập', 'data' => []], 400);
         }
-        $khachHang = KhachHang::with('user')->where('user_id', $user->id)->select('id','ten', 'so_dien_thoai', 'dia_chi')->first();
+        $khachHang = KhachHang::with('user')->where('user_id', $user->id)->select('id', 'ten', 'so_dien_thoai', 'dia_chi')->first();
         return response(['message' => 'Thành công', 'data' => $khachHang], 200);
+    }
+
+    public function updateThongTinCaNhan(Request $request)
+    {
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'ten' => 'required',
+            'so_dien_thoai' => 'required',
+            'email' => 'required',
+            'dia_chi' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Thiếu dữ liệu'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+        $user = auth()->user();
+        if (!$user || $user->role_id != 4) {
+            return response(['message' => 'Tài khoản không tồn tại'], 400);
+        }
+        $khachHang = KhachHang::where('user_id', $user->id)->first();
+        if (!$khachHang) {
+            return response(['message' => 'Khách hàng không tồn tại'], 400);
+        }
+        try {
+            $khachHang->update([
+                'ten' => $data['ten'],
+                'so_dien_thoai' => $data['so_dien_thoai'],
+                'email' => $data['email'],
+                'dia_chi' => $data['dia_chi'],
+                'ngay_sinh' => $data['ngay_sinh'],
+                'gioi_tinh' => $data['gioi_tinh'],
+                'facebook' => $data['facebook'],
+
+            ]);
+            User::find($user->id)->update(['email' => $data['email']]);
+            return response(['message' => 'Thành công'], 200);
+        } catch (\Exception $e) {
+            return response(['message' => 'Không thể cập nhật'], 500);
+        }
+    }
+
+    public function uploadAvatar(Request $request)
+    {
+        $user = auth()->user();
+        try {
+            if ($request->file) {
+                $image = $request->file;
+                $name = time() . '.' . $image->getClientOriginalExtension();
+                $image->move('storage/images/avatar/', $name);
+                User::find($user->id)->update(['avatar_url' => 'storage/images/avatar/' . $name]);
+                KhachHang::where('user_id', $user->id)->first()->update(['anh_dai_dien' =>  'storage/images/avatar/' . $name]);
+                return response(['message' => 'Thanh cong', 'data' => 'storage/images/avatar/' . $name], 200);
+            }
+        } catch (\Exception $e) {
+            return response(['message' => 'Không thể uplaod ảnh'], 500);
+        }
+    }
+    public function updatePassword(Request $request)
+    {
+        $data = $request->all();
+        $oldPassword = $data['oldPassword'];
+        $newPassword = $data['newPassword'];
+        $reNewPasswork = $data['reNewPassword'];
+        $validator = Validator::make($data, [
+            'oldPassword' => 'required',
+            'newPassword' => 'required|min:6',
+            'reNewPassword' => 'required|same:newPassword',
+        ],[
+            'newPassword.min' => 'Mật khẩu tối thiểu 6 ký tự',
+            'newPassword.required' => 'Chưa nhập mật khẩu mới',
+            'oldPassword.required' => 'Chưa nhập mật khẩu cũ',
+            'reNewPassword.required' => 'Hãy nhập lại mật khẩu',
+            'reNewPassword.same' => 'Mật khẩu 2 lần nhập không khớp',
+        ]);
+        if ($validator->fails()) {
+            $loi = "";
+            foreach ($validator->errors()->all() as $it){
+                $loi = $loi.''.$it.", ";
+            };
+            return response()->json([
+                'code' => 400,
+                'message' =>  $loi,
+                'data' => [
+                    $validator->errors()->all()
+                ]
+            ], 400);
+        }
+        if (!Hash::check($oldPassword, Auth::user()->password)) {
+            return response()->json([
+                'message' => 'Mật khẩu hiện tại không chính xác',
+                'code' => 400,
+                'data' => ''
+            ], 400);
+        };
+        if ($newPassword == $oldPassword) {
+            return response()->json([
+                'message' => 'Mật khẩu mới trùng mật khẩu hiện tại',
+                'code' => 400,
+                'data' => ''
+            ], 400);
+        };
+        if ($newPassword != $reNewPasswork) {
+            return response()->json([
+                'message' => 'Mật khẩu 2 lần nhập không khớp',
+                'code' => 400,
+                'data' => ''
+            ], 400);
+        };
+        try {
+            $request->user()->fill(['password' => Hash::make($newPassword)])->save();
+            return response()->json([
+                'message' => 'Cập nhật mật khẩu thành công',
+                'code' => 200,
+                'data' => ''
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Lỗi cập nhật',
+                'code' => 500,
+                'data' => $e
+            ], 500);
+        }
     }
 }

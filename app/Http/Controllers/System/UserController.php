@@ -16,7 +16,7 @@ class UserController extends Controller
         $perPage = $request->get('per_page', 10);
         $page = $request->get('page', 1);
         $user = auth()->user();
-        $query = User::query()->with('tinhThanh', 'role');
+        $query = User::query()->with('khachHang:id,user_id,dia_chi', 'role');
         $search = $request->get('search');
         $active = $request->get('active');
         if (!empty($active)) {
