@@ -25,10 +25,10 @@ class BieuDoController extends Controller
             $date[] = Carbon::now()->firstOfMonth()->startOfDay();
             $date[] = Carbon::now()->endOfMonth()->endOfDay();
         }
-        $sanPhamID = SanPhamDonDatHang::where('created_at', '>=', $date[0])->where('created_at', '<=', $date[1])->get();
+        // $sanPhamID = SanPhamDonDatHang::where('created_at', '>=', $date[0])->where('created_at', '<=', $date[1])->get();
         $hoaDon = DonDatHang::where('created_at', '>=',  $date[0])->where('created_at', '<=', $date[1])->where('trang_thai', 'hoa_don')->pluck('id')->toArray();
-        $sanPhamID =  collect($sanPhamID);
-        $sanPhamID = $sanPhamID->unique('san_pham_id')->pluck('san_pham_id')->toArray();
+        // $sanPhamID =  collect($sanPhamID);
+        // $sanPhamID = $sanPhamID->unique('san_pham_id')->pluck('san_pham_id')->toArray();
         $sanPhams = SanPhamDonDatHang::with('sanPham:id,ten_san_pham')->select('id', 'san_pham_id', 'doanh_thu')->whereIn('don_dat_hang_id', $hoaDon)->where('created_at', '>=', $date[0])->whereMonth('created_at', '<=', $date[1])->get();
         $sanPhams =  collect($sanPhams)->unique('san_pham_id')->values()->all();
         foreach($sanPhams as $item){

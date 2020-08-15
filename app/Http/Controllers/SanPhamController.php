@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\DonDatHang;
 use App\HinhAnhSanPham;
 use App\SanPham;
+use App\SanPhamDonDatHang;
 use Illuminate\Http\Request;
 use Validator;
 
@@ -242,12 +244,28 @@ class SanPhamController extends Controller
         $sanPham = SanPham::where('id', $id)->with('hinhAnhs', 'danhMuc:id,ten_danh_muc', 'thuongHieu')->first();
         return response($sanPham, 200);
     }
-    public function getSanPhamGioHang(Request $request){
+    public function getSanPhamGioHang(Request $request)
+    {
         $data = $request->get('san_pham_id');
-        if(!isset($data) || count($data) < 1){
+        if (!isset($data) || count($data) < 1) {
             return [];
         }
-       $sanPham =  SanPham::with('danhMuc')->whereIn('id', $data)->get();
-       return $sanPham;
+        $sanPham =  SanPham::with('danhMuc')->whereIn('id', $data)->get();
+        return $sanPham;
+    }
+
+    public function getSanPhamBanChay()
+    {
+        $hoaDon = DonDatHang::where('trang_thai', 'hoa_don')->pluck('id')->toArray();
+        $sanPhams = SanPhamDonDatHang::with('sanPham:id,ten_san_pham,anh_dai_dien,gia_ban')->select('id', 'san_pham_id', 'doanh_thu')->whereIn('don_dat_hang_id', $hoaDon)->get();
+        $sanPhams =  collect($sanPhams)->unique('san_pham_id')->values()->all();
+        foreach ($sanPhams as $item) {
+            $query = SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDon);
+            $doanhThu = 0;
+            $doanhThu = $query->where('san_pham_id', $item->san_pham_id)->sum('doanh_thu');
+            $item['tong_doanh_thu'] = $doanhThu;
+        };
+        $sanPhams =  collect($sanPhams)->sortByDesc('tong_doanh_thu')->values()->take(20);
+        return $sanPhams;
     }
 }
