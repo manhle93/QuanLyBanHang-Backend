@@ -281,7 +281,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('phuongtientoanha', 'PhuongTienToaNhaController@updatePhuongTien');
     Route::delete('phuongtientoanha/{id}', 'PhuongTienToaNhaController@xoaPhuongTien');
     Route::get('danhmucmobile', 'DanhMucController@getDanhMucMobile');
-
 });
 
 Route::post('baochay', 'DiemChayController@baoChay');
@@ -373,7 +372,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('sanphamnhacungcap', 'BaoGiaController@getSanPhamBaoGiaNhaCungCap');
 
     // Route::get('banggiasanpham/{id}', 'BangGiaController@getBangGiaSanPham');
-    
+
     Route::post('dondathang', 'DonDatHangController@addDonDatHang');
     Route::get('dondathang', 'DonDatHangController@getDonHang');
     Route::delete('dondathang/{id}', 'DonDatHangController@xoaDonHang');
@@ -423,8 +422,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('avatarkhachhang', 'KhachHangNhaCungCapController@uploadAvatar');
     Route::post('changepasskhachhang', 'KhachHangNhaCungCapController@updatePassword');
 
+    Route::post('uploadslider', 'CaiDatController@uploadAnh');
+    Route::post('slider', 'CaiDatController@addSilder');
+    Route::put('slider', 'CaiDatController@updateSlider');
+    Route::get('slider', 'CaiDatController@getSilder');
+    Route::delete('slider/{id}', 'CaiDatController@xoaSilder');
 
-
+    Route::post('monngonmoingay', 'CaiDatController@addMonNgonMoiNgay');
+    Route::get('idmonngonmoingay', 'CaiDatController@getMonNgonMoiNgay');
 });
 Route::get('danhmuc', 'DanhMucSanPhamController@getDanhMucSanPham');
 Route::post('khachhang', 'KhachHangNhaCungCapController@addKhachHang');
@@ -441,6 +446,3 @@ Route::get('inhoadonnhacungcap/{id}', 'DonHangNhaCungCapController@inHoaDon');
 Route::get('tien', 'DonDatHangController@test');
 Route::get('mobile/showdangky', 'AuthController@showDangKy');
 Route::post('mobile/dangkynhacungcap', 'System\UserController@dangKyNhaCungCap');
-
-
-
