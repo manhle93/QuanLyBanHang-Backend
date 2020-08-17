@@ -425,12 +425,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('uploadslider', 'CaiDatController@uploadAnh');
     Route::post('slider', 'CaiDatController@addSilder');
     Route::put('slider', 'CaiDatController@updateSlider');
-    Route::get('slider', 'CaiDatController@getSilder');
     Route::delete('slider/{id}', 'CaiDatController@xoaSilder');
 
     Route::post('monngonmoingay', 'CaiDatController@addMonNgonMoiNgay');
-    Route::get('idmonngonmoingay', 'CaiDatController@getMonNgonMoiNgay');
 });
+Route::get('idmonngonmoingay', 'CaiDatController@getMonNgonMoiNgay');
+Route::get('slider', 'CaiDatController@getSilder');
+
 Route::get('danhmuc', 'DanhMucSanPhamController@getDanhMucSanPham');
 Route::post('khachhang', 'KhachHangNhaCungCapController@addKhachHang');
 Route::post('khachdathang', 'DonDatHangController@datHang');
