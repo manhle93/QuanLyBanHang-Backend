@@ -24,4 +24,8 @@ class SanPham extends Model
     {
         return $this->belongsTo('App\ThuongHieu', 'thuong_hieu_id', 'id');
     }
+    public function sanPhamTonKho()
+    {
+        return $this->hasOne('App\HangTonKho', 'san_pham_id', 'id');
+    }
 }

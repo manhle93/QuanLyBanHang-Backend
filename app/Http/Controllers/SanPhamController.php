@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DonDatHang;
+use App\HangTonKho;
 use App\HinhAnhSanPham;
 use App\SanPham;
 use App\SanPhamDonDatHang;
@@ -102,7 +103,7 @@ class SanPhamController extends Controller
     {
         $perPage = $request->get('per_page', 10);
         $page = $request->get('page', 1);
-        $query = SanPham::with('danhMuc');
+        $query = SanPham::with('danhMuc', 'sanPhamTonKho:san_pham_id,so_luong');
         $search = $request->get('search');
         $danh_muc_id = $request->get('danh_muc_id');
         $san_pham_id = $request->get('san_pham_id');
@@ -120,7 +121,6 @@ class SanPhamController extends Controller
 
         $query->orderBy('updated_at', 'desc');
         $dancu = $query->paginate($perPage, ['*'], 'page', $page);
-
         return response()->json([
             'data' => $dancu,
             'message' => 'Lấy dữ liệu thành công',
@@ -241,7 +241,7 @@ class SanPhamController extends Controller
 
     public function getSanPhamDetailTrangChu($id)
     {
-        $sanPham = SanPham::where('id', $id)->with('hinhAnhs', 'danhMuc:id,ten_danh_muc', 'thuongHieu')->first();
+        $sanPham = SanPham::where('id', $id)->with('hinhAnhs', 'danhMuc:id,ten_danh_muc', 'thuongHieu', 'sanPhamTonKho:san_pham_id,so_luong')->first();
         return response($sanPham, 200);
     }
     public function getSanPhamGioHang(Request $request)
