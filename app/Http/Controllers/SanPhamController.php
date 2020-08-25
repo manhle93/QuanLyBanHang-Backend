@@ -250,7 +250,7 @@ class SanPhamController extends Controller
         if (!isset($data) || count($data) < 1) {
             return [];
         }
-        $sanPham =  SanPham::with('danhMuc')->whereIn('id', $data)->get();
+        $sanPham =  SanPham::with('danhMuc', 'sanPhamTonKho:san_pham_id,so_luong')->whereIn('id', $data)->get();
         return $sanPham;
     }
 
