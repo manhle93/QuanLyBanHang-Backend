@@ -268,4 +268,14 @@ class SanPhamController extends Controller
         $sanPhams =  collect($sanPhams)->sortByDesc('tong_doanh_thu')->values()->take(20);
         return $sanPhams;
     }
+
+    public function getSanPhamGioHangMobile(Request $request)
+    {
+        $data = $request->get('san_pham_id');
+        if (!isset($data) || count($data) < 1) {
+            return [];
+        }
+        $sanPham =  SanPham::with('danhMuc', 'sanPhamTonKho:san_pham_id,so_luong')->whereIn('id', $data)->get();
+        return $sanPham;
+    }
 }

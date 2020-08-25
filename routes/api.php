@@ -451,6 +451,7 @@ Route::post('loginkhachhang', 'KhachHangNhaCungCapController@loginKhachHang');
 Route::post('capnhatkhachhang', 'KhachHangNhaCungCapController@updateThongTinCaNhan');
 Route::get('sanpham', 'SanPhamController@getSanPham');
 Route::get('sanphamgiohang', 'SanPhamController@getSanPhamGioHang');
+Route::post('sanphamgiohang', 'SanPhamController@getSanPhamGioHangMobile');
 Route::get('sanphamtrangchu/{id}', 'SanPhamController@getSanPhamDetailTrangChu');
 Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
 Route::get('inhoadon/{id}', 'DonDatHangController@inHoaDon');
