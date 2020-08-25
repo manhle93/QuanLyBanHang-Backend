@@ -134,4 +134,23 @@ class DanhMucSanPhamController extends Controller
             return response(['message' => 'Không thể xóa danh mục này'], 500);
         }
     }
+
+    public function danhMucSanPhamMobile(Request $request){
+        $per_page = $request->get('per_page', 10);
+        $per_page_sp = $request->get('per_page', 12);
+        $query = DanhMucSanPham::query();
+        $query->orderBy('updated_at', 'desc');
+        $data = $query->get();
+        if(isset($per_page)){
+            $data = $query->take($per_page)->get();
+        }
+        foreach($data as $item){
+            $sanPham = SanPham::where('danh_muc_id', $item->id)->count();
+            $item['so_mat_hang'] = $sanPham;
+            $sanPhams = SanPham::where('danh_muc_id', $item->id)->take($per_page_sp)->get();
+            $item['san_pham'] = $sanPhams;
+        }
+        return $data;
+
+    }
 }

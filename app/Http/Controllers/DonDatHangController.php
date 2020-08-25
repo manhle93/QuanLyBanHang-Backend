@@ -127,7 +127,7 @@ class DonDatHangController extends Controller
             $query = $query->where('trang_thai', 'hoa_don');
         }
         if ($don_hang) {
-            $query = $query->whereIn('trang_thai', ['moi_tao', 'huy_bo', 'khach_huy']);
+            $query = $query->whereIn('trang_thai', ['moi_tao', 'huy_bo', 'khach_huy', 'dat_hang_online', 'mua_hang_online']);
         }
         if ($trahang) {
             $query = $query->where('trang_thai', 'huy_hoa_don');
@@ -495,7 +495,8 @@ class DonDatHangController extends Controller
         return $string;
     }
 
-    public function datHang(Request $request){
+    public function datHang(Request $request)
+    {
         $data = $request->all();
         $validator = Validator::make($data, [
             'ma' => 'required',
@@ -514,6 +515,27 @@ class DonDatHangController extends Controller
         }
         $user = auth()->user();
         $data['ten'] = 'Đặt hàng online';
+        if ($data['mua_hang']) {
+            foreach ($data['danhSachHang'] as $item) {
+                $tonKho = HangTonKho::where('san_pham_id', $item['id'])->first();
+                if (!$tonKho || $tonKho->so_luong < $item['so_luong']) {
+                    return response(['message' => 'Sản phẩm ' . $item['ten_san_pham'] . ' vượt quá số lượng tồn kho'], 500);
+                }
+            }
+            if ($data['phuong_thuc_thanh_toan'] == 'tai_khoan') {
+                $user = auth()->user();
+                if (!$user) {
+                    return response(['message' => 'Tài khoản không tồn tại'], 500);
+                }
+                $khacHang = KhachHang::where('user_id', $user->id)->first();
+                if (!$khacHang) {
+                    return response(['message' => 'Tài khoản khách hàng không tồn tại '], 500);
+                }
+                if ($data['tong_tien'] > $khacHang->so_du) {
+                    return response(['message' => 'Số dư tài khoản không đủ'], 500);
+                }
+            }
+        }
         try {
             DB::beginTransaction();
             $donHang = DonDatHang::create([
@@ -525,25 +547,36 @@ class DonDatHangController extends Controller
                 'dia_chi' => $data['dia_chi'],
                 'user_id' => $user ? $user->id : null,
                 'ghi_chu' => $data['ghi_chu'],
-                'trang_thai' => 'moi_tao',
+                'trang_thai' => $data['mua_hang'] ? 'mua_hang_online' : 'dat_hang_online',
                 'giam_gia' => $data['giam_gia'],
                 // 'bang_gia_id' => $data['bang_gia_id'],
                 // 'da_thanh_toan' => $data['da_thanh_toan'],        
                 // 'con_phai_thanh_toan' => $data['con_phai_thanh_toan'],
-                // 'thanh_toan' => $data['thanh_toan'],
+                'thanh_toan' => $data['phuong_thuc_thanh_toan'],
                 // 'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
-                // 'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
+                'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
 
             ]);
-            foreach ($data['danhSachHang'] as $item) {
-
-                SanPhamDonDatHang::create([
-                    'san_pham_id' => $item['id'],
-                    'gia_ban' => $item['gia_ban'],
-                    'so_luong' => $item['so_luong'],
-                    'don_dat_hang_id' => $donHang->id,
-                    'doanh_thu' =>  $item['gia_ban'] * $item['so_luong']
-                ]);
+            if ($data['mua_hang']) {
+                foreach ($data['danhSachHang'] as $item) {
+                    SanPhamDonDatHang::create([
+                        'san_pham_id' => $item['id'],
+                        'gia_ban' => $item['gia_ban'],
+                        'so_luong' => $item['so_luong'],
+                        'don_dat_hang_id' => $donHang->id,
+                        'doanh_thu' =>  $item['gia_ban'] * $item['so_luong']
+                    ]);
+                }
+            } else {
+                foreach ($data['datHang'] as $item) {
+                    SanPhamDonDatHang::create([
+                        'san_pham_id' => $item['id'],
+                        'gia_ban' => $item['gia_ban'],
+                        'so_luong' => $item['so_luong'],
+                        'don_dat_hang_id' => $donHang->id,
+                        'doanh_thu' =>  $item['gia_ban'] * $item['so_luong']
+                    ]);
+                }
             }
             DB::commit();
             return response(['message' => 'Thành công', 'don_hang_id' => $donHang->id], 200);
@@ -557,7 +590,7 @@ class DonDatHangController extends Controller
     {
         $user = auth()->user();
         $donHang = DonDatHang::where('id', $id)->first();
-        if(!$donHang){
+        if (!$donHang) {
             return response(['message' => 'Đơn hàng không tồn tại'], 501);
         }
         if (!$user || $user->id != $donHang->user_id) {
@@ -565,7 +598,7 @@ class DonDatHangController extends Controller
         }
         try {
             DB::beginTransaction();
-            if($donHang->trang_thai != 'moi_tao'){
+            if ($donHang->trang_thai != 'moi_tao') {
                 return response(['message' => 'Không thể hủy đơn'], 500);
             }
             $donHang->update([

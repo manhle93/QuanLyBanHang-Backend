@@ -257,7 +257,7 @@ class SanPhamController extends Controller
     public function getSanPhamBanChay()
     {
         $hoaDon = DonDatHang::where('trang_thai', 'hoa_don')->pluck('id')->toArray();
-        $sanPhams = SanPhamDonDatHang::with('sanPham:id,ten_san_pham,anh_dai_dien,gia_ban')->select('id', 'san_pham_id', 'doanh_thu')->whereIn('don_dat_hang_id', $hoaDon)->get();
+        $sanPhams = SanPhamDonDatHang::with('sanPham:id,ten_san_pham,anh_dai_dien,gia_ban', 'sanPham.sanPhamTonKho:san_pham_id,so_luong')->select('id', 'san_pham_id', 'doanh_thu')->whereIn('don_dat_hang_id', $hoaDon)->get();
         $sanPhams =  collect($sanPhams)->unique('san_pham_id')->values()->all();
         foreach ($sanPhams as $item) {
             $query = SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDon);

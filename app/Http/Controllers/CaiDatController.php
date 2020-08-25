@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\BaiViet;
 use App\MonNgonMoiNgay;
 use App\SanPham;
 use App\Slider;
@@ -119,6 +120,116 @@ class CaiDatController extends Controller
     }
     public function getMonNgonMoiNgay(){
       $sanPhamID = MonNgonMoiNgay::select('san_pham_id')->pluck('san_pham_id')->toArray();
-      return SanPham::with('danhMuc')->whereIn('id', $sanPhamID)->get();
+      return SanPham::with('danhMuc', 'sanPhamTonKho:san_pham_id,so_luong')->whereIn('id', $sanPhamID)->get();
+    }
+
+    public function addBaiViet(Request $request){
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'tieu_de' => 'required',
+            'noi_dung' => 'required',
+            'trang_thai' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Thiếu dữ liệu'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+        $user = auth()->user();
+        if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
+            return response(['message' => 'Không có quyền'], 401);
+        } try{
+            BaiViet::create([
+                'tieu_de' => $data['tieu_de'],
+                'noi_dung' => $data['noi_dung'],
+                'anh_dai_dien' => $data['anh_dai_dien'],
+                'xuat_ban' => $data['trang_thai'],
+                'user_id' => $user->id
+            ]);
+            return response(['message' => 'Thành công'], 200);
+        }catch(\Exception $e){
+            return response(['message' => 'Không thể lưu bài viết'], 500);
+        }
+    }
+
+    public function getBaiViet(Request $request){
+        $perPage = $request->get('per_page', 10);
+        $page = $request->get('page', 1);
+        $search = $request->get('search');
+        $query = BaiViet::with('user');
+        $trangThai = $request->get('trang_thai');
+        if(isset($trangThai)){
+            if($trangThai == 'xuat_ban'){
+                $query->where('xuat_ban', true);
+            }
+            if($trangThai == 'luu_nhap'){
+                $query->where('xuat_ban', false);
+            }
+        }
+        if (isset($search)) {
+            $search = trim($search);
+            $query->where('tieu_de', 'ilike', "%{$search}%");
+            $query->orWhere('noi_dung', 'ilike', "%{$search}%");
+        }
+        $query->orderBy('updated_at', 'desc');
+        $dancu = $query->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'data' => $dancu,
+            'message' => 'Lấy dữ liệu thành công',
+            'code' => 200,
+        ], 200);
+    }
+
+    public function editBaiViet($id, Request $request){
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'tieu_de' => 'required',
+            'noi_dung' => 'required',
+            'trang_thai' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Thiếu dữ liệu'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+        $user = auth()->user();
+        if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
+            return response(['message' => 'Không có quyền'], 401);
+        } 
+        try{
+            BaiViet::find($id)->update([
+                'tieu_de' => $data['tieu_de'],
+                'noi_dung' => $data['noi_dung'],
+                'anh_dai_dien' => $data['anh_dai_dien'],
+                'xuat_ban' => $data['trang_thai'],
+            ]);
+            return response(['message' => 'Thành công'], 200);
+        }catch(\Exception $e){
+            return response(['message' => 'Không thể cập nhật bài viết'], 500);
+        }
+    }
+    public function xoaBaiViet($id){
+        $user = auth()->user();
+        if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
+            return response(['message' => 'Không có quyền'], 401);
+        } 
+        try{
+            BaiViet::find($id)->delete();
+            return response(['message' => 'Thành công'], 200);
+        }catch(\Exception $e){
+            return response(['message' => 'Không thể xóa bài viết'], 500);
+        }
+    }
+    public function getChiTietBaiViet($id){
+        return BaiViet::with('user')->where('id', $id)->where('xuat_ban', true)->first();
     }
 }
