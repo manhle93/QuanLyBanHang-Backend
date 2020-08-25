@@ -429,12 +429,12 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('monngonmoingay', 'CaiDatController@addMonNgonMoiNgay');
     Route::post('baiviet', 'CaiDatController@addBaiViet');
-    Route::get('baiviet', 'CaiDatController@getBaiViet');
     Route::put('baiviet/{id}', 'CaiDatController@editBaiViet');
     Route::delete('baiviet/{id}', 'CaiDatController@xoaBaiViet');
     Route::get('baiviet/{id}', 'CaiDatController@getChiTietBaiViet');
 
 });
+Route::get('baiviet', 'CaiDatController@getBaiViet');
 Route::get('idmonngonmoingay', 'CaiDatController@getMonNgonMoiNgay');
 Route::get('slider', 'CaiDatController@getSilder');
 
