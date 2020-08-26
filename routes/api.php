@@ -280,9 +280,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('phuongtientoanha', 'PhuongTienToaNhaController@addPhuongtien');
     Route::put('phuongtientoanha', 'PhuongTienToaNhaController@updatePhuongTien');
     Route::delete('phuongtientoanha/{id}', 'PhuongTienToaNhaController@xoaPhuongTien');
-    Route::get('danhmucmobile', 'DanhMucController@getDanhMucMobile');
 });
-
+Route::get('danhmucmobile', 'DanhMucController@getDanhMucMobile');
 Route::post('baochay', 'DiemChayController@baoChay');
 Route::get('refreshcaptcha', 'AuthController@refreshCaptcha');
 Route::get('checkusercaptcha', 'AuthController@checkUser');
