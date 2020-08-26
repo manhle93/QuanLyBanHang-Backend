@@ -343,6 +343,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('khachhang/{id}', 'KhachHangNhaCungCapController@xoaKhachHang');
     Route::get('profilekhachhang', 'KhachHangNhaCungCapController@thongTinCaNhanKhachHang');
 
+    Route::get('donhangmobile', 'KhachHangNhaCungCapController@getDonHangMobile');
+    Route::get('giaodichmobile', 'KhachHangNhaCungCapController@getGiaoDichMobile');
+
 
     Route::get('nhaccungcap', 'KhachHangNhaCungCapController@getNhaCungCap');
     Route::post('nhaccungcap', 'KhachHangNhaCungCapController@addNhaCungCap');

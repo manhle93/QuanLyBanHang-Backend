@@ -200,7 +200,7 @@ class KhachHangNhaCungCapController extends Controller
         }
         if ($user->role_id == 1 || $user->role_id == 2) {
             $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
-            foreach($data as $item){
+            foreach ($data as $item) {
                 $hoaDonID = DonDatHang::where('trang_thai', 'hoa_don')->where('user_id', $item->user_id)->pluck('id');
                 $tongTien = SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDonID)->sum('doanh_thu');
                 $item['tong_hoa_don'] = $tongTien;
@@ -625,7 +625,7 @@ class KhachHangNhaCungCapController extends Controller
             'oldPassword' => 'required',
             'newPassword' => 'required|min:6',
             'reNewPassword' => 'required|same:newPassword',
-        ],[
+        ], [
             'newPassword.min' => 'Mật khẩu tối thiểu 6 ký tự',
             'newPassword.required' => 'Chưa nhập mật khẩu mới',
             'oldPassword.required' => 'Chưa nhập mật khẩu cũ',
@@ -634,8 +634,8 @@ class KhachHangNhaCungCapController extends Controller
         ]);
         if ($validator->fails()) {
             $loi = "";
-            foreach ($validator->errors()->all() as $it){
-                $loi = $loi.''.$it.", ";
+            foreach ($validator->errors()->all() as $it) {
+                $loi = $loi . '' . $it . ", ";
             };
             return response()->json([
                 'code' => 400,
@@ -680,5 +680,41 @@ class KhachHangNhaCungCapController extends Controller
                 'data' => $e
             ], 500);
         }
+    }
+
+    public function getDonHangMobile(Request $request)
+    {
+        $user = auth()->user();
+        $perPage = $request->query('per_page', 5);
+        $page = $request->get('page', 1);
+        $month = $request->get('month');
+        $year = $request->get('year');
+        if (!$user) {
+            return response(['message' => 'Chưa đăng nhập', 'data' => []], 400);
+        }
+        $query =  DonDatHang::with('sanPhams', 'sanPhams.sanPham')->where('user_id', $user->id);
+        if (isset($month) && isset($year)) {
+            $query->whereYear('created_at', $year)->whereMonth('created_at', $month);
+        }
+        $donHang = $query->orderBy('updated_at', 'DESC')->paginate($perPage, ['*'], 'page', $page);
+        return $donHang;
+    }
+
+    public function getGiaoDichMobile(Request $request)
+    {
+        $user = auth()->user();
+        $perPage = $request->query('per_page', 5);
+        $page = $request->get('page', 1);
+        $month = $request->get('month');
+        $year = $request->get('year');
+        if (!$user) {
+            return response(['message' => 'Chưa đăng nhập', 'data' => []], 400);
+        }
+        $query = NopTien::where('id_user_khach_hang', $user->id);
+        if (isset($month) && isset($year)) {
+            $query->whereYear('created_at', $year)->whereMonth('created_at', $month);
+        }
+        $donHang = $query->orderBy('updated_at', 'DESC')->paginate($perPage, ['*'], 'page', $page);
+        return $donHang;
     }
 }
