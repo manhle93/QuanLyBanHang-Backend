@@ -115,8 +115,11 @@ class SanPhamController extends Controller
         }
         if (isset($search)) {
             $search = trim($search);
-            $query->where('ten_san_pham', 'ilike', "%{$search}%");
-            $query->orWhere('mo_ta_san_pham', 'ilike', "%{$search}%");
+            // $query->where('ten_san_pham', 'ilike', "%{$search}%");
+            // $query->orWhere('mo_ta_san_pham', 'ilike', "%{$search}%");
+
+            $query->whereRaw('CONCAT(unaccent(ten_san_pham), ten_san_pham) ilike ' . "'%{$search}%'");
+            $query->orWhereRaw('CONCAT(unaccent(mo_ta_san_pham), mo_ta_san_pham) ilike ' . "'%{$search}%'");
         }
 
         $query->orderBy('updated_at', 'desc');

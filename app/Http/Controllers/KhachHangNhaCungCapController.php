@@ -717,4 +717,12 @@ class KhachHangNhaCungCapController extends Controller
         $donHang = $query->orderBy('updated_at', 'DESC')->paginate($perPage, ['*'], 'page', $page);
         return $donHang;
     }
+    public function getChiTietKhachHang(){
+        $user = auth()->user();
+        if (!$user) {
+            return response(['message' => 'Chưa đăng nhập', 'data' => []], 400);
+        }
+        $khachHang = KhachHang::with('user')->where('user_id', $user->id)->first();
+        return $khachHang;
+    }
 }
