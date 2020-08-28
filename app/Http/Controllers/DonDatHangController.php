@@ -598,7 +598,7 @@ class DonDatHangController extends Controller
         }
         try {
             DB::beginTransaction();
-            if ($donHang->trang_thai != 'moi_tao') {
+            if ($donHang->trang_thai != 'moi_tao' && $donHang->trang_thai != 'mua_hang_online'  && $donHang->trang_thai != 'dat_hang_online') {
                 return response(['message' => 'Không thể hủy đơn'], 500);
             }
             $donHang->update([
