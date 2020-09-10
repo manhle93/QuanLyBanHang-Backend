@@ -65,12 +65,15 @@ class BieuDoController extends Controller
         $hoaDon = DonDatHang::where('trang_thai', 'hoa_don')->whereYear('created_at', '=', Carbon::now()->year)->whereMonth('created_at', '=', Carbon::now()->month)->count();
         $hoaDons = DonDatHang::whereYear('created_at', '=', Carbon::now()->year)->whereMonth('created_at', '=', Carbon::now()->month)->where('trang_thai', 'hoa_don')->pluck('id')->toArray();
         $doanhThu = SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDons)->sum('doanh_thu');
+        $donOnline = DonDatHang::where('trang_thai', 'mua_hang_online')->whereYear('created_at', '=', Carbon::now()->year)->whereMonth('created_at', '=', Carbon::now()->month)->count();
         $data = [
             'khach_hang' => $khachHang,
             'san_pham' => $sanPham,
             'don_hang' => $donDatHang,
             'hoa_don' => $hoaDon,
-            'doanh_thu' => $doanhThu
+            'doanh_thu' => $doanhThu,
+            'don_online' => $donOnline,
+            
         ];
         return $data;
     }

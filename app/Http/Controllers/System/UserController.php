@@ -11,6 +11,10 @@ use Validator;
 
 class UserController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['userActivity'])->only('index');
+    }
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
@@ -19,8 +23,12 @@ class UserController extends Controller
         $query = User::query()->with('khachHang:id,user_id,dia_chi', 'role');
         $search = $request->get('search');
         $active = $request->get('active');
+        $role = $request->get('role');
         if (!empty($active)) {
             $query->where('active', $active);
+        }
+        if (!empty($role)) {
+            $query->whereIn('role_id', $role);
         }
         if (isset($search)) {
             $search = trim($search);
@@ -31,7 +39,6 @@ class UserController extends Controller
         }
         $query->orderBy('updated_at', 'desc');
         $users = $query->paginate($perPage, ['*'], 'page', $page);
-
         return response()->json([
             'data' => $users,
             'message' => 'Lấy dữ liệu thành công',

@@ -5,7 +5,7 @@ namespace App;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
+use Illuminate\Filesystem\Cache;
 class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
@@ -16,9 +16,9 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'username', 'phone', 'active', 'role_id', 'avatar_url','tinh_thanh_id','quan_huyen_id', 'trang_thai_khoa', 'thoi_gian_bat_dau_khoa', 'so_lan_nhap_sai'
+        'name', 'email', 'password', 'username', 'phone', 'active', 'role_id', 'avatar_url', 'tinh_thanh_id', 'quan_huyen_id', 'trang_thai_khoa', 'thoi_gian_bat_dau_khoa', 'so_lan_nhap_sai'
     ];
-
+    protected $appends = ['online'];
     /**
      * The attributes that should be hidden for arrays.
      *
@@ -33,6 +33,11 @@ class User extends Authenticatable implements JWTSubject
      *
      * @var array
      */
+    public function getOnlineAttribute()
+    {
+        return Cache()->has('user-is-online-' . $this->id);
+    }
+
     public function role()
     {
         return $this->belongsTo('App\Role');
@@ -40,11 +45,11 @@ class User extends Authenticatable implements JWTSubject
 
     public function tinhThanh()
     {
-        return $this->belongsTo('App\TinhThanh','tinh_thanh_id')->select('id','name','code');
+        return $this->belongsTo('App\TinhThanh', 'tinh_thanh_id')->select('id', 'name', 'code');
     }
     public function nhaCungCap()
     {
-        return $this->hasOne('App\NhaCungCap','user_id');
+        return $this->hasOne('App\NhaCungCap', 'user_id');
     }
     public function khachHang()
     {
@@ -52,7 +57,7 @@ class User extends Authenticatable implements JWTSubject
     }
     public function quyanHuyen()
     {
-        return $this->belongsTo('App\QuyanHuyen','quan_huyen_id', 'id')->select('id','name','code','tinh_thanh_id');
+        return $this->belongsTo('App\QuyanHuyen', 'quan_huyen_id', 'id')->select('id', 'name', 'code', 'tinh_thanh_id');
     }
 
     public function getJWTIdentifier()

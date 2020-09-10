@@ -540,9 +540,9 @@ class KhachHangNhaCungCapController extends Controller
             return response(['message' => 'Chưa đăng nhập', 'data' => []], 400);
         }
         $khachHang = KhachHang::with('user')->where('user_id', $user->id)->first();
-        $donHang = DonDatHang::with('sanPhams', 'sanPhams.sanPham')->where('user_id', $user->id)->orderBy('updated_at', 'DESC')->get();
+        // $donHang = DonDatHang::with('sanPhams', 'sanPhams.sanPham')->where('user_id', $user->id)->orderBy('updated_at', 'DESC')->get();
         $lichSuGD = NopTien::where('id_user_khach_hang', $user->id)->get();
-        return response(['message' => 'Thành công', 'data' => $khachHang, 'don_hang' => $donHang, 'giao_dich' => $lichSuGD], 200);
+        return response(['message' => 'Thành công', 'data' => $khachHang, 'don_hang' => [], 'giao_dich' => $lichSuGD], 200);
     }
 
     public function getThongTinDatHang()

@@ -316,6 +316,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('xoahinhanh', 'SanPhamController@xoaAnhSanPham');
     Route::put('sanpham/{id}', 'SanPhamController@editSanPham');
 
+    Route::post('trahangnhacungcap', 'DonHangNhaCungCapController@traHangNhaCungCap');
+    Route::delete('trahangnhacungcap/{id}', 'DonHangNhaCungCapController@xoaDonTrahang');
+    Route::put('trahangnhacungcap/{id}', 'DonHangNhaCungCapController@updateDonTraHang');
+    Route::get('trahangnhacungcap', 'DonHangNhaCungCapController@getDonTraHang');
     Route::post('themdonhang', 'DonHangNhaCungCapController@addDonHang');
     Route::get('danhsachdonhang', 'DonHangNhaCungCapController@getDonHang');
     Route::get('donhang/{id}', 'DonHangNhaCungCapController@getChiTietDonHang');
@@ -325,6 +329,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('donhang/{id}', 'DonHangNhaCungCapController@xoaDon');
     Route::post('nhapkho/{id}', 'DonHangNhaCungCapController@nhapKho');
 
+    Route::get('donhangnhacungcapnhapkho/{id}', 'DonHangNhaCungCapController@getDonHangNhaCCC');
     Route::get('phieunhap', 'QuanLyKhoController@getPhieuNhap');
 
     Route::get('thuonghieu', 'ThuongHieuController@getThuongHieu');
