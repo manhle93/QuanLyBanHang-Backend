@@ -14,7 +14,7 @@ class AddThanhToanDonHangNCC extends Migration
     public function up()
     {
         Schema::table('don_hang_nha_cung_caps', function (Blueprint $table) {
-            $table->double('thanh_toan')->default(false);
+            $table->boolean('thanh_toan')->default(false);
         });
     }
 

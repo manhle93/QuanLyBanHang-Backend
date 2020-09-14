@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\DonHangNhaCungCap;
+use App\DonHangThanhToanNhaCungCap;
 use App\HangTonKho;
 use App\Kho;
 use App\PhieuNhapKho;
 use App\SanPhamDonHangNhaCungCap;
 use App\SanPhamTraNhaCungCap;
+use App\ThanhToanNhaCungCap;
 use App\TraHangNhaCungCap;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -191,7 +193,7 @@ class DonHangNhaCungCapController extends Controller
         if ($user->role_id == 1 || $user->id == $donHang->user_id) {
             try {
                 DonHangNhaCungCap::find($id)->update(['trang_thai' => 'huy_bo']);
-                return response(['message' => "Duyệt đơn thành công"], 200);
+                return response(['message' => "Hủy đơn thành công"], 200);
             } catch (\Exception $e) {
                 return response(['message' => "Không thể duyệt đơn"], 500);
             }
@@ -362,7 +364,6 @@ class DonHangNhaCungCapController extends Controller
                 ]);
             }
             DB::commit();
-
             return response(['message' => 'Thành công'],200);
         }catch(\Exception $e){
             DB::rollBack();
@@ -495,5 +496,122 @@ class DonHangNhaCungCapController extends Controller
 
     public function getDonHangNhaCCC($id){
         return DonHangNhaCungCap::where('user_id', $id)->where('trang_thai', 'nhap_kho')->get();
+    }
+
+    public function addDonThanhToanNCC(Request $request)
+    {
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'nha_cung_cap_id' => 'required',
+            'hangHoas' => 'required',
+            'phai_thanh_toan' => 'required',
+            'thanh_toan' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Không thể thêm mới'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+        try{
+            DB::beginTransaction();
+           $don = ThanhToanNhaCungCap::create([
+                'ma_don' => 'TTNCC'.time(),
+                'phai_thanh_toan' => $data['phai_thanh_toan'],
+                'thanh_toan' => $data['thanh_toan'],
+                'user_id' => auth()->user()->id,
+                'nha_cung_cap_id' => $data['nha_cung_cap_id']
+            ]);
+            foreach($data['hangHoas'] as $item){
+                DonHangThanhToanNhaCungCap::create([
+                    'don_thanh_toan_id' => $don->id,
+                    'don_hang_id' => $item['id']
+                ]);
+                DonHangNhaCungCap::find($item['id'])->update(['thanh_toan' => true]);
+            }
+            DB::commit();
+            return response(['message' => 'Thành công'],200);
+        }catch(\Exception $e){
+            DB::rollBack();
+            return response(['message' => 'Không thể thêm mới'],500);
+        }
+    }
+    public function getLichSuThanhToanNCC(Request $request){
+        $perPage = $request->get('per_page', 10);
+        $page = $request->get('page', 1);
+        $nhac_cung_cap = $request->get('nha_cung_cap');
+        $date = $request->get('date');
+        $query = ThanhToanNhaCungCap::with('donHangs', 'nhanCungCap:id,ten', 'user:id,name');
+        if (isset($date)) {
+            $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
+        if($nhac_cung_cap){
+            $query->where('nha_cung_cap_id', $nhac_cung_cap);
+        }
+        $query->orderBy('created_at', 'desc');
+        $query->orderBy('id', 'asc');
+        $data = $query->paginate($perPage, ['*'], 'page', $page);
+        return $data;
+    }
+    public function updateDonThanhToanNCC($id, Request $request)
+    {
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'nha_cung_cap_id' => 'required',
+            'hangHoas' => 'required',
+            'phai_thanh_toan' => 'required',
+            'thanh_toan' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Không thể thêm mới'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+        try{
+            DB::beginTransaction();
+           $don = ThanhToanNhaCungCap::find($id)->update([
+                'ma_don' => 'TTNCC'.time(),
+                'phai_thanh_toan' => $data['phai_thanh_toan'],
+                'thanh_toan' => $data['thanh_toan'],
+                'user_id' => auth()->user()->id,
+                'nha_cung_cap_id' => $data['nha_cung_cap_id']
+            ]);
+            DonHangThanhToanNhaCungCap::where('don_thanh_toan_id', $id)->delete();
+            foreach($data['hangHoas'] as $item){
+                DonHangThanhToanNhaCungCap::create([
+                    'don_thanh_toan_id' => $id,
+                    'don_hang_id' => $item['id']
+                ]);
+            }
+            DB::commit();
+            return response(['message' => 'Thành công'],200);
+        }catch(\Exception $e){
+            DB::rollBack();
+            return response(['message' => 'Không thể cập nhật'],500);
+        }
+    }
+    public function xoaDonThanhToanNCC($id){
+        $user = auth()->user();
+        if (!$user) {
+            return response(['message' => "Chưa đăng nhập"], 400);
+        }
+
+        if ($user->role_id != 1 && $user->role_id != 2) {
+            return response(['message' => "Không có quyền"], 402);
+        }
+        try{
+            ThanhToanNhaCungCap::find($id)->delete();
+            return response(['message' => "Thành công"], 200);
+        }catch(\Exception $e){
+            return response(['message' => "Không thể xóa"], 500);
+        }
     }
 }

@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\BangGiaSanPham;
 use App\DonDatHang;
+use App\DonHangNhaCungCap;
 use App\KhachHang;
 use App\LichSuDangNhap;
 use App\NhaCungCap;
 use App\NopTien;
 use App\SanPhamDonDatHang;
+use App\ThanhToanNhaCungCap;
+use App\TraHangNhaCungCap;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -235,13 +238,40 @@ class KhachHangNhaCungCapController extends Controller
         if ($user->role_id == 1 || $user->role_id == 2) {
             $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
         }
+        foreach($data as $item){
+            $item['cong_no'] = $this->tinhCongNoNCC($item['user_id'], null);
+        }
         return response()->json([
             'data' => $data,
             'message' => 'Lấy dữ liệu thành công',
             'code' => '200',
         ], 200);
     }
+    function tinhCongNoNCC($user_id_nha_cung_cap, $date = null){
+        $ncc = NhaCungCap::where('user_id', $user_id_nha_cung_cap)->first();
+        if(!$ncc){
+            return null;
+        }
+       $tongThanhToan = DonHangNhaCungCap::where('user_id', $user_id_nha_cung_cap)->sum('tong_tien');
+       $thanhToanLan1 = DonHangNhaCungCap::where('user_id', $user_id_nha_cung_cap)->sum('da_thanh_toan');
+       $thanhToanLan2 = ThanhToanNhaCungCap::where('nha_cung_cap_id', $ncc->id)->sum('thanh_toan');
+       $traHang = TraHangNhaCungCap::where('nha_cung_cap_id', $ncc->id)->sum('tong_tien');
 
+       if($date){
+        $tongThanhToan = DonHangNhaCungCap::where('user_id', $user_id_nha_cung_cap)->where('created_at', '<=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())->sum('tong_tien');
+
+        $thanhToanLan1 = DonHangNhaCungCap::where('user_id', $user_id_nha_cung_cap)->where('created_at', '<=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+        ->sum('da_thanh_toan');
+
+        $thanhToanLan2 = ThanhToanNhaCungCap::where('nha_cung_cap_id', $ncc->id)->where('created_at', '<=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+        ->sum('thanh_toan');
+
+        $traHang = TraHangNhaCungCap::where('nha_cung_cap_id', $ncc->id)->where('created_at', '<=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+        ->sum('tong_tien');
+       }
+       $congNo = $tongThanhToan- $thanhToanLan1 - $thanhToanLan2 - $traHang;
+       return $congNo;
+    }
     public function addNhaCungCap(Request $request)
     {
         $data = $request->all();
@@ -724,5 +754,39 @@ class KhachHangNhaCungCapController extends Controller
         }
         $khachHang = KhachHang::with('user')->where('user_id', $user->id)->first();
         return $khachHang;
+    }
+
+    public function theoDoiCongNo(Request $request){
+        $date = $request->get('date');
+        $nha_cung_cap = $request->get('nha_cung_cap');
+        if(!isset($nha_cung_cap)){
+            return [];
+        }
+        $ncc= NhaCungCap::where('id', $nha_cung_cap)->first();
+        if(!$ncc){
+            return [];
+        }
+        $noDauKy = 0;
+        $nhapHang = DonHangNhaCungCap::where('trang_thai', 'nhap_kho')->where('user_id', $ncc->user_id);
+        $traHang = TraHangNhaCungCap::where('nha_cung_cap_id', $nha_cung_cap);
+        $thanhToan = ThanhToanNhaCungCap::where('nha_cung_cap_id', $nha_cung_cap);
+        if(isset($date)){
+            $nhapHang->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+
+            $traHang->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+
+            $thanhToan->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+
+            $noDauKy = $this->tinhCongNoNCC($ncc->user_id, $date);
+        }
+        return [
+            'no_dau_ky' => $noDauKy,
+            'nhap_hang' => $nhapHang->get(),
+            'tra_hang' => $traHang->get(),
+            'thanh_toan' => $thanhToan->get()
+        ];
     }
 }
