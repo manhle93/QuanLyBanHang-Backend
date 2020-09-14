@@ -328,6 +328,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('huydon/{id}', 'DonHangNhaCungCapController@huyDon');
     Route::delete('donhang/{id}', 'DonHangNhaCungCapController@xoaDon');
     Route::post('nhapkho/{id}', 'DonHangNhaCungCapController@nhapKho');
+    Route::post('nhapkhongoai', 'QuanLyKhoController@addNhapKhoNgoai');
 
     Route::get('donhangnhacungcapnhapkho/{id}', 'DonHangNhaCungCapController@getDonHangNhaCCC');
     Route::put('thanhtoandonhangnhacungcap/{id}', 'DonHangNhaCungCapController@updateDonThanhToanNCC');

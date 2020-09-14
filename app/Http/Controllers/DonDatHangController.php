@@ -240,7 +240,8 @@ class DonDatHangController extends Controller
                     'san_pham_id' => $item['hang_hoa']['id'],
                     'gia_ban' => $item['don_gia'],
                     'so_luong' => $item['so_luong'],
-                    'don_dat_hang_id' => $id
+                    'don_dat_hang_id' => $id,
+                    'doanh_thu' => $item['don_gia'] * $item['so_luong']
                 ]);
             }
             if ($khacHang && $data['thanh_toan'] == 'tai_khoan') {

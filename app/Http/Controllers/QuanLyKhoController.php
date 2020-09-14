@@ -12,6 +12,7 @@ use App\SanPhamDonHangNhaCungCap;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class QuanLyKhoController extends Controller
 {
@@ -80,7 +81,7 @@ class QuanLyKhoController extends Controller
 
         $query->orderBy('updated_at', 'desc');
         $data = $query->paginate($perPage, ['*'], 'page', $page);
-        foreach($data as $item){
+        foreach ($data as $item) {
             $soLuong = SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDons)->where('san_pham_id', $item['san_pham_id'])->sum('so_luong');
             $item['da_ban'] =  $soLuong;
         }
@@ -90,5 +91,52 @@ class QuanLyKhoController extends Controller
             'message' => 'Lấy dữ liệu thành công',
             'code' => 200,
         ], 200);
+    }
+    public function addNhapKhoNgoai(Request $request)
+    {
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'hangHoas' => 'required',
+            'tong_tien' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Không thể thêm mới'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+        DB::beginTransaction();
+        $user = auth()->user();
+        if (!$user) {
+            return response(['message' => 'Chưa đăng nhập'], 402);
+        }
+        try {
+            $donHang = DonHangNhaCungCap::create([
+                'ma' => 'ĐHN' . time(),
+                'ten' => 'Đơn hàng mua ngoài',
+                'ghi_chu' => 'Mua hàng bên ngoài, nhập kho',
+                'chiet_khau' => 0,
+                'tong_tien' => $data['tong_tien'],
+                'thoi_gian' => Carbon::now(),
+                'user_id' =>  $user ? $user->id : null,
+                'trang_thai' => 'nhap_kho_ngoai'
+            ]);
+            foreach ($data['hangHoas'] as $item) {
+                SanPhamDonHangNhaCungCap::create([
+                    'san_pham_id' => $item['san_pham_id'],
+                    'don_gia' => $item['don_gia'],
+                    'so_luong' => $item['so_luong'],
+                    'don_hang_id' => $donHang->id
+                ]);
+            }
+            PhieuNhapKho::create(['don_hang_id' => $donHang->id, 'ma' => 'PNK' . $donHang->id, 'user_id' => $user->id, 'kho_id' => null]);
+            return response(['message' => 'Thành công'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response(['message' => 'Không thể nhập kho'], 500);
+        }
     }
 }
