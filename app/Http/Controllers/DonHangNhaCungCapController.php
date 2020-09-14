@@ -286,6 +286,9 @@ class DonHangNhaCungCapController extends Controller
                     'don_gia' => $item['don_gia'],
                     'thanh_tien' => $item['so_luong'] * $item['don_gia']
                 ]);
+               $tonKho = HangTonKho::where('san_pham_id')->first();
+               $soLuongMoi = $tonKho - $item['so_luong'];
+               $tonKho->update(['so_luong' => $soLuongMoi]);
             }
             DB::commit();
 
