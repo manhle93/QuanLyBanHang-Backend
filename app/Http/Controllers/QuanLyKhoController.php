@@ -121,7 +121,7 @@ class QuanLyKhoController extends Controller
                 'chiet_khau' => 0,
                 'tong_tien' => $data['tong_tien'],
                 'thoi_gian' => Carbon::now(),
-                'user_id' =>  $user ? $user->id : null,
+                'user_id' => null,
                 'trang_thai' => 'nhap_kho_ngoai'
             ]);
             foreach ($data['hangHoas'] as $item) {
@@ -133,6 +133,7 @@ class QuanLyKhoController extends Controller
                 ]);
             }
             PhieuNhapKho::create(['don_hang_id' => $donHang->id, 'ma' => 'PNK' . $donHang->id, 'user_id' => $user->id, 'kho_id' => null]);
+            DB::commit();
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
             DB::rollBack();

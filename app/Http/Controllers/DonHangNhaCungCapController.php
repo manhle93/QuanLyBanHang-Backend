@@ -6,6 +6,7 @@ use App\DonHangNhaCungCap;
 use App\DonHangThanhToanNhaCungCap;
 use App\HangTonKho;
 use App\Kho;
+use App\NhaCungCap;
 use App\PhieuNhapKho;
 use App\SanPhamDonHangNhaCungCap;
 use App\SanPhamTraNhaCungCap;
@@ -70,10 +71,10 @@ class DonHangNhaCungCapController extends Controller
         if (!$user) {
             return response(['message' => 'Chưa đăng nhập'], 500);
         }
-        if($user->role_id == 3){
+        if ($user->role_id == 3) {
             $data['nha_cung_cap_id'] = null;
         }
-        if($user->role_id != 3 && $user->role_id != 2 && $user->role_id != 1){
+        if ($user->role_id != 3 && $user->role_id != 2 && $user->role_id != 1) {
             return response(['message' => 'Không có quyền'], 4001);
         }
         try {
@@ -130,10 +131,10 @@ class DonHangNhaCungCapController extends Controller
         if (!$user) {
             return response(['message' => 'Chưa đăng nhập'], 500);
         }
-        if($user->role_id == 3){
+        if ($user->role_id == 3) {
             $data['nha_cung_cap_id'] = null;
         }
-        if($user->role_id != 3 && $user->role_id != 2 && $user->role_id != 1){
+        if ($user->role_id != 3 && $user->role_id != 2 && $user->role_id != 1) {
             return response(['message' => 'Không có quyền'], 4001);
         }
         try {
@@ -210,7 +211,7 @@ class DonHangNhaCungCapController extends Controller
 
         if ($user->role_id == 1 || $donHang->user_id == $user->id) {
             try {
-                if($donHang->trang_thai == 'nhap_kho'){
+                if ($donHang->trang_thai == 'nhap_kho') {
                     return response(['message' => "Không thể xóa đơn hàng đã nhập kho"], 500);
                 }
                 $donHang->delete();
@@ -255,7 +256,8 @@ class DonHangNhaCungCapController extends Controller
             return response(['message' => 'Không thể tạo phiếu nhập'], 500);
         }
     }
-    public function traHangNhaCungCap(Request $request){
+    public function traHangNhaCungCap(Request $request)
+    {
         $data = $request->all();
         $validator = Validator::make($data, [
             'nha_cung_cap_id' => 'required',
@@ -272,13 +274,13 @@ class DonHangNhaCungCapController extends Controller
             ], 400);
         }
         DB::beginTransaction();
-        try{
-           $don = TraHangNhaCungCap::create([
-                'ma_don' => 'THNCC'.time(),
+        try {
+            $don = TraHangNhaCungCap::create([
+                'ma_don' => 'THNCC' . time(),
                 'nha_cung_cap_id' => $data['nha_cung_cap_id'],
                 'tong_tien' => $data['tong_tien']
             ]);
-            foreach($data['hangHoas'] as $item){
+            foreach ($data['hangHoas'] as $item) {
                 SanPhamTraNhaCungCap::create([
                     'san_pham_id' => $item['san_pham_id'],
                     'don_tra_hang_id' => $don->id,
@@ -286,20 +288,20 @@ class DonHangNhaCungCapController extends Controller
                     'don_gia' => $item['don_gia'],
                     'thanh_tien' => $item['so_luong'] * $item['don_gia']
                 ]);
-               $tonKho = HangTonKho::where('san_pham_id')->first();
-               $soLuongMoi = $tonKho - $item['so_luong'];
-               $tonKho->update(['so_luong' => $soLuongMoi]);
+                $tonKho = HangTonKho::where('san_pham_id')->first();
+                $soLuongMoi = $tonKho - $item['so_luong'];
+                $tonKho->update(['so_luong' => $soLuongMoi]);
             }
             DB::commit();
 
-            return response(['message' => 'Thành công'],200);
-        }catch(\Exception $e){
+            return response(['message' => 'Thành công'], 200);
+        } catch (\Exception $e) {
             DB::rollBack();
-            return response(['message' => 'Không thể thêm mới'],500);
+            return response(['message' => 'Không thể thêm mới'], 500);
         }
-
     }
-    public function getDonTraHang(Request $request){
+    public function getDonTraHang(Request $request)
+    {
         $perPage = $request->get('per_page', 10);
         $page = $request->get('page', 1);
         $nhac_cung_cap = $request->get('nha_cung_cap_id');
@@ -309,7 +311,7 @@ class DonHangNhaCungCapController extends Controller
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
         }
-        if($nhac_cung_cap){
+        if ($nhac_cung_cap) {
             $query->where('nha_cung_cap_id', $nhac_cung_cap);
         }
         $query->orderBy('created_at', 'desc');
@@ -317,7 +319,8 @@ class DonHangNhaCungCapController extends Controller
         $data = $query->paginate($perPage, ['*'], 'page', $page);
         return $data;
     }
-    public function xoaDonTrahang($id){
+    public function xoaDonTrahang($id)
+    {
         $user = auth()->user();
         if (!$user) {
             return response(['message' => "Chưa đăng nhập"], 400);
@@ -326,14 +329,15 @@ class DonHangNhaCungCapController extends Controller
         if ($user->role_id != 1 && $user->role_id != 2) {
             return response(['message' => "Không có quyền"], 402);
         }
-        try{
+        try {
             TraHangNhaCungCap::find($id)->delete();
             return response(['message' => "Thành công"], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response(['message' => "Không thể xóa"], 500);
         }
     }
-    public function updateDonTraHang($id, Request $request){
+    public function updateDonTraHang($id, Request $request)
+    {
         $data = $request->all();
         $validator = Validator::make($data, [
             'nha_cung_cap_id' => 'required',
@@ -350,14 +354,14 @@ class DonHangNhaCungCapController extends Controller
             ], 400);
         }
         DB::beginTransaction();
-        try{
-             TraHangNhaCungCap::find($id)->update([
-                'ma_don' => 'THNCC'.time(),
+        try {
+            TraHangNhaCungCap::find($id)->update([
+                'ma_don' => 'THNCC' . time(),
                 'nha_cung_cap_id' => $data['nha_cung_cap_id'],
                 'tong_tien' => $data['tong_tien']
             ]);
-            SanPhamTraNhaCungCap::where('don_tra_hang_id',$id)->delete();
-            foreach($data['hangHoas'] as $item){
+            SanPhamTraNhaCungCap::where('don_tra_hang_id', $id)->delete();
+            foreach ($data['hangHoas'] as $item) {
                 SanPhamTraNhaCungCap::create([
                     'san_pham_id' => $item['san_pham_id'],
                     'don_tra_hang_id' => $id,
@@ -367,10 +371,10 @@ class DonHangNhaCungCapController extends Controller
                 ]);
             }
             DB::commit();
-            return response(['message' => 'Thành công'],200);
-        }catch(\Exception $e){
+            return response(['message' => 'Thành công'], 200);
+        } catch (\Exception $e) {
             DB::rollBack();
-            return response(['message' => 'Không thể cập nhật'],500);
+            return response(['message' => 'Không thể cập nhật'], 500);
         }
     }
     public function inHoaDon($id)
@@ -497,8 +501,15 @@ class DonHangNhaCungCapController extends Controller
         return $string;
     }
 
-    public function getDonHangNhaCCC($id){
-        return DonHangNhaCungCap::where('user_id', $id)->where('trang_thai', 'nhap_kho')->get();
+    public function getDonHangNhaCCC($id)
+    {
+        $ncc = NhaCungCap::where('user_id', $id)->first();
+        if (!$ncc) {
+            return [];
+        }
+        $trahang = TraHangNhaCungCap::where('nha_cung_cap_id', $ncc->id)->get();
+        $donHang = DonHangNhaCungCap::where('user_id', $id)->where('trang_thai', 'nhap_kho')->get();
+        return ['tra_hang' => $trahang, 'don_hang' => $donHang];
     }
 
     public function addDonThanhToanNCC(Request $request)
@@ -519,30 +530,38 @@ class DonHangNhaCungCapController extends Controller
                 ],
             ], 400);
         }
-        try{
+        try {
             DB::beginTransaction();
-           $don = ThanhToanNhaCungCap::create([
-                'ma_don' => 'TTNCC'.time(),
+            $don = ThanhToanNhaCungCap::create([
+                'ma_don' => 'TTNCC' . time(),
                 'phai_thanh_toan' => $data['phai_thanh_toan'],
                 'thanh_toan' => $data['thanh_toan'],
                 'user_id' => auth()->user()->id,
                 'nha_cung_cap_id' => $data['nha_cung_cap_id']
             ]);
-            foreach($data['hangHoas'] as $item){
+            foreach ($data['hangHoas'] as $item) {
                 DonHangThanhToanNhaCungCap::create([
                     'don_thanh_toan_id' => $don->id,
-                    'don_hang_id' => $item['id']
+                    'don_hang_id' =>  $item['loai'] == 'mua_hang' ? $item['id'] : null,
+                    'don_tra_hang_id' => $item['loai'] == 'tra_hang' ? $item['id'] : null,
+                    'loai' => $item['loai']
                 ]);
-                DonHangNhaCungCap::find($item['id'])->update(['thanh_toan' => true]);
+                if ($item['loai'] == 'mua_hang') {
+                    DonHangNhaCungCap::find($item['id'])->update(['thanh_toan' => true]);
+                }
+                if ($item['loai'] == 'tra_hang') {
+                    TraHangNhaCungCap::find($item['id'])->update(['thanh_toan' => true]);
+                }
             }
             DB::commit();
-            return response(['message' => 'Thành công'],200);
-        }catch(\Exception $e){
+            return response(['message' => 'Thành công'], 200);
+        } catch (\Exception $e) {
             DB::rollBack();
-            return response(['message' => 'Không thể thêm mới'],500);
+            return response(['message' => 'Không thể thêm mới'], 500);
         }
     }
-    public function getLichSuThanhToanNCC(Request $request){
+    public function getLichSuThanhToanNCC(Request $request)
+    {
         $perPage = $request->get('per_page', 10);
         $page = $request->get('page', 1);
         $nhac_cung_cap = $request->get('nha_cung_cap');
@@ -552,7 +571,7 @@ class DonHangNhaCungCapController extends Controller
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
         }
-        if($nhac_cung_cap){
+        if ($nhac_cung_cap) {
             $query->where('nha_cung_cap_id', $nhac_cung_cap);
         }
         $query->orderBy('created_at', 'desc');
@@ -578,30 +597,48 @@ class DonHangNhaCungCapController extends Controller
                 ],
             ], 400);
         }
-        try{
+        try {
             DB::beginTransaction();
-           $don = ThanhToanNhaCungCap::find($id)->update([
-                'ma_don' => 'TTNCC'.time(),
+            $don = ThanhToanNhaCungCap::find($id)->update([
+                'ma_don' => 'TTNCC' . time(),
                 'phai_thanh_toan' => $data['phai_thanh_toan'],
                 'thanh_toan' => $data['thanh_toan'],
                 'user_id' => auth()->user()->id,
                 'nha_cung_cap_id' => $data['nha_cung_cap_id']
             ]);
             DonHangThanhToanNhaCungCap::where('don_thanh_toan_id', $id)->delete();
-            foreach($data['hangHoas'] as $item){
+            foreach ($data['donHangCus'] as $item) {
+                if ($item['loai'] == 'mua_hang') {
+                    DonHangNhaCungCap::find($item['id'])->update(['thanh_toan' => false]);
+                }
+                if ($item['loai'] == 'tra_hang') {
+                    TraHangNhaCungCap::find($item['id'])->update(['thanh_toan' => false]);
+                }
+            }
+            foreach ($data['hangHoas'] as $item) {
                 DonHangThanhToanNhaCungCap::create([
                     'don_thanh_toan_id' => $id,
-                    'don_hang_id' => $item['id']
+                    'don_hang_id' =>  $item['loai'] == 'mua_hang' ? $item['id'] : null,
+                    'don_tra_hang_id' => $item['loai'] == 'tra_hang' ? $item['id'] : null,
+                    'loai' => $item['loai']
                 ]);
+                if ($item['loai'] == 'mua_hang') {
+                    DonHangNhaCungCap::find($item['id'])->update(['thanh_toan' => true]);
+                }
+                if ($item['loai'] == 'tra_hang') {
+                    TraHangNhaCungCap::find($item['id'])->update(['thanh_toan' => true]);
+                }
             }
             DB::commit();
-            return response(['message' => 'Thành công'],200);
-        }catch(\Exception $e){
+            return response(['message' => 'Thành công'], 200);
+        } catch (\Exception $e) {
             DB::rollBack();
-            return response(['message' => 'Không thể cập nhật'],500);
+            dd($e);
+            return response(['message' => 'Không thể cập nhật'], 500);
         }
     }
-    public function xoaDonThanhToanNCC($id){
+    public function xoaDonThanhToanNCC($id)
+    {
         $user = auth()->user();
         if (!$user) {
             return response(['message' => "Chưa đăng nhập"], 400);
@@ -610,10 +647,10 @@ class DonHangNhaCungCapController extends Controller
         if ($user->role_id != 1 && $user->role_id != 2) {
             return response(['message' => "Không có quyền"], 402);
         }
-        try{
+        try {
             ThanhToanNhaCungCap::find($id)->delete();
             return response(['message' => "Thành công"], 200);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response(['message' => "Không thể xóa"], 500);
         }
     }
