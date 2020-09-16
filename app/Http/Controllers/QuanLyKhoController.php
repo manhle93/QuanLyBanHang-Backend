@@ -131,6 +131,12 @@ class QuanLyKhoController extends Controller
                     'so_luong' => $item['so_luong'],
                     'don_hang_id' => $donHang->id
                 ]);
+                $checkKho = HangTonKho::where('san_pham_id', $item['san_pham_id'])->first();
+                if ($checkKho) {
+                    $checkKho->update(['so_luong' => $checkKho->so_luong + $item['so_luong']]);
+                } else {
+                    HangTonKho::create(['san_pham_id' => $item['san_pham_id'], 'so_luong' => $item['so_luong']]);
+                }
             }
             PhieuNhapKho::create(['don_hang_id' => $donHang->id, 'ma' => 'PNK' . $donHang->id, 'user_id' => $user->id, 'kho_id' => null]);
             DB::commit();

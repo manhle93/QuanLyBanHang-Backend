@@ -8,6 +8,7 @@ use App\HangTonKho;
 use App\Kho;
 use App\NhaCungCap;
 use App\PhieuNhapKho;
+use App\SanPham;
 use App\SanPhamDonHangNhaCungCap;
 use App\SanPhamTraNhaCungCap;
 use App\ThanhToanNhaCungCap;
@@ -288,8 +289,15 @@ class DonHangNhaCungCapController extends Controller
                     'don_gia' => $item['don_gia'],
                     'thanh_tien' => $item['so_luong'] * $item['don_gia']
                 ]);
-                $tonKho = HangTonKho::where('san_pham_id')->first();
-                $soLuongMoi = $tonKho - $item['so_luong'];
+                $tonKho = HangTonKho::where('san_pham_id', $item['san_pham_id'])->first();
+                $tenSP = SanPham::where('id', $item['san_pham_id'])->first()->ten_san_pham;
+                if (!$tonKho || $tonKho->so_luong == 0) {
+                    return response(['message' => 'Sản phẩm ' . $tenSP . ' đã hết hàng trong kho'], 500);
+                }
+                $soLuongMoi = $tonKho->so_luong - $item['so_luong'];
+                if ($soLuongMoi < 0) {
+                    return response(['message' => 'Sản phẩm ' . $tenSP . 'trả quá số lượng tồn kho'], 500);
+                }
                 $tonKho->update(['so_luong' => $soLuongMoi]);
             }
             DB::commit();
@@ -330,9 +338,18 @@ class DonHangNhaCungCapController extends Controller
             return response(['message' => "Không có quyền"], 402);
         }
         try {
+            DB::beginTransaction();
+            $sanPham = SanPhamTraNhaCungCap::where('don_tra_hang_id', $id)->get();
+            foreach ($sanPham as $item) {
+                $tonKho =  HangTonKho::where('san_pham_id', $item['san_pham_id'])->first();
+                $soLuongMoi = $tonKho->so_luong + $item['so_luong'];
+                $tonKho->update(['so_luong' => $soLuongMoi]);
+            }
             TraHangNhaCungCap::find($id)->delete();
+            DB::commit();
             return response(['message' => "Thành công"], 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response(['message' => "Không thể xóa"], 500);
         }
     }
@@ -360,6 +377,11 @@ class DonHangNhaCungCapController extends Controller
                 'nha_cung_cap_id' => $data['nha_cung_cap_id'],
                 'tong_tien' => $data['tong_tien']
             ]);
+            foreach ($data['donHangCu'] as $item) {
+                $tonKho =  HangTonKho::where('san_pham_id', $item['san_pham_id'])->first();
+                $soLuongMoi = $tonKho->so_luong + $item['so_luong'];
+                $tonKho->update(['so_luong' => $soLuongMoi]);
+            }
             SanPhamTraNhaCungCap::where('don_tra_hang_id', $id)->delete();
             foreach ($data['hangHoas'] as $item) {
                 SanPhamTraNhaCungCap::create([
@@ -369,6 +391,16 @@ class DonHangNhaCungCapController extends Controller
                     'don_gia' => $item['don_gia'],
                     'thanh_tien' => $item['so_luong'] * $item['don_gia']
                 ]);
+                $tonKho = HangTonKho::where('san_pham_id', $item['san_pham_id'])->first();
+                $tenSP = SanPham::where('id', $item['san_pham_id'])->first()->ten_san_pham;
+                if (!$tonKho || $tonKho->so_luong == 0) {
+                    return response(['message' => 'Sản phẩm ' . $tenSP . ' đã hết hàng trong kho'], 500);
+                }
+                $soLuongMoi = $tonKho->so_luong - $item['so_luong'];
+                if ($soLuongMoi < 0) {
+                    return response(['message' => 'Sản phẩm ' . $tenSP . 'trả quá số lượng tồn kho'], 500);
+                }
+                $tonKho->update(['so_luong' => $soLuongMoi]);
             }
             DB::commit();
             return response(['message' => 'Thành công'], 200);
