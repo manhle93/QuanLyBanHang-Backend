@@ -129,7 +129,7 @@ Route::put('user/{id}/edit', 'System\UserController@edit');
 Route::delete('user/{id}/delete', 'System\UserController@delete');
 Route::get('khachhang/{id}', 'System\UserController@getKhachHang');
 Route::get('thongtindathang', 'KhachHangNhaCungCapController@getThongTinDatHang');
-
+Route::post('updatenhanvien', 'System\UserController@updateNhanVien');
 
 Route::post('tinhthanh', 'TinhThanhController@store');
 Route::get('tinhthanh/don-vi-pccc/{tinh_thanh}', 'TinhThanhController@getDonViPccc');

@@ -6,8 +6,10 @@ use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\NhaCungCap;
+use App\ThongTinNhanVien;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -20,7 +22,7 @@ class UserController extends Controller
         $perPage = $request->get('per_page', 10);
         $page = $request->get('page', 1);
         $user = auth()->user();
-        $query = User::query()->with('khachHang:id,user_id,dia_chi', 'role');
+        $query = User::query()->with('khachHang:id,user_id,dia_chi', 'role', 'nhanVien');
         $search = $request->get('search');
         $active = $request->get('active');
         $role = $request->get('role');
@@ -251,7 +253,8 @@ class UserController extends Controller
         return $data;
     }
 
-    public function dangKyNhaCungCap(Request $request){
+    public function dangKyNhaCungCap(Request $request)
+    {
 
         $data = $request->all();
         $validator = Validator::make($data, [
@@ -306,7 +309,7 @@ class UserController extends Controller
             $user = User::create($data);
             NhaCungCap::create([
                 'ten' => $data['name'],
-                'ma' =>'NCC'. time(),
+                'ma' => 'NCC' . time(),
                 'trang_thai' => 'moi_tao',
                 'user_id' => $user->id,
                 'email' => $data['email']
@@ -325,4 +328,54 @@ class UserController extends Controller
         }
     }
 
+    public function updateNhanVien(Request $request)
+    {
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'user_id' => 'required',
+            'email' => 'required',
+            'name' => 'required',
+            'phone' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Không thể thêm mới'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+        DB::beginTransaction();
+        try {
+            User::find($data['user_id'])->update([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+            ]);
+            $nhanVien =  ThongTinNhanVien::where('user_id', $data['user_id'])->first();
+            if ($nhanVien) {
+                $nhanVien->update([
+                    'dia_chi' => $data['dia_chi'],
+                    'so_cmt' => $data['so_cmt'],
+                    'ngay_bat_dau_lam_viec' => $data['ngay_bat_dau_lam_viec'],
+                    'so_dien_thoai_nguoi_than' => $data['so_dien_thoai_nguoi_than'],
+                ]);
+            } else {
+                ThongTinNhanVien::create([
+                    'user_id' => $data['user_id'],
+                    'dia_chi' => $data['dia_chi'],
+                    'so_cmt' => $data['so_cmt'],
+                    'ngay_bat_dau_lam_viec' => $data['ngay_bat_dau_lam_viec'],
+                    'so_dien_thoai_nguoi_than' => $data['so_dien_thoai_nguoi_than'],
+                ]);
+            }
+            DB::commit();
+            return response(['message' => 'Thanh cong'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            dd($e);
+            return response(['message' => 'Không thể cập nhật thông tin'], 500);
+        }
+    }
 }

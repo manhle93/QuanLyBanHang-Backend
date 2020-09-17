@@ -22,7 +22,7 @@ class CreateThanhToanNhaCungCapsTable extends Migration
             $table->integer('nha_cung_cap_id')->nullable();
             $table->foreign('nha_cung_cap_id')->references('id')->on('nha_cung_caps')->onDelete('cascade');
             $table->integer('user_id')->nullable();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');;
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

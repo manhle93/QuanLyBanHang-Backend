@@ -789,4 +789,6 @@ class KhachHangNhaCungCapController extends Controller
             'thanh_toan' => $thanhToan->get()
         ];
     }
+
+    
 }

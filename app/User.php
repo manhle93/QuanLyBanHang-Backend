@@ -51,6 +51,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne('App\NhaCungCap', 'user_id');
     }
+    public function nhanVien()
+    {
+        return $this->hasOne('App\ThongTinNhanVien', 'user_id');
+    }
     public function khachHang()
     {
         return $this->hasOne('App\KhachHang', 'user_id');
