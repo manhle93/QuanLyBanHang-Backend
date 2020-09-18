@@ -400,7 +400,7 @@ class AuthController extends Controller
     public function getLichSuHoatDong(Request $request)
     {
         $user = auth()->user();
-        $per_page = $request->get('per_page');
+        $per_page = $request->get('per_page',10);
         $date = $request->get('date');
         $user_id = $request->get('user_id');
         $doi_tuong = $request->get('doi_tuong');
@@ -424,17 +424,9 @@ class AuthController extends Controller
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
         }
-        if ($user->tinh_thanh_id && $user->role_id == 2) {
-            $query->whereHas('user', function ($query) use ($user) {
-                $query->where('tinh_thanh_id', $user->tinh_thanh_id);
-            });
-            $query->orderBy('created_at', 'desc');
-            $data = $query->paginate($per_page, ['*'], 'page', $page);
-        }
-        if ($user->role_id == 1) {
-            $query->orderBy('created_at', 'desc')->get();
-            $data = $query->paginate($per_page, ['*'], 'page', $page);
-        }
+
+        $query->orderBy('created_at', 'desc')->get();
+        $data = $query->paginate($per_page, ['*'], 'page', $page);
         return response($data, 200);
     }
 

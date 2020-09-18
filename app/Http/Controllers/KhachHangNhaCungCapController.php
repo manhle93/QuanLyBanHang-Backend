@@ -85,7 +85,7 @@ class KhachHangNhaCungCapController extends Controller
                 'ngay_sinh' => Carbon::parse($data['ngay_sinh'])->timezone('Asia/Ho_Chi_Minh'),
                 'giao_dich_cuoi' => Carbon::parse($data['giao_dich_cuoi'])->timezone('Asia/Ho_Chi_Minh'),
                 'so_tai_khoan' => $data['so_tai_khoan'],
-                'so_du' => $data['so_du'],
+                // 'so_du' => $data['so_du'],
                 'chuyen_khoan_cuoi' => Carbon::parse($data['chuyen_khoan_cuoi'])->timezone('Asia/Ho_Chi_Minh'),
                 'loai_thanh_vien_id' => $data['loai_thanh_vien_id'],
                 'tin_nhiem' => $data['tin_nhiem'],

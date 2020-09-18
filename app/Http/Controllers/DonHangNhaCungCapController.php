@@ -28,11 +28,15 @@ class DonHangNhaCungCapController extends Controller
         $perPage = $request->query('per_page', 5);
         $page = $request->get('page', 1);
         $date = $request->get('date');
+        $trang_thai = $request->get('trang_thai');
         $nhac_cung_cap = $request->get('nha_cung_cap');
         $query = DonHangNhaCungCap::with('user', 'sanPhams');
         $donHang = [];
         if (isset($nhac_cung_cap)) {
             $query = $query->where('user_id', $nhac_cung_cap);
+        }
+        if (isset($trang_thai)) {
+            $query = $query->whereIn('trang_thai', $trang_thai);
         }
         if (isset($date)) {
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
@@ -279,7 +283,8 @@ class DonHangNhaCungCapController extends Controller
             $don = TraHangNhaCungCap::create([
                 'ma_don' => 'THNCC' . time(),
                 'nha_cung_cap_id' => $data['nha_cung_cap_id'],
-                'tong_tien' => $data['tong_tien']
+                'tong_tien' => $data['tong_tien'],
+                'ly_do' => $data['ly_do']
             ]);
             foreach ($data['hangHoas'] as $item) {
                 SanPhamTraNhaCungCap::create([
@@ -375,7 +380,8 @@ class DonHangNhaCungCapController extends Controller
             TraHangNhaCungCap::find($id)->update([
                 'ma_don' => 'THNCC' . time(),
                 'nha_cung_cap_id' => $data['nha_cung_cap_id'],
-                'tong_tien' => $data['tong_tien']
+                'tong_tien' => $data['tong_tien'],
+                'ly_do' => $data['ly_do']
             ]);
             foreach ($data['donHangCu'] as $item) {
                 $tonKho =  HangTonKho::where('san_pham_id', $item['san_pham_id'])->first();

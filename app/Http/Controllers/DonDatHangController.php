@@ -7,6 +7,7 @@ use App\HangTonKho;
 use App\KhachHang;
 use App\NopTien;
 use App\PhieuNhapKho;
+use App\PhieuThu;
 use App\SanPhamDonDatHang;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -66,6 +67,7 @@ class DonDatHangController extends Controller
                 'thanh_toan' => $data['thanh_toan'],
                 'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
                 'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
+                'dia_chi' => $data['dia_chi']
 
             ]);
             foreach ($data['danhSachHang'] as $item) {
@@ -220,6 +222,7 @@ class DonDatHangController extends Controller
                 'thanh_toan' => $data['thanh_toan'],
                 'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
                 'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
+                'dia_chi' => $data['dia_chi']
 
             ]);
             foreach ($data['danhSachHang'] as $item) {
@@ -610,6 +613,80 @@ class DonDatHangController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             return response(['message' => 'Không thể hủy đơn'], 500);
+        }
+    }
+
+    public function getPhieuThu(Request $request){
+        $perPage = $request->query('per_page', 10);
+        $page = $request->get('page', 1);
+        $query = PhieuThu::query();
+        $date = $request->get('date');
+        if (isset($date)) {
+            $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
+
+        $donHang = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        return response()->json([
+            'data' => $donHang,
+            'message' => 'Lấy dữ liệu thành công',
+            'code' => '200',
+        ], 200);
+    }
+
+    public function updatePhieuThu($id, Request $request){
+        $data = $request->all();
+        try{
+            PhieuThu::find($id)->update([
+                'so_tien' => $data['so_tien'],
+                'thong_tin_giao_dich' => $data['thong_tin_giao_dich'],
+                'noi_dung' => $data['noi_dung'],
+                'user_id_khach_hang' => $data['user_id_khach_hang'],
+                'thong_tin_khach_hang' => $data['thong_tin_khach_hang'],
+            ]);
+            return response(['message' => 'Thanh cong'],200);
+        }catch(\Exception $e){
+            return response(['message' => 'Không thể cập nhật phiếu thu'],500);
+        }
+    }
+
+    public function addPhieuThu(Request $request){
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'so_tien' => 'required',
+            'noi_dung' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Không thể thêm đơn vị'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+
+        try{
+            PhieuThu::create([
+                'type' => 'tu_nhap',
+                'so_tien' => $data['so_tien'],
+                'thong_tin_giao_dich' => $data['thong_tin_giao_dich'],
+                'noi_dung' => $data['noi_dung'],
+                'user_id_khach_hang' => $data['user_id_khach_hang'],
+                'thong_tin_khach_hang' => $data['thong_tin_khach_hang'],
+            ]);
+            return response(['message' => 'Thanh cong'],200);
+        }catch(\Exception $e){
+            return response(['message' => 'Không thể cập nhật phiếu thu'],500);
+        }
+    }
+
+    public function xoaPhieuThu($id){
+        try{
+            PhieuThu::find($id)->delete();
+            return response(['message' => 'Thanh cong'],200);
+        }catch(\Exception $e){
+            return response(['message' => 'Không thể xóa phiếu thu'],500);
         }
     }
 }

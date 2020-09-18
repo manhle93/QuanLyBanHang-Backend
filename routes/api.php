@@ -354,6 +354,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('khachhang/{id}', 'KhachHangNhaCungCapController@editKhachHang');
     Route::delete('khachhang/{id}', 'KhachHangNhaCungCapController@xoaKhachHang');
     Route::get('profilekhachhang', 'KhachHangNhaCungCapController@thongTinCaNhanKhachHang');
+    Route::get('phieuthu', 'DonDatHangController@getPhieuThu');
+    Route::put('phieuthu/{id}', 'DonDatHangController@updatePhieuThu');
+    Route::post('phieuthu', 'DonDatHangController@addPhieuThu');
+    Route::delete('phieuthu/{id}', 'DonDatHangController@xoaPhieuThu');
 
     Route::get('donhangmobile', 'KhachHangNhaCungCapController@getDonHangMobile');
     Route::get('giaodichmobile', 'KhachHangNhaCungCapController@getGiaoDichMobile');
