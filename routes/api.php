@@ -401,6 +401,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('shipper', 'System\UserController@getShipper');
 
+    Route::get('tonkhodattruoc/{id}', 'DonDatHangController@getTonKhoDatTruoc');
     Route::get('sanphamtonkho', 'KiemKhoController@getSanPhamTonKho');
     Route::post('kiemkho', 'KiemKhoController@addKiemKe');
     Route::get('kiemkho', 'KiemKhoController@getKiemKho');
@@ -474,6 +475,7 @@ Route::post('sanphamgiohang', 'SanPhamController@getSanPhamGioHangMobile');
 Route::get('sanphamtrangchu/{id}', 'SanPhamController@getSanPhamDetailTrangChu');
 Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
 Route::get('inhoadon/{id}', 'DonDatHangController@inHoaDon');
+Route::get('inphieuthu/{id}', 'DonDatHangController@inPhieuThu');
 Route::get('inhoadonnhacungcap/{id}', 'DonHangNhaCungCapController@inHoaDon');
 Route::get('tien', 'DonDatHangController@test');
 Route::get('mobile/showdangky', 'AuthController@showDangKy');

@@ -689,4 +689,27 @@ class DonDatHangController extends Controller
             return response(['message' => 'Không thể xóa phiếu thu'],500);
         }
     }
+
+    public function inPhieuThu($id)
+    {
+        $donHang = PhieuThu::with('khachHang:id,name')->where('id', $id)->first();
+        $time = Carbon::parse($donHang->created_at);
+        $date = $time->day;
+        $month = $time->month;
+        $year = $time->year;
+        $tien = $this->convert_number_to_words($donHang->so_tien);
+        return view('phieuthu', ['ngay' => $date, 'thang' => $month, 'nam' => $year, 'data' => $donHang, 'tien' => $tien]);
+    }
+
+    public function getTonKhoDatTruoc($id){
+        $donHang = DonDatHang::whereIn('trang_thai', ['moi_tao','dat_hang_online'])->pluck('id')->toArray();
+        $sanPhamDatTruoc = SanPhamDonDatHang::whereIn('don_dat_hang_id', $donHang)->where('san_pham_id', $id)->count('so_luong');
+        $tonKho = HangTonKho::where('san_pham_id', $id)->first();
+        if(!$tonKho){
+            $tonKho = 0;
+        }else {
+            $tonKho = $tonKho->so_luong;
+        }
+        return response(['dat_truoc' => $sanPhamDatTruoc, 'ton_kho' => $tonKho]);
+    }
 }
