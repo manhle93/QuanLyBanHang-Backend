@@ -400,7 +400,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('chuyenhoadon/{id}', 'DonDatHangController@chuyenHoaDon');
 
     Route::get('shipper', 'System\UserController@getShipper');
-
+    Route::get('doitrahang', 'DonDatHangController@getDonDoiTra');
     Route::get('tonkhodattruoc/{id}', 'DonDatHangController@getTonKhoDatTruoc');
     Route::get('sanphamtonkho', 'KiemKhoController@getSanPhamTonKho');
     Route::post('kiemkho', 'KiemKhoController@addKiemKe');

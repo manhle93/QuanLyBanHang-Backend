@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DoiTraHang;
 use App\DonDatHang;
 use App\HangTonKho;
 use App\KhachHang;
@@ -226,7 +227,7 @@ class DonDatHangController extends Controller
 
             ]);
             foreach ($data['danhSachHang'] as $item) {
-                if ($data['trang_thai'] == 'hoa_don') {
+                if ($data['trang_thai'] == 'hoa_don' &&  count($data['doiTra']) == 0) {
                     $tonKho = HangTonKho::where('san_pham_id', $item['hang_hoa']['id'])->first();
                     if (!$tonKho || $tonKho->so_luong < $item['so_luong']) {
                         DB::rollback();
@@ -247,7 +248,7 @@ class DonDatHangController extends Controller
                     'doanh_thu' => $item['don_gia'] * $item['so_luong']
                 ]);
             }
-            if ($khacHang && $data['thanh_toan'] == 'tai_khoan') {
+            if ($khacHang && $data['thanh_toan'] == 'tai_khoan' && $data['chenhLech'] == 0 && count($data['doiTra']) == 0) {
                 if ($khacHang->so_du <  $data['con_phai_thanh_toan']) {
                     return response(['message' => 'Số dư tài khoản không đủ'], 500);
                 }
@@ -261,6 +262,42 @@ class DonDatHangController extends Controller
                     'so_du' => (float) $khacHang->so_du,
                     'ma' => 'GD' . time()
                 ]);
+            }
+            if ($khacHang && $data['thanh_toan'] == 'tai_khoan' && $data['chenhLech'] != 0) {
+                if ($khacHang->so_du <  $data['chenhLech']) {
+                    return response(['message' => 'Số dư tài khoản không đủ'], 500);
+                }
+                $khacHang->update(['so_du' => (float) $khacHang->so_du - ((float)$data['chenhLech'])]);
+                NopTien::create([
+                    'trang_thai' => 'mua_hang',
+                    'noi_dung' => 'Giao dịch đổi trả hàng, đơn hàng: ' . $data['ten'] . ', mã đơn hàng: ' . $data['ma'],
+                    'id_user_khach_hang' => $khacHang->user_id,
+                    'user_id' => $user->id,
+                    'so_tien' => 0 - ((float)$data['tong_tien']),
+                    'so_du' => (float) $khacHang->so_du,
+                    'ma' => 'GD' . time()
+                ]);
+            }
+            if (count($data['doiTra']) > 0) {
+                foreach ($data['doiTra'] as $item) {
+                    DoiTraHang::create([
+                        'san_pham_id' => $item['hang_hoa']['id'],
+                        'gia_ban' => $item['don_gia'],
+                        'so_luong' => $item['so_luong'],
+                        'don_hang_id' => $id,
+                        'doanh_thu' => $item['don_gia'] * $item['so_luong']
+                    ]);
+                }
+                $tonKho = HangTonKho::where('san_pham_id', $item['hang_hoa']['id'])->first();
+                if($tonKho){
+                    $tonKho->update(['so_luong' => $tonKho->so_luong + $item['so_luong']]);
+                }else {
+                    HangTonKho::create([
+                        'san_pham_id' => $item['hang_hoa']['id'],
+                        'so_luong' =>  $item['so_luong'],
+                        'kho_id' => null
+                    ]);
+                }
             }
             DB::commit();
             return response(['message' => 'Cập nhật thành công'], 200);
@@ -616,7 +653,8 @@ class DonDatHangController extends Controller
         }
     }
 
-    public function getPhieuThu(Request $request){
+    public function getPhieuThu(Request $request)
+    {
         $perPage = $request->query('per_page', 10);
         $page = $request->get('page', 1);
         $query = PhieuThu::query();
@@ -634,9 +672,10 @@ class DonDatHangController extends Controller
         ], 200);
     }
 
-    public function updatePhieuThu($id, Request $request){
+    public function updatePhieuThu($id, Request $request)
+    {
         $data = $request->all();
-        try{
+        try {
             PhieuThu::find($id)->update([
                 'so_tien' => $data['so_tien'],
                 'thong_tin_giao_dich' => $data['thong_tin_giao_dich'],
@@ -644,13 +683,14 @@ class DonDatHangController extends Controller
                 'user_id_khach_hang' => $data['user_id_khach_hang'],
                 'thong_tin_khach_hang' => $data['thong_tin_khach_hang'],
             ]);
-            return response(['message' => 'Thanh cong'],200);
-        }catch(\Exception $e){
-            return response(['message' => 'Không thể cập nhật phiếu thu'],500);
+            return response(['message' => 'Thanh cong'], 200);
+        } catch (\Exception $e) {
+            return response(['message' => 'Không thể cập nhật phiếu thu'], 500);
         }
     }
 
-    public function addPhieuThu(Request $request){
+    public function addPhieuThu(Request $request)
+    {
         $data = $request->all();
         $validator = Validator::make($data, [
             'so_tien' => 'required',
@@ -666,7 +706,7 @@ class DonDatHangController extends Controller
             ], 400);
         }
 
-        try{
+        try {
             PhieuThu::create([
                 'type' => 'tu_nhap',
                 'so_tien' => $data['so_tien'],
@@ -675,18 +715,19 @@ class DonDatHangController extends Controller
                 'user_id_khach_hang' => $data['user_id_khach_hang'],
                 'thong_tin_khach_hang' => $data['thong_tin_khach_hang'],
             ]);
-            return response(['message' => 'Thanh cong'],200);
-        }catch(\Exception $e){
-            return response(['message' => 'Không thể cập nhật phiếu thu'],500);
+            return response(['message' => 'Thanh cong'], 200);
+        } catch (\Exception $e) {
+            return response(['message' => 'Không thể cập nhật phiếu thu'], 500);
         }
     }
 
-    public function xoaPhieuThu($id){
-        try{
+    public function xoaPhieuThu($id)
+    {
+        try {
             PhieuThu::find($id)->delete();
-            return response(['message' => 'Thanh cong'],200);
-        }catch(\Exception $e){
-            return response(['message' => 'Không thể xóa phiếu thu'],500);
+            return response(['message' => 'Thanh cong'], 200);
+        } catch (\Exception $e) {
+            return response(['message' => 'Không thể xóa phiếu thu'], 500);
         }
     }
 
@@ -701,15 +742,34 @@ class DonDatHangController extends Controller
         return view('phieuthu', ['ngay' => $date, 'thang' => $month, 'nam' => $year, 'data' => $donHang, 'tien' => $tien]);
     }
 
-    public function getTonKhoDatTruoc($id){
-        $donHang = DonDatHang::whereIn('trang_thai', ['moi_tao','dat_hang_online'])->pluck('id')->toArray();
+    public function getTonKhoDatTruoc($id)
+    {
+        $donHang = DonDatHang::whereIn('trang_thai', ['moi_tao', 'dat_hang_online'])->pluck('id')->toArray();
         $sanPhamDatTruoc = SanPhamDonDatHang::whereIn('don_dat_hang_id', $donHang)->where('san_pham_id', $id)->count('so_luong');
         $tonKho = HangTonKho::where('san_pham_id', $id)->first();
-        if(!$tonKho){
+        if (!$tonKho) {
             $tonKho = 0;
-        }else {
+        } else {
             $tonKho = $tonKho->so_luong;
         }
         return response(['dat_truoc' => $sanPhamDatTruoc, 'ton_kho' => $tonKho]);
+    }
+
+    public function getDonDoiTra(Request $request){
+        $perPage = $request->query('per_page', 10);
+        $page = $request->get('page', 1);
+        $query = DonDatHang::whereHas('traHang')->with('traHang', 'user', 'traHang.sanPham:id,ten_san_pham,don_vi_tinh');
+        $date = $request->get('date');
+        if (isset($date)) {
+            $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
+
+        $donHang = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        return response()->json([
+            'data' => $donHang,
+            'message' => 'Lấy dữ liệu thành công',
+            'code' => '200',
+        ], 200);
     }
 }

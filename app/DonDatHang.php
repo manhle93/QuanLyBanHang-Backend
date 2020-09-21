@@ -14,4 +14,9 @@ class DonDatHang extends Model
     {
         return $this->hasMany('App\SanPhamDonDatHang', 'don_dat_hang_id', 'id');
     }
+
+    public function traHang()
+    {
+        return $this->hasMany('App\DoiTraHang', 'don_hang_id', 'id');
+    }
 }
