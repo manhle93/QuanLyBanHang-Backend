@@ -49,12 +49,26 @@ class DonDatHangObserver
                 'user_id' => $userLogin ? $userLogin->id : null,
                 'noi_dung' => $noiDung
             ]);
-            if($donDatHang->trang_thai == 'hoa_don' && ($donDatHang->thanh_toan == 'tien_mat' || $donDatHang->thanh_toan == 'chuyen_khoan')){
+            if($donDatHang->trang_thai == 'hoa_don' && ($donDatHang->thanh_toan == 'tien_mat' || $donDatHang->thanh_toan == 'chuyen_khoan' || $donDatHang->thanh_toan == 'cod')){
+                $thanhToan = null;
+                switch ($donDatHang->thanh_toan) {
+                    case 'tien_mat':
+                        $noiDung = 'Thanh toán mua hàng bằng tiền mặt';
+                        break;
+                    case 'chuyen_khoan':
+                        $noiDung = 'Thanh toán mua hàng bằng chuyển khoản, quẹt thẻ';
+                        break;
+                    case 'cod':
+                        $noiDung = 'Thanh toán ship COD';
+                        break;
+                    default:
+                        $noiDung = 'Thanh toán mua hàng';
+                }
                 PhieuThu::create([
                     'type' => 'hoa_don',
                     'reference_id' => $donDatHang->id,
                     'so_tien' => $donDatHang->da_thanh_toan,
-                    'noi_dung' => $donDatHang->thanh_toan == 'tien_mat' ? 'Thanh toán mua hàng bằng tiền mặt' : 'Thanh toán mua hàng bằng chuyển khoản, quẹt thẻ',
+                    'noi_dung' => $thanhToan,
                     'thong_tin_giao_dich' => null,
                     'thong_tin_khach_hang' => null,
                     'user_id_khach_hang' => $donDatHang->user_id ? $donDatHang->user_id : null 
@@ -177,7 +191,8 @@ class DonDatHangObserver
                 'user_id' => $userLogin ? $userLogin->id : null,
                 'noi_dung' => $noiDung
             ]);
-            PhieuThu::where('type', 'hoa_don')->where('reference_id', $donDatHang->id)->first()->delete();
+          $phieuThu =  PhieuThu::where('type', 'hoa_don')->where('reference_id', $donDatHang->id)->first();
+            if($phieuThu){$phieuThu->delete();}
         } catch (Exception $e) {
             dd($e);
         }
