@@ -24,10 +24,10 @@ class DanhMucSanPhamController extends Controller
         }
         $query->orderBy('updated_at', 'desc');
         $data = $query->get();
-        if(isset($per_page)){
+        if (isset($per_page)) {
             $data = $query->take($per_page)->get();
         }
-        foreach($data as $item){
+        foreach ($data as $item) {
             $sanPham = SanPham::where('danh_muc_id', $item->id)->count();
             $item['so_mat_hang'] = $sanPham;
         }
@@ -128,6 +128,9 @@ class DanhMucSanPhamController extends Controller
     public function xoaDanhMuc($id)
     {
         try {
+            if (DanhMucSanPham::whereHas('sanPhams')->where('id', $id)->first()) {
+                return response(['message' => 'Không thể xóa danh mục đã có sản phẩm'], 500);
+            };
             DanhMucSanPham::find($id)->delete();
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
@@ -135,22 +138,22 @@ class DanhMucSanPhamController extends Controller
         }
     }
 
-    public function danhMucSanPhamMobile(Request $request){
+    public function danhMucSanPhamMobile(Request $request)
+    {
         $per_page = $request->get('per_page', 10);
         $per_page_sp = $request->get('per_page', 12);
         $query = DanhMucSanPham::query();
         $query->orderBy('updated_at', 'desc');
         $data = $query->get();
-        if(isset($per_page)){
+        if (isset($per_page)) {
             $data = $query->take($per_page)->get();
         }
-        foreach($data as $item){
+        foreach ($data as $item) {
             $sanPham = SanPham::where('danh_muc_id', $item->id)->count();
             $item['so_mat_hang'] = $sanPham;
             $sanPhams = SanPham::where('danh_muc_id', $item->id)->take($per_page_sp)->get();
             $item['san_pham'] = $sanPhams;
         }
         return $data;
-
     }
 }

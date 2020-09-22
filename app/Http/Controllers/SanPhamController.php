@@ -134,7 +134,8 @@ class SanPhamController extends Controller
     public function xoaSanPham($id)
     {
         try {
-            SanPham::find($id)->delete();
+            SanPham::find($id)->update(['active' => false]);
+            
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
             return response(['message' => 'Không thể xóa sản phẩm này'], 500);

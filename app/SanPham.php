@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Scopes\ActiveScope;
 
 class SanPham extends Model
 {
@@ -27,5 +28,12 @@ class SanPham extends Model
     public function sanPhamTonKho()
     {
         return $this->hasOne('App\HangTonKho', 'san_pham_id', 'id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope(new ActiveScope);
     }
 }
