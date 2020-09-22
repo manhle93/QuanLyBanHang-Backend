@@ -1,12 +1,14 @@
-HỆ THỐNG QUẢN LÝ THƯƠNG MẠI ĐIỆN TỬ
-BACKEND PHP LARAVEL
+# HỆ THỐNG QUẢN LÝ THƯƠNG MẠI ĐIỆN TỬ
+# BACKEND PHP LARAVEL
 
 CÀI ĐẶT
-# laravel
+Laravel
 composer install
-# create database
+
+Create database
 php artisan migrate
-# run server
+
+Run server
 php artisan serve
 
 MANHLE - SKYMAPGLOBAL
