@@ -49,20 +49,23 @@ class DonDatHangObserver
                 'user_id' => $userLogin ? $userLogin->id : null,
                 'noi_dung' => $noiDung
             ]);
-            if($donDatHang->trang_thai == 'hoa_don' && ($donDatHang->thanh_toan == 'tien_mat' || $donDatHang->thanh_toan == 'chuyen_khoan' || $donDatHang->thanh_toan == 'cod')){
-                $thanhToan = null;
+            if ($donDatHang->da_thanh_toan > 0 ||  ($donDatHang->trang_thai == 'hoa_don' && ($donDatHang->thanh_toan == 'tien_mat' || $donDatHang->thanh_toan == 'chuyen_khoan' || $donDatHang->thanh_toan == 'cod'))) {
+                $thanhToan = 'Thanh toán mua hàng';
                 switch ($donDatHang->thanh_toan) {
                     case 'tien_mat':
-                        $noiDung = 'Thanh toán mua hàng bằng tiền mặt';
+                        $thanhToan = 'Thanh toán mua hàng bằng tiền mặt';
                         break;
                     case 'chuyen_khoan':
-                        $noiDung = 'Thanh toán mua hàng bằng chuyển khoản, quẹt thẻ';
+                        $thanhToan = 'Thanh toán mua hàng bằng chuyển khoản, quẹt thẻ';
+                        break;
+                    case 'tra_sau':
+                        $thanhToan = 'Số tiền đã thanh toán cho đơn hàng trả sau';
                         break;
                     case 'cod':
-                        $noiDung = 'Thanh toán ship COD';
+                        $thanhToan = 'Thanh toán ship COD';
                         break;
                     default:
-                        $noiDung = 'Thanh toán mua hàng';
+                        $thanhToan = 'Thanh toán mua hàng';
                 }
                 PhieuThu::create([
                     'type' => 'hoa_don',
@@ -71,7 +74,7 @@ class DonDatHangObserver
                     'noi_dung' => $thanhToan,
                     'thong_tin_giao_dich' => null,
                     'thong_tin_khach_hang' => null,
-                    'user_id_khach_hang' => $donDatHang->user_id ? $donDatHang->user_id : null 
+                    'user_id_khach_hang' => $donDatHang->user_id ? $donDatHang->user_id : null
                 ]);
             }
         } catch (Exception $e) {
@@ -119,31 +122,30 @@ class DonDatHangObserver
                 'user_id' => $userLogin ? $userLogin->id : null,
                 'noi_dung' => $noiDung
             ]);
-            if($donDatHang->trang_thai == 'hoa_don' && ($donDatHang->thanh_toan == 'tien_mat' || $donDatHang->thanh_toan == 'chuyen_khoan')){
-               $phieuThu = PhieuThu::where('type', 'hoa_don')->where('reference_id', $donDatHang->id)->first();
-               if($phieuThu){
-                $phieuThu->update([
-                    'type' => 'hoa_don',
-                    'reference_id' => $donDatHang->id,
-                    'so_tien' => $donDatHang->da_thanh_toan,
-                    'noi_dung' => $donDatHang->thanh_toan == 'tien_mat' ? 'Thanh toán mua hàng bằng tiền mặt' : 'Thanh toán mua hàng bằng chuyển khoản, quẹt thẻ',
-                    'thong_tin_giao_dich' => null,
-                    'thong_tin_khach_hang' => null,
-                    'user_id_khach_hang' => $donDatHang->user_id ? $donDatHang->user_id : null 
-                ]);
-               }else{
-                PhieuThu::create([
-                    'type' => 'hoa_don',
-                    'reference_id' => $donDatHang->id,
-                    'so_tien' => $donDatHang->da_thanh_toan,
-                    'noi_dung' => $donDatHang->thanh_toan == 'tien_mat' ? 'Thanh toán mua hàng bằng tiền mặt' : 'Thanh toán mua hàng bằng chuyển khoản, quẹt thẻ',
-                    'thong_tin_giao_dich' => null,
-                    'thong_tin_khach_hang' => null,
-                    'user_id_khach_hang' => $donDatHang->user_id ? $donDatHang->user_id : null 
-                ]);
-               }
-               
-            }else {
+            if ($donDatHang->da_thanh_toan > 0 || ($donDatHang->trang_thai == 'hoa_don' && ($donDatHang->thanh_toan == 'tien_mat' || $donDatHang->thanh_toan == 'chuyen_khoan'))) {
+                $phieuThu = PhieuThu::where('type', 'hoa_don')->where('reference_id', $donDatHang->id)->first();
+                if ($phieuThu) {
+                    $phieuThu->update([
+                        'type' => 'hoa_don',
+                        'reference_id' => $donDatHang->id,
+                        'so_tien' => $donDatHang->da_thanh_toan,
+                        'noi_dung' => $donDatHang->thanh_toan == 'tien_mat' ? 'Thanh toán mua hàng bằng tiền mặt' : 'Thanh toán mua hàng bằng chuyển khoản, quẹt thẻ',
+                        'thong_tin_giao_dich' => null,
+                        'thong_tin_khach_hang' => null,
+                        'user_id_khach_hang' => $donDatHang->user_id ? $donDatHang->user_id : null
+                    ]);
+                } else {
+                    PhieuThu::create([
+                        'type' => 'hoa_don',
+                        'reference_id' => $donDatHang->id,
+                        'so_tien' => $donDatHang->da_thanh_toan,
+                        'noi_dung' => $donDatHang->thanh_toan == 'tien_mat' ? 'Thanh toán mua hàng bằng tiền mặt' : 'Thanh toán mua hàng bằng chuyển khoản, quẹt thẻ',
+                        'thong_tin_giao_dich' => null,
+                        'thong_tin_khach_hang' => null,
+                        'user_id_khach_hang' => $donDatHang->user_id ? $donDatHang->user_id : null
+                    ]);
+                }
+            } else {
                 PhieuThu::where('type', 'hoa_don')->where('reference_id', $donDatHang->id)->first()->delete();
             }
         } catch (Exception $e) {
@@ -191,8 +193,10 @@ class DonDatHangObserver
                 'user_id' => $userLogin ? $userLogin->id : null,
                 'noi_dung' => $noiDung
             ]);
-          $phieuThu =  PhieuThu::where('type', 'hoa_don')->where('reference_id', $donDatHang->id)->first();
-            if($phieuThu){$phieuThu->delete();}
+            $phieuThu =  PhieuThu::where('type', 'hoa_don')->where('reference_id', $donDatHang->id)->first();
+            if ($phieuThu) {
+                $phieuThu->delete();
+            }
         } catch (Exception $e) {
             dd($e);
         }

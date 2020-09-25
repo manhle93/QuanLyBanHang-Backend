@@ -399,6 +399,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('huydondathang/{id}', 'DonDatHangController@huyDon');
     Route::put('chuyenhoadon/{id}', 'DonDatHangController@chuyenHoaDon');
 
+    Route::post('thanhtoanboxung', 'DonDatHangController@thanhToanBoXung');
     Route::get('shipper', 'System\UserController@getShipper');
     Route::get('doitrahang', 'DonDatHangController@getDonDoiTra');
     Route::get('tonkhodattruoc/{id}', 'DonDatHangController@getTonKhoDatTruoc');
@@ -450,7 +451,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('baiviet', 'CaiDatController@addBaiViet');
     Route::put('baiviet/{id}', 'CaiDatController@editBaiViet');
     Route::delete('baiviet/{id}', 'CaiDatController@xoaBaiViet');
-
 });
 Route::get('baiviet', 'CaiDatController@getBaiViet');
 Route::get('baiviet/{id}', 'CaiDatController@getChiTietBaiViet');

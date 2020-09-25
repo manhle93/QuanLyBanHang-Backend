@@ -19,4 +19,9 @@ class DonDatHang extends Model
     {
         return $this->hasMany('App\DoiTraHang', 'don_hang_id', 'id');
     }
+
+    public function thanhToanBoXung()
+    {
+        return $this->hasMany('App\ThanhToanBoXung', 'don_hang_id', 'id');
+    }
 }

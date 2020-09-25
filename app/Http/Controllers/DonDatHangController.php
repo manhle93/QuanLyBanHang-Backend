@@ -10,6 +10,7 @@ use App\NopTien;
 use App\PhieuNhapKho;
 use App\PhieuThu;
 use App\SanPhamDonDatHang;
+use App\ThanhToanBoXung;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
@@ -38,10 +39,11 @@ class DonDatHangController extends Controller
         if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
             return response(['message' => 'Không có quyền'], 500);
         }
-        if ($data['trang_thai'] == 'hoa_don') {
+        if ($data['trang_thai'] == 'hoa_don' && $data['thanh_toan'] != 'tra_sau') {
             $data['da_thanh_toan'] = $data['tong_tien'] -  $data['giam_gia'];
             $data['con_phai_thanh_toan'] = 0;
         }
+
         $khacHang = null;
         if (isset($data['khach_hang_id'])) {
             $khacHang = KhachHang::where('user_id', $data['khach_hang_id'])->first();
@@ -116,7 +118,7 @@ class DonDatHangController extends Controller
         $user = auth()->user();
         $perPage = $request->query('per_page', 5);
         $page = $request->get('page', 1);
-        $query = DonDatHang::with('user', 'sanPhams', 'sanPhams.sanPham:id,ten_san_pham,don_vi_tinh');
+        $query = DonDatHang::with('user', 'sanPhams', 'sanPhams.sanPham:id,ten_san_pham,don_vi_tinh', 'thanhToanBoXung');
         $date = $request->get('date');
         $khach_hang = $request->get('khach_hang');
         $hoaDon = $request->get('hoa_don');
@@ -289,9 +291,9 @@ class DonDatHangController extends Controller
                     ]);
                 }
                 $tonKho = HangTonKho::where('san_pham_id', $item['hang_hoa']['id'])->first();
-                if($tonKho){
+                if ($tonKho) {
                     $tonKho->update(['so_luong' => $tonKho->so_luong + $item['so_luong']]);
-                }else {
+                } else {
                     HangTonKho::create([
                         'san_pham_id' => $item['hang_hoa']['id'],
                         'so_luong' =>  $item['so_luong'],
@@ -755,7 +757,8 @@ class DonDatHangController extends Controller
         return response(['dat_truoc' => $sanPhamDatTruoc, 'ton_kho' => $tonKho]);
     }
 
-    public function getDonDoiTra(Request $request){
+    public function getDonDoiTra(Request $request)
+    {
         $perPage = $request->query('per_page', 10);
         $page = $request->get('page', 1);
         $query = DonDatHang::whereHas('traHang')->with('traHang', 'user', 'traHang.sanPham:id,ten_san_pham,don_vi_tinh');
@@ -771,5 +774,32 @@ class DonDatHangController extends Controller
             'message' => 'Lấy dữ liệu thành công',
             'code' => '200',
         ], 200);
+    }
+
+    public function thanhToanBoXung(Request $request)
+    {
+        try {
+            $donHang = DonDatHang::where('id', $request->id)->first();
+            $thanhToan = $request->thanh_toan + $donHang->da_thanh_toan;
+            $phaiThanhToan = $donHang->con_phai_thanh_toan - $request->thanh_toan;
+            $donHang->update(['da_thanh_toan' => $thanhToan, 'con_phai_thanh_toan' => $phaiThanhToan]);
+            ThanhToanBoXung::create([
+                'don_hang_id' => $request->id,
+                'so_tien' => $request->thanh_toan,
+                'hinh_thuc' => $request->hinh_thuc
+            ]);
+            PhieuThu::create([
+                'type' => 'hoa_don',
+                'reference_id' => $request->id,
+                'so_tien' => $request->thanh_toan,
+                'noi_dung' => 'Thanh toán bổ xung đơn hàng '.$donHang->ma,
+                'thong_tin_giao_dich' => null,
+                'thong_tin_khach_hang' => null,
+                'user_id_khach_hang' => $donHang->user_id ? $donHang->user_id : null
+            ]);
+            return response(['message' => 'Thành công'], 200);
+        } catch (\Exception $e) {
+            return response(['message' => 'Không thể thanh toán bổ xung'], 500);
+        }
     }
 }
