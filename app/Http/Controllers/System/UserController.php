@@ -5,6 +5,7 @@ namespace App\Http\Controllers\System;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\KhachHang;
 use App\NhaCungCap;
 use App\ThongTinNhanVien;
 use Illuminate\Support\Facades\DB;
@@ -193,6 +194,10 @@ class UserController extends Controller
             } else {
                 unset($data['password']);
             }
+           $khachHang = KhachHang::where('user_id', $user->id)->first();
+           if($khachHang){
+               $khachHang->update(['active' => $data['active']]);
+           }
             $user->update($data);
 
             return response()->json([
@@ -374,7 +379,6 @@ class UserController extends Controller
             return response(['message' => 'Thanh cong'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            dd($e);
             return response(['message' => 'Không thể cập nhật thông tin'], 500);
         }
     }
