@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\KhachHang;
 use App\NhaCungCap;
+use App\Scopes\ActiveScope;
 use App\ThongTinNhanVien;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -194,7 +195,7 @@ class UserController extends Controller
             } else {
                 unset($data['password']);
             }
-           $khachHang = KhachHang::where('user_id', $user->id)->first();
+           $khachHang = KhachHang::withoutGlobalScope(ActiveScope::class)->where('user_id', $id)->first();
            if($khachHang){
                $khachHang->update(['active' => $data['active']]);
            }
