@@ -307,7 +307,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('danhmuc', 'DanhMucSanPhamController@editDanhMucSanPham');
     Route::delete('danhmuc/{id}', 'DanhMucSanPhamController@xoaDanhMuc');
     Route::post('anhdanhmuc', 'DanhMucSanPhamController@uploadAnhDanhMuc');
-
+    
+    Route::post('uploadsanpham', 'SanPhamController@importSanPham');
     Route::post('uploadanhsanpham', 'SanPhamController@upload');
     Route::post('sanpham', 'SanPhamController@addSanPham');
     Route::delete('sanpham/{id}', 'SanPhamController@xoaSanPham');
@@ -451,8 +452,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('baiviet', 'CaiDatController@addBaiViet');
     Route::put('baiviet/{id}', 'CaiDatController@editBaiViet');
     Route::delete('baiviet/{id}', 'CaiDatController@xoaBaiViet');
-
-    Route::post('uploadsanpham', 'SanPhamController@importSanPham');
+    
 
 });
 Route::get('baiviet', 'CaiDatController@getBaiViet');
