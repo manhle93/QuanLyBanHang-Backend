@@ -2,16 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\DanhMucSanPham;
 use App\DonDatHang;
 use App\HangTonKho;
 use App\HinhAnhSanPham;
 use App\SanPham;
 use App\SanPhamDonDatHang;
+use App\ThietBi;
 use Illuminate\Http\Request;
 use Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\Response;
+use App\Traits\ExecuteExcel;
 
 class SanPhamController extends Controller
 {
+    use ExecuteExcel;
     public function upload(Request $request)
     {
         $info = $request->all();
@@ -28,7 +35,8 @@ class SanPhamController extends Controller
                 $message = 'Tệp không được tìm thấy';
             } elseif (isset($failedRules['file']['file'])) {
                 $message = 'Không hỗ trợ định dạng tệp';
-            } elseif (isset($failedRules['file']['max'])) {
+            }
+            elseif (isset($failedRules['file']['max'])) {
                 $message = 'Kích thước tệp quá lớn';
             }
 
@@ -135,7 +143,7 @@ class SanPhamController extends Controller
     {
         try {
             SanPham::find($id)->update(['active' => false]);
-            
+
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
             return response(['message' => 'Không thể xóa sản phẩm này'], 500);
@@ -163,7 +171,8 @@ class SanPhamController extends Controller
                 $message = 'Tệp không được tìm thấy';
             } elseif (isset($failedRules['file']['file'])) {
                 $message = 'Không hỗ trợ định dạng tệp';
-            } elseif (isset($failedRules['file']['max'])) {
+            }
+            elseif (isset($failedRules['file']['max'])) {
                 $message = 'Kích thước tệp quá lớn';
             }
 
@@ -281,5 +290,126 @@ class SanPhamController extends Controller
         }
         $sanPham =  SanPham::with('danhMuc', 'sanPhamTonKho:san_pham_id,so_luong')->whereIn('id', $data)->get();
         return $sanPham;
+    }
+
+    public function importSanPham(Request $request)
+    {
+        $file = $request->file('file');
+        if (!$file) {
+            return response(['message' => 'Không tìm thấy file'], 404);
+        }
+        $file_id = time();
+        $fileName = $file_id . '_' . $file->getClientOriginalName();
+        $file->storeAs('public/imports/', $fileName);
+        global $done;
+        $done = 0;
+        if (Storage::exists('public/imports/' . $fileName)) {
+            DB::beginTransaction();
+            try {
+                \Excel::filter('chunk')->load(storage_path('app/public/imports/' . $fileName))->chunk(200, function ($reader) {
+                    global $done;
+                    foreach ($reader as $row) {
+                        $info = $row->all();
+                        $thietBi['ten_san_pham'] = trim($info['ten_san_pham']);
+                        $thietBi['danh_muc_id'] = trim($info['nhom_hang_hoa']);
+                        $thietBi['gia_ban'] = trim($info['gia_ban']);
+                        $thietBi['don_vi_tinh'] = trim($info['don_vi_tinh']);
+                        $thietBi['gia_von'] = trim($info['gia_von']);
+                        $thietBi['vi_tri'] = trim($info['vi_tri']);
+                        $thietBi['ton_kho_thap_nhat'] = trim($info['ton_kho_thap_nhat']);
+                        $thietBi['thoi_gian_bao_quan'] = trim($info['thoi_gian_bao_quan']);
+                        $nhomSanPham = DanhMucSanPham::where('ten_danh_muc', 'ilike', $info['nhom_hang_hoa'])->first();
+                        if (!$nhomSanPham) {
+                            DB::rollback();
+                            $done = 1;
+                            break;
+                        }else {
+                            $thietBi['danh_muc_id'] =  $nhomSanPham->id;
+                        }
+                        if (isset($thietBi['ton_kho_thap_nhat']) && !is_numeric($thietBi['ton_kho_thap_nhat'])) {
+                            DB::rollback();
+                            $done = 2;
+                            break;
+                        }
+                        if (isset($thietBi['thoi_gian_bao_quan']) && !is_numeric($thietBi['thoi_gian_bao_quan'])) {
+                            DB::rollback();
+                            $done = 3;
+                            break;
+                        }
+                        if (isset($thietBi['gia_ban']) && !is_numeric($thietBi['gia_ban'])) {
+                            DB::rollback();
+                            $done = 4;
+                            break;
+                        }
+                        if (isset($thietBi['gia_von']) && !is_numeric($thietBi['gia_von'])) {
+                            DB::rollback();
+                            $done = 5;
+                            break;
+                        }
+                        // $emp = SanPham::create([
+                        //     'ten_san_pham' => $thietBi['ten_san_pham'],
+                        //     'danh_muc_id' => $thietBi['danh_muc_id'],
+                        //     'gia_ban' => $thietBi['gia_ban'],
+                        //     'don_vi_tinh' => $thietBi['don_vi_tinh'],
+                        //     'gia_von' => $thietBi['gia_von'],
+                        //     'vi_tri' => $thietBi['vi_tri'],
+                        //     'ton_kho_thap_nhat' => $thietBi['ton_kho_thap_nhat'],
+                        //     'thoi_gian_bao_quan' => $thietBi['thoi_gian_bao_quan'],
+                        // ]);
+                        $emp = SanPham::create($thietBi);
+                        $emp->save();
+                    };
+                    DB::commit();
+                });
+            } catch (\Exception $exception) {
+                DB::rollback();
+                dd($exception);
+                return response()->json([
+                    'data' => $exception,
+                    'message' => 'Không thể upload, Vui lòng kiểm tra lại dữ liệu nhập',
+                    'code' => 500,
+                ], 500);
+            }
+        }
+        $message = "";
+        $code = 200;
+        switch ($done) {
+            case 0:
+                $message = 'Thành công';
+                $code = 200;
+                break;
+            case 1:
+                $message = 'Nhóm hàng hóa không hợp lệ';
+                $code = 500;
+                break;
+            case 2:
+                $message = 'Tồn kho thấp nhất không hợp lệ! Hãy nhập số';
+                $code = 500;
+                break;
+            case 3:
+                $message = 'Thời gian bảo quản không hợp lệ! Hãy nhập số';
+                $code = 500;
+                break;
+            case 3:
+                $message = 'Giá bán không hợp lệ! Hãy nhập số';
+                $code = 500;
+                break;
+            case 3:
+                $message = 'Giá vốn không hợp lệ! Hãy nhập số';
+                $code = 500;
+                break;
+        }
+        return response(['message' => $message], $code);
+    }
+
+    function downloadMauSanPham()
+    {
+        try {
+            $excelFile = public_path() . '/imports/sanpham.xlsx';
+            $this->load($excelFile, 'Sheet1', function ($sheet) {
+            })->download('xlsx');
+        } catch (\Exception $e) {
+            dd($e);
+        }
     }
 }

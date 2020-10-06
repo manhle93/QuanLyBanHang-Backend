@@ -451,6 +451,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('baiviet', 'CaiDatController@addBaiViet');
     Route::put('baiviet/{id}', 'CaiDatController@editBaiViet');
     Route::delete('baiviet/{id}', 'CaiDatController@xoaBaiViet');
+
+    Route::post('uploadsanpham', 'SanPhamController@importSanPham');
+
 });
 Route::get('baiviet', 'CaiDatController@getBaiViet');
 Route::get('baiviet/{id}', 'CaiDatController@getChiTietBaiViet');
@@ -480,3 +483,4 @@ Route::get('inhoadonnhacungcap/{id}', 'DonHangNhaCungCapController@inHoaDon');
 Route::get('tien', 'DonDatHangController@test');
 Route::get('mobile/showdangky', 'AuthController@showDangKy');
 Route::post('mobile/dangkynhacungcap', 'System\UserController@dangKyNhaCungCap');
+Route::get('downloadsanpham', 'SanPhamController@downloadMauSanPham');
