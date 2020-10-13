@@ -316,6 +316,12 @@ class KhachHangNhaCungCapController extends Controller
         }
         DB::beginTransaction();
         try {
+            if(isset($data['ngay_chot_cong_no'])){
+                $data['ngay_chot_cong_no'] = Carbon::parse($data['ngay_chot_cong_no'])->timezone('Asia/Ho_Chi_Minh');
+            }
+            if(isset($data['ngay_thanh_toan'])){
+                $data['ngay_thanh_toan'] = Carbon::parse($data['ngay_thanh_toan'])->timezone('Asia/Ho_Chi_Minh');
+            }
             $khachHang = NhaCungCap::create([
                 'ma' => $data['ma'],
                 'ten' => $data['ten'],
@@ -324,7 +330,8 @@ class KhachHangNhaCungCapController extends Controller
                 'anh_dai_dien' => $data['anh_dai_dien'],
                 'ma_so_thue' => $data['ma_so_thue'],
                 'email' => $data['email'],
-                'anh_dai_dien' => $data['anh_dai_dien'],
+                'ngay_chot_cong_no' => $data['ngay_chot_cong_no'],
+                'ngay_thanh_toan' => $data['ngay_thanh_toan'],
                 'ghi_chu' => $data['ghi_chu'],
                 'tin_nhiem' => $data['tin_nhiem'],
                 'cong_ty' => $data['cong_ty'],
@@ -377,6 +384,12 @@ class KhachHangNhaCungCapController extends Controller
             ], 400);
         }
         try {
+            if(isset($data['ngay_chot_cong_no'])){
+                $data['ngay_chot_cong_no'] = Carbon::parse($data['ngay_chot_cong_no'])->timezone('Asia/Ho_Chi_Minh');
+            }
+            if(isset($data['ngay_thanh_toan'])){
+                $data['ngay_thanh_toan'] = Carbon::parse($data['ngay_thanh_toan'])->timezone('Asia/Ho_Chi_Minh');
+            }
             NhaCungCap::find($id)->update([
                 'ma' => $data['ma'],
                 'ten' => $data['ten'],
@@ -384,6 +397,8 @@ class KhachHangNhaCungCapController extends Controller
                 'so_dien_thoai' => $data['so_dien_thoai'],
                 'anh_dai_dien' => $data['anh_dai_dien'],
                 'ma_so_thue' => $data['ma_so_thue'],
+                'ngay_chot_cong_no' => $data['ngay_chot_cong_no'],
+                'ngay_thanh_toan' => $data['ngay_thanh_toan'],
                 'email' => $data['email'],
                 'ghi_chu' => $data['ghi_chu'],
                 'tin_nhiem' => $data['tin_nhiem'],

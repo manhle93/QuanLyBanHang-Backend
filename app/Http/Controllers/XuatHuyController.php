@@ -47,6 +47,7 @@ class XuatHuyController extends Controller
                     'ton_kho_truoc_xuat_huy' => $item['ton_kho_truoc_xuat_huy'],
                     'ton_kho_sau_xuat_huy' => $item['ton_kho_truoc_xuat_huy'] - $item['so_xuat_huy'],
                     'so_xuat_huy' => $item['so_xuat_huy'],
+                    'ly_do' => $item['ly_do']
                 ]);
 
                 $hangTonKho = HangTonKho::where('san_pham_id', $item['hang_hoa']['id'])->first();

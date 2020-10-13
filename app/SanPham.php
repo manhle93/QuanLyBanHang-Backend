@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Scopes\ActiveScope;
+use Illuminate\Database\Eloquent\Builder;
 
 class SanPham extends Model
 {
@@ -33,7 +34,6 @@ class SanPham extends Model
     protected static function boot()
     {
         parent::boot();
-
         static::addGlobalScope(new ActiveScope);
     }
 }

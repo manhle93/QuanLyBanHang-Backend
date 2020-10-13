@@ -71,10 +71,14 @@ class BaoGiaController extends Controller
         $query = BaoGia::with('user');
         $nha_cung_cap = $request->get('nha_cung_cap');
         $date = $request->get('date');
+        $search = $request->get('search');
         $data = [];
         if (isset($search)) {
             $search = trim($search);
-            $query->where('ten', 'ilike', "%{$search}%");
+            $query->where(function($query) use ($search){
+                $query->where('ten', 'ilike', "%{$search}%")
+                ->orWhere('ma', 'ilike', "%{$search}%");
+            });
         }
         if (isset($nha_cung_cap)) {
             $query = $query->where('user_id', $nha_cung_cap);

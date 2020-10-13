@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\DanhMucSanPham;
 use App\SanPham;
 use Illuminate\Http\Request;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 
 
 class DanhMucSanPhamController extends Controller
@@ -22,7 +22,7 @@ class DanhMucSanPhamController extends Controller
                 $query->orWhere('mo_ta', 'ilike', "%{$search}%");
             });
         }
-        $query->orderBy('updated_at', 'desc');
+        $query->orderBy('thu_tu_hien_thi', 'asc');
         $data = $query->get();
         if (isset($per_page)) {
             $data = $query->take($per_page)->get();
@@ -56,6 +56,7 @@ class DanhMucSanPhamController extends Controller
         try {
             $user = DanhMucSanPham::create([
                 'ten_danh_muc' => $data['ten_danh_muc'],
+                'thu_tu_hien_thi' => $data['thu_tu_hien_thi'],
                 'mo_ta' => $data['mo_ta'],
                 'anh_dai_dien' => $data['anh_dai_dien'],
                 'user_tao' => $user->id
@@ -93,6 +94,7 @@ class DanhMucSanPhamController extends Controller
         try {
             $user = DanhMucSanPham::where('id', $data['id'])->first()->update([
                 'ten_danh_muc' => $data['ten_danh_muc'],
+                'thu_tu_hien_thi' => $data['thu_tu_hien_thi'],
                 'mo_ta' => $data['mo_ta'],
                 'anh_dai_dien' => $data['anh_dai_dien'],
             ]);

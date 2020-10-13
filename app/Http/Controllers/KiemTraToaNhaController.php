@@ -6,7 +6,7 @@ use App\KiemTraToaNha;
 use App\TrangThaiKiemTra;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 
 class KiemTraToaNhaController extends Controller
 {
