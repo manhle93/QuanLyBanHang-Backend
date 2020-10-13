@@ -319,7 +319,7 @@ class DonHangNhaCungCapController extends Controller
         $page = $request->get('page', 1);
         $nhac_cung_cap = $request->get('nha_cung_cap_id');
         $date = $request->get('date');
-        $query = TraHangNhaCungCap::with('sanPhams');
+        $query = TraHangNhaCungCap::with('sanPhams', 'nhaCungCap:id,ten');
         if (isset($date)) {
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());

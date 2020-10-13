@@ -11,4 +11,7 @@ class TraHangNhaCungCap extends Model
     {
         return $this->hasMany('App\SanPhamTraNhaCungCap', 'don_tra_hang_id');
     }
+    public function nhaCungCap(){
+        return $this->belongsTo('App\NhaCungCap', 'nha_cung_cap_id', 'id');
+    }
 }

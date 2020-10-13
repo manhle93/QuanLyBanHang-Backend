@@ -187,7 +187,7 @@ class KhachHangNhaCungCapController extends Controller
         $user = auth()->user();
         $perPage = $request->query('per_page', 5);
         $page = $request->get('page', 1);
-        $query = KhachHang::with('user:id,name,avatar_url');
+        $query = KhachHang::with('user:id,name,avatar_url', 'donDatHangs');
         $search = $request->get('search');
         $data = [];
         if (isset($search)) {
