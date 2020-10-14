@@ -318,15 +318,23 @@ class DonHangNhaCungCapController extends Controller
     {
         $perPage = $request->get('per_page', 10);
         $page = $request->get('page', 1);
-        $nhac_cung_cap = $request->get('nha_cung_cap_id');
+        $nhac_cung_cap = $request->get('nha_cung_cap');
         $date = $request->get('date');
         $query = TraHangNhaCungCap::with('sanPhams', 'nhaCungCap:id,ten');
+        $user = auth()->user();
+        if (!$user) {
+            return [];
+        }
         if (isset($date)) {
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
         }
-        if ($nhac_cung_cap) {
+        if (isset($nhac_cung_cap)) {
             $query->where('nha_cung_cap_id', $nhac_cung_cap);
+        }
+        $nCC = NhaCungCap::where('user_id', $user->id)->first();
+        if ($user->role_id == 3 && $nCC) {
+            $query->where('nha_cung_cap_id', $nCC->id);
         }
         $query->orderBy('created_at', 'desc');
         $query->orderBy('id', 'asc');

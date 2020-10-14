@@ -140,7 +140,8 @@ class KhachHangNhaCungCapController extends Controller
             ], 400);
         }
         try {
-            KhachHang::find($id)->update([
+            $khachHang = KhachHang::where('id', $id)->first();
+            $khachHang->update([
                 'ma' => $data['ma'],
                 'ten' => $data['ten'],
                 'dia_chi' => $data['dia_chi'],
@@ -163,6 +164,13 @@ class KhachHangNhaCungCapController extends Controller
                 'diem_quy_doi' => $data['diem_quy_doi'],
                 'tien_vay' => $data['tien_vay'],
                 'trang_thai' => $data['trang_thai'],
+            ]);
+            User::where('id', $khachHang->user_id)->first()->update([
+                'name' => $data['ten'],
+                'email' => $data['email'],
+                'phone' => $data['so_dien_thoai'],
+                'dia_chi' => $data['dia_chi'],
+                'avatar_url' => $data['anh_dai_dien'],
             ]);
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {

@@ -124,6 +124,7 @@ class DonDatHangController extends Controller
         $hoaDon = $request->get('hoa_don');
         $trahang = $request->get('tra_hang');
         $don_hang = $request->get('don_hang');
+        $search = $request->get('search');
         $donHang = [];
         if (isset($khach_hang)) {
             $query = $query->where('user_id', $khach_hang);
@@ -140,6 +141,16 @@ class DonDatHangController extends Controller
         if (isset($date)) {
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
+        if (isset($search)) {
+            $query->where(function ($query) use ($search) {
+                $query->where('ma', 'ilike', "%{$search}%")
+                    ->orWhere('ten', 'ilike', "%{$search}%")
+                    ->orWhereHas('user', function ($query) use ($search) {
+                        $query->where('phone', 'ilike', "%{$search}%")
+                            ->orWhere('email', 'ilike', "%{$search}%");
+                    });
+            });
         }
         if ($user->role_id == 1 || $user->role_id == 2) {
             $donHang = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
@@ -792,7 +803,7 @@ class DonDatHangController extends Controller
                 'type' => 'hoa_don',
                 'reference_id' => $request->id,
                 'so_tien' => $request->thanh_toan,
-                'noi_dung' => 'Thanh toán bổ xung đơn hàng '.$donHang->ma,
+                'noi_dung' => 'Thanh toán bổ xung đơn hàng ' . $donHang->ma,
                 'thong_tin_giao_dich' => null,
                 'thong_tin_khach_hang' => null,
                 'user_id_khach_hang' => $donHang->user_id ? $donHang->user_id : null
@@ -800,6 +811,92 @@ class DonDatHangController extends Controller
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
             return response(['message' => 'Không thể thanh toán bổ xung'], 500);
+        }
+    }
+    public function doiHang($id, Request $request)
+    {
+        $data = $request->all();
+        try {
+            if (count($data['danhSachHang']) > 0) {
+                DB::beginTransaction();
+                foreach ($data['danhSachHang'] as $item) {
+                    if ($item['so_luong_doi_tra'] > 0) {
+                        DoiTraHang::create([
+                            'san_pham_id' => $item['hang_hoa']['id'],
+                            'gia_ban' => $item['don_gia'],
+                            'so_luong' => $item['so_luong_doi_tra'],
+                            'don_hang_id' => $id,
+                            'doanh_thu' => $item['don_gia'] * $item['so_luong_doi_tra'],
+                            'type' => 'doi_hang',
+                            'nguyen_nhan' => $item['nguyen_nhan_doi_hang']
+                        ]);
+                    }
+                    $tonKho = HangTonKho::where('san_pham_id', $item['hang_hoa']['id'])->first();
+                    if ($tonKho && ($tonKho->so_luong >= $item['so_luong_doi_tra'])) {
+                        $tonKho->update(['so_luong' => $tonKho->so_luong - $item['so_luong_doi_tra']]);
+                    } else {
+                        return response(['message' => $item['hang_hoa']['ten_san_pham'].' không đủ tồn kho!'], 500);
+                    }
+                }
+            }
+            DB::commit();
+            return response(['message' => 'Thành công'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response(['message' => 'Không thể đổi hàng'], 500);
+        }
+    }
+
+    public function traHang($id, Request $request)
+    {
+        $data = $request->all();
+        try {
+            if (count($data['danhSachHang']) > 0) {
+                DB::beginTransaction();
+                SanPhamDonDatHang::where('don_dat_hang_id', $id)->delete();
+                $soTien = 0;
+                foreach ($data['danhSachHang'] as $item) {
+                    if ($item['so_luong_doi_tra'] > 0) {
+                        DoiTraHang::create([
+                            'san_pham_id' => $item['hang_hoa']['id'],
+                            'gia_ban' => $item['don_gia'],
+                            'so_luong' => $item['so_luong_doi_tra'],
+                            'don_hang_id' => $id,
+                            'doanh_thu' => $item['don_gia'] * $item['so_luong_doi_tra'],
+                            'type' => 'tra_hang',
+                            'nguyen_nhan' => $item['nguyen_nhan_doi_hang']
+                        ]);
+
+                    }
+                    SanPhamDonDatHang::create([
+                        'san_pham_id' => $item['hang_hoa']['id'],
+                        'gia_ban' => $item['don_gia'],
+                        'so_luong' => $item['so_luong_ban_dau'] -  $item['so_luong_doi_tra'],
+                        'don_dat_hang_id' => $id,
+                        'doanh_thu' => $item['don_gia'] * ($item['so_luong_ban_dau'] -  $item['so_luong_doi_tra'])
+                    ]);
+                    $soTien = $soTien +  $item['don_gia'] * $item['so_luong_doi_tra'];
+                }
+                $donHang = DonDatHang::where('id', $id)->first();
+                if($donHang && $donHang->user_id && $data['phuong_thuc_hoan_tien'] == 'tai_khoan'){
+                    $khacHang = KhachHang::where('user_id', $donHang->user_id)->first();
+                    $khacHang->update(['so_du' =>  $khacHang->so_du + $soTien]);
+                    NopTien::create([
+                        'trang_thai' => 'hoan_tien',
+                        'noi_dung' => 'Trả hàng, hoàn tiền. Đơn hàng: ' . $donHang->ten . ', mã đơn hàng: ' . $donHang->ma,
+                        'id_user_khach_hang' => $khacHang->user_id,
+                        'user_id' => auth()->user()->id,
+                        'so_tien' => $soTien,
+                        'so_du' => $khacHang->so_du,
+                        'ma' => 'GD' . time()
+                    ]);
+                }
+            }
+            DB::commit();
+            return response(['message' => 'Thành công'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response(['message' => 'Không thể đổi hàng'], 500);
         }
     }
 }
