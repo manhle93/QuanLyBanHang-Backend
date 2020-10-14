@@ -803,14 +803,14 @@ class DonDatHangController extends Controller
                 'type' => 'hoa_don',
                 'reference_id' => $request->id,
                 'so_tien' => $request->thanh_toan,
-                'noi_dung' => 'Thanh toán bổ xung đơn hàng ' . $donHang->ma,
+                'noi_dung' => 'Thanh toán bổ sung đơn hàng ' . $donHang->ma,
                 'thong_tin_giao_dich' => null,
                 'thong_tin_khach_hang' => null,
                 'user_id_khach_hang' => $donHang->user_id ? $donHang->user_id : null
             ]);
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
-            return response(['message' => 'Không thể thanh toán bổ xung'], 500);
+            return response(['message' => 'Không thể thanh toán bổ sung'], 500);
         }
     }
     public function doiHang($id, Request $request)
