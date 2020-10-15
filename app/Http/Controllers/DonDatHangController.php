@@ -148,7 +148,8 @@ class DonDatHangController extends Controller
                     ->orWhere('ten', 'ilike', "%{$search}%")
                     ->orWhereHas('user', function ($query) use ($search) {
                         $query->where('phone', 'ilike', "%{$search}%")
-                            ->orWhere('email', 'ilike', "%{$search}%");
+                            ->orWhere('email', 'ilike', "%{$search}%")
+                            ->orWhere('name', 'ilike', "%{$search}%");
                     });
             });
         }
@@ -672,11 +673,23 @@ class DonDatHangController extends Controller
         $page = $request->get('page', 1);
         $query = PhieuThu::query();
         $date = $request->get('date');
+        $search = $request->get('search');
         if (isset($date)) {
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
         }
-
+        if (isset($search)) {
+            $query->where(function ($query) use ($search) {
+                $query->where('noi_dung', 'ilike', "%{$search}%")
+                    ->orWhere('thong_tin_giao_dich', 'ilike', "%{$search}%")
+                    ->orWhere('thong_tin_khach_hang', 'ilike', "%{$search}%");
+                    // ->orWhereHas('user', function ($query) use ($search) {
+                    //     $query->where('phone', 'ilike', "%{$search}%")
+                    //         ->orWhere('email', 'ilike', "%{$search}%")
+                    //         ->orWhere('name', 'ilike', "%{$search}%");
+                    // });
+            });
+        }
         $donHang = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
         return response()->json([
             'data' => $donHang,
@@ -774,11 +787,22 @@ class DonDatHangController extends Controller
         $page = $request->get('page', 1);
         $query = DonDatHang::whereHas('traHang')->with('traHang', 'user', 'traHang.sanPham:id,ten_san_pham,don_vi_tinh');
         $date = $request->get('date');
+        $search = $request->get('search');
         if (isset($date)) {
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
         }
-
+        if (isset($search)) {
+            $query->where(function ($query) use ($search) {
+                $query->where('ma', 'ilike', "%{$search}%")
+                    ->orWhere('ten', 'ilike', "%{$search}%")
+                    ->orWhereHas('user', function ($query) use ($search) {
+                        $query->where('name', 'ilike', "%{$search}%");
+                        $query->orWhere('phone', 'ilike', "%{$search}%");
+                        $query->orWhere('email', 'ilike', "%{$search}%");
+                    });
+            });
+        }
         $donHang = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
         return response()->json([
             'data' => $donHang,
@@ -835,7 +859,7 @@ class DonDatHangController extends Controller
                     if ($tonKho && ($tonKho->so_luong >= $item['so_luong_doi_tra'])) {
                         $tonKho->update(['so_luong' => $tonKho->so_luong - $item['so_luong_doi_tra']]);
                     } else {
-                        return response(['message' => $item['hang_hoa']['ten_san_pham'].' không đủ tồn kho!'], 500);
+                        return response(['message' => $item['hang_hoa']['ten_san_pham'] . ' không đủ tồn kho!'], 500);
                     }
                 }
             }
@@ -866,7 +890,6 @@ class DonDatHangController extends Controller
                             'type' => 'tra_hang',
                             'nguyen_nhan' => $item['nguyen_nhan_doi_hang']
                         ]);
-
                     }
                     SanPhamDonDatHang::create([
                         'san_pham_id' => $item['hang_hoa']['id'],
@@ -878,7 +901,7 @@ class DonDatHangController extends Controller
                     $soTien = $soTien +  $item['don_gia'] * $item['so_luong_doi_tra'];
                 }
                 $donHang = DonDatHang::where('id', $id)->first();
-                if($donHang && $donHang->user_id && $data['phuong_thuc_hoan_tien'] == 'tai_khoan'){
+                if ($donHang && $donHang->user_id && $data['phuong_thuc_hoan_tien'] == 'tai_khoan') {
                     $khacHang = KhachHang::where('user_id', $donHang->user_id)->first();
                     $khacHang->update(['so_du' =>  $khacHang->so_du + $soTien]);
                     NopTien::create([

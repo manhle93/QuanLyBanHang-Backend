@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
+use function JmesPath\search;
+
 class KiemKhoController extends Controller
 {
     public function getSanPhamTonKho(Request $request)
@@ -90,10 +92,28 @@ class KiemKhoController extends Controller
         $page = $request->get('page', 1);
         $query = KiemKho::with('nhanVien', 'nguoiTao', 'sanPhams', 'sanPhams.sanPham:id,ten_san_pham,don_vi_tinh');
         $date = $request->get('date');
+        $search = $request->get('search');
         $donHang = [];
         if (isset($date)) {
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
+        if (isset($search)) {
+            $search = trim($search);
+            $query->where(function ($query) use ($search) {
+                $query->where('ma', 'ilike', "%{$search}%")
+                    ->orWhere('ten', 'ilike', "%{$search}%")
+                    ->orWhereHas('nhanVien', function ($query) use ($search) {
+                        $query->where('phone', 'ilike', "%{$search}%")
+                            ->orWhere('email', 'ilike', "%{$search}%")
+                            ->orWhere('name', 'ilike', "%{$search}%");
+                    })
+                    ->orWhereHas('nguoiTao', function ($query) use ($search) {
+                        $query->where('phone', 'ilike', "%{$search}%")
+                            ->orWhere('email', 'ilike', "%{$search}%")
+                            ->orWhere('name', 'ilike', "%{$search}%");
+                    });
+            });
         }
         if ($user->role_id == 1 || $user->role_id == 2) {
             $donHang = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);

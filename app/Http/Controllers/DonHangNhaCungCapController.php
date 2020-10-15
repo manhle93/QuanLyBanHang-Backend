@@ -30,6 +30,7 @@ class DonHangNhaCungCapController extends Controller
         $date = $request->get('date');
         $trang_thai = $request->get('trang_thai');
         $nhac_cung_cap = $request->get('nha_cung_cap');
+        $search = $request->get('search');
         $query = DonHangNhaCungCap::with('user', 'sanPhams');
         $donHang = [];
         if (isset($nhac_cung_cap)) {
@@ -41,6 +42,18 @@ class DonHangNhaCungCapController extends Controller
         if (isset($date)) {
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
+        if (isset($search)) {
+            $query->where(function ($query) use ($search) {
+                $query->where('ma', 'ilike', "%{$search}%")
+                    ->orWhere('ten', 'ilike', "%{$search}%")
+                    ->orWhere('ghi_chu', 'ilike', "%{$search}%")
+                    ->orWhereHas('user', function ($query) use ($search) {
+                        $query->where('phone', 'ilike', "%{$search}%")
+                            ->orWhere('email', 'ilike', "%{$search}%")
+                            ->orWhere('name', 'ilike', "%{$search}%");
+                    });
+            });
         }
         if ($user->role_id == 1 || $user->role_id == 2) {
             $donHang = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
@@ -320,6 +333,7 @@ class DonHangNhaCungCapController extends Controller
         $page = $request->get('page', 1);
         $nhac_cung_cap = $request->get('nha_cung_cap');
         $date = $request->get('date');
+        $search = $request->get('search');
         $query = TraHangNhaCungCap::with('sanPhams', 'nhaCungCap:id,ten');
         $user = auth()->user();
         if (!$user) {
@@ -331,6 +345,15 @@ class DonHangNhaCungCapController extends Controller
         }
         if (isset($nhac_cung_cap)) {
             $query->where('nha_cung_cap_id', $nhac_cung_cap);
+        }
+        if (isset($search)) {
+            $query->where(function ($query) use ($search) {
+                $query->where('ma_don', 'ilike', "%{$search}%")
+                    ->orWhere('ly_do', 'ilike', "%{$search}%")
+                    ->orWhereHas('nhaCungCap', function ($query) use ($search) {
+                        $query->where('ten', 'ilike', "%{$search}%");
+                    });
+            });
         }
         $nCC = NhaCungCap::where('user_id', $user->id)->first();
         if ($user->role_id == 3 && $nCC) {
@@ -613,6 +636,11 @@ class DonHangNhaCungCapController extends Controller
         $page = $request->get('page', 1);
         $nhac_cung_cap = $request->get('nha_cung_cap');
         $date = $request->get('date');
+        $search = $request->get('search');
+        $user = auth()->user();
+        if(!$user){
+            return [];
+        }
         $query = ThanhToanNhaCungCap::with('donHangs', 'nhanCungCap:id,ten', 'user:id,name');
         if (isset($date)) {
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
@@ -620,6 +648,20 @@ class DonHangNhaCungCapController extends Controller
         }
         if ($nhac_cung_cap) {
             $query->where('nha_cung_cap_id', $nhac_cung_cap);
+        }
+        if (isset($search)) {
+            $query->where(function ($query) use ($search) {
+                $query->where('ma_don', 'ilike', "%{$search}%")
+                    ->orWhereHas('user', function ($query) use ($search) {
+                        $query->where('phone', 'ilike', "%{$search}%")
+                            ->orWhere('email', 'ilike', "%{$search}%")
+                            ->orWhere('name', 'ilike', "%{$search}%");
+                    });
+            });
+        }
+        if ($user->role_id == 3) {
+            $nhac_cung_cap_id = NhaCungCap::where('user_id', $user->id)->first() ? NhaCungCap::where('user_id', $user->id)->first()->id : 'no';
+            $query->where('nha_cung_cap_id', $$nhac_cung_cap_id);
         }
         $query->orderBy('created_at', 'desc');
         $query->orderBy('id', 'asc');
