@@ -32,7 +32,13 @@ class QuanLyKhoController extends Controller
         $query = PhieuNhapKho::with('donHang', 'donHang.sanPhams', 'donHang.sanPhams.sanPham:id,ten_san_pham');
         if (isset($search)) {
             $search = trim($search);
-            $query->where('ma', 'ilike', "%{$search}%");
+            $query->where(function($query) use ($search){
+                $query->where('ma', 'ilike', "%{$search}%")
+                ->orWhereHas('donHang', function($query) use ($search){
+                    $query->where('ma', 'ilike', "%{$search}%")
+                    ->orWhere('ten', 'ilike', "%{$search}%");
+                });
+            });
         }
         if (isset($date)) {
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())

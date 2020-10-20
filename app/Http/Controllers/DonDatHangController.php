@@ -818,6 +818,30 @@ class DonDatHangController extends Controller
             $thanhToan = $request->thanh_toan + $donHang->da_thanh_toan;
             $phaiThanhToan = $donHang->con_phai_thanh_toan - $request->thanh_toan;
             $donHang->update(['da_thanh_toan' => $thanhToan, 'con_phai_thanh_toan' => $phaiThanhToan]);
+            if(!$donHang->user_id && $request->hinh_thuc == 'tai_khoan'){
+                return response(['message' => 'Khách hàng không tồn tại, không thể thanh toán qua tài khoản'], 500);
+            }
+            DB::beginTransaction();
+            if($request->hinh_thuc == 'tai_khoan'){
+                $khach = KhachHang::where('user_id', $donHang->user_id)->first();
+                if(!$khach){
+                    return response(['message' => 'Khách hàng không tồn tại, không thể thanh toán qua tài khoản'], 500);
+                }
+                if($request->thanh_toan > $khach->so_du){
+                    return response(['message' => 'Số dư tài khoản không đủ'], 500);
+                }
+                $soDuMoi = $khach->so_du - $request->thanh_toan;
+                $khach->update(['so_du' => $soDuMoi]);
+                NopTien::create([
+                    'trang_thai' => 'mua_hang',
+                    'id_user_khach_hang' => $donHang->user_id,
+                    'user_id' => auth()->user()->id,
+                    'so_tien' => $request->thanh_toan,
+                    'noi_dung' => 'Thanh toán bổ xung cho đơn hàng: '.$donHang->ten . ' .Mã đơn: '.$donHang->ma,
+                    'so_du' => $soDuMoi,
+                    'ma' => 'GD' . time()
+                ]);
+             }
             ThanhToanBoXung::create([
                 'don_hang_id' => $request->id,
                 'so_tien' => $request->thanh_toan,
@@ -832,8 +856,10 @@ class DonDatHangController extends Controller
                 'thong_tin_khach_hang' => null,
                 'user_id_khach_hang' => $donHang->user_id ? $donHang->user_id : null
             ]);
+            DB::commit();
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response(['message' => 'Không thể thanh toán bổ sung'], 500);
         }
     }

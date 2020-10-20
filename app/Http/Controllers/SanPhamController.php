@@ -8,9 +8,10 @@ use App\HangTonKho;
 use App\HinhAnhSanPham;
 use App\SanPham;
 use App\SanPhamDonDatHang;
+use App\Scopes\ActiveScope;
 use App\ThietBi;
 use Illuminate\Http\Request;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
@@ -84,6 +85,7 @@ class SanPhamController extends Controller
                 'ten_san_pham' => $data['ten_san_pham'],
                 'danh_muc_id' => $data['danh_muc_id'],
                 'anh_dai_dien' => $data['anh_dai_dien'],
+                'ma' => time(),
                 'gia_ban' => $data['gia_ban'],
                 'gia_sale' => $data['gia_sale'],
                 'don_vi_tinh' => $data['don_vi_tinh'],
@@ -111,7 +113,7 @@ class SanPhamController extends Controller
     {
         $perPage = $request->get('per_page', 10);
         $page = $request->get('page', 1);
-        $query = SanPham::with('danhMuc', 'sanPhamTonKho:san_pham_id,so_luong');
+        $query = SanPham::with('danhMuc', 'sanPhamTonKho:san_pham_id,so_luong', 'thuongHieu:id,ten');
         $search = $request->get('search');
         $danh_muc_id = $request->get('danh_muc_id');
         $san_pham_id = $request->get('san_pham_id');
@@ -313,12 +315,13 @@ class SanPhamController extends Controller
                         $info = $row->all();
                         $thietBi['ten_san_pham'] = trim($info['ten_san_pham']);
                         $thietBi['danh_muc_id'] = trim($info['nhom_hang_hoa']);
-                        $thietBi['gia_ban'] = trim($info['gia_ban']);
+                        $thietBi['gia_ban'] = (int)trim($info['gia_ban']);
                         $thietBi['don_vi_tinh'] = trim($info['don_vi_tinh']);
-                        $thietBi['gia_von'] = trim($info['gia_von']);
+                        $thietBi['gia_von'] = (int)trim($info['gia_von']);
                         $thietBi['vi_tri'] = trim($info['vi_tri']);
-                        $thietBi['ton_kho_thap_nhat'] = trim($info['ton_kho_thap_nhat']);
-                        $thietBi['thoi_gian_bao_quan'] = trim($info['thoi_gian_bao_quan']);
+                        $thietBi['ma'] = trim($info['ma']);
+                        $thietBi['ton_kho_thap_nhat'] = (int)trim($info['ton_kho_thap_nhat']);
+                        $thietBi['thoi_gian_bao_quan'] = (int)trim($info['thoi_gian_bao_quan']);
 
                         if (isset($info['nhom_hang_hoa']) && isset($thietBi['ten_san_pham']) && isset($thietBi['don_vi_tinh'])) {
                             $nhomSanPham = DanhMucSanPham::where('ten_danh_muc', 'ilike', $info['nhom_hang_hoa'])->first();
@@ -330,34 +333,56 @@ class SanPhamController extends Controller
                             } else {
                                 $thietBi['danh_muc_id'] =  $nhomSanPham->id;
                             }
-                            if (isset($thietBi['ton_kho_thap_nhat']) && !is_numeric($thietBi['ton_kho_thap_nhat'])) {
+                            if (isset($thietBi['ton_kho_thap_nhat']) && !is_numeric($thietBi['ton_kho_thap_nhat']) && $thietBi['ton_kho_thap_nhat'] != 0) {
                                 DB::rollback();
                                 $done = 2;
                                 break;
                             }
-                            if (isset($thietBi['thoi_gian_bao_quan']) && !is_numeric($thietBi['thoi_gian_bao_quan'])) {
+                            if (isset($thietBi['thoi_gian_bao_quan']) && !is_numeric($thietBi['thoi_gian_bao_quan']) && $thietBi['thoi_gian_bao_quan'] != 0) {
                                 DB::rollback();
                                 $done = 3;
                                 break;
                             }
-                            if (isset($thietBi['gia_ban']) && !is_numeric($thietBi['gia_ban'])) {
+                            if (isset($thietBi['gia_ban']) && !is_numeric($thietBi['gia_ban']) && $thietBi['gia_ban'] != 0) {
                                 DB::rollback();
                                 $done = 4;
                                 break;
                             }
-                            if (isset($thietBi['gia_von']) && !is_numeric($thietBi['gia_von'])) {
+                            if (isset($thietBi['gia_von']) && !is_numeric($thietBi['gia_von']) && $thietBi['gia_von'] != 0) {
                                 DB::rollback();
                                 $done = 5;
                                 break;
                             }
-                            $emp = SanPham::create($thietBi);
-                            $emp->save();
+                            if (!isset($thietBi['ma'])) {
+                                DB::rollback();
+                                $done = 6;
+                                break;
+                            }
+                
+                            $sp = SanPham::where('ma', $thietBi['ma'])->first();
+                            if ($sp) {
+                                $sp->update([
+                                    'ten_san_pham' => $thietBi['ten_san_pham'],
+                                    'danh_muc_id' => $thietBi['danh_muc_id'],
+                                    'ma' => $thietBi['ma'],
+                                    'gia_ban' => $thietBi['gia_ban'],
+                                    'don_vi_tinh' => $thietBi['don_vi_tinh'],
+                                    'gia_von' => $thietBi['gia_von'] ? $thietBi['gia_von'] : null,
+                                    'vi_tri' => $thietBi['vi_tri'],
+                                    'thoi_gian_bao_quan' => null,
+                                    'ton_kho_thap_nhat' => null
+                                ]);
+                            } else {
+                                $emp = SanPham::create($thietBi);
+                                $emp->save();
+                            }
                         }
                     };
                     DB::commit();
                 });
             } catch (\Exception $exception) {
                 DB::rollback();
+                dd($exception);
                 return response()->json([
                     'data' => $exception,
                     'message' => 'Không thể upload, Vui lòng kiểm tra lại dữ liệu nhập',
@@ -384,12 +409,16 @@ class SanPhamController extends Controller
                 $message = 'Số thời gian bảo quản không hợp lệ!';
                 $code = 500;
                 break;
-            case 3:
+            case 4:
                 $message = 'Giá bán không hợp lệ!';
                 $code = 500;
                 break;
-            case 3:
+            case 5:
                 $message = 'Giá vốn không hợp lệ!';
+                $code = 500;
+                break;
+            case 6:
+                $message = 'Mã sản phẩm không thể bỏ trống!';
                 $code = 500;
                 break;
         }
@@ -405,5 +434,62 @@ class SanPhamController extends Controller
         } catch (\Exception $e) {
             dd($e);
         }
+    }
+
+    public function exportSanPham()
+    {
+        $diemchay_data = SanPham::with(['danhMuc'])->get();
+        $diemchay_array[] = array('STT', 'Mã *', 'Tên sản phẩm *', 'Nhóm hàng hóa *', 'Giá bán', 'Đơn vị tính *', 'Giá vốn', 'Vị trí', 'Tồn kho thấp nhất', 'Thời gian bảo quản');
+        $count = 0;
+        foreach ($diemchay_data as $key => $diemchay) {
+            $count++;
+            $diemchay_array[] = array(
+                'STT' => $key + 1,
+                'Mã *' => $diemchay->ma,
+                'Tên sản phẩm *'  => $diemchay->ten_san_pham,
+                'Nhóm hàng hóa *'  => $diemchay->danhMuc ? $diemchay->danhMuc->ten_danh_muc : "",
+                'Giá bán' => $diemchay->gia_ban,
+                'Đơn vị tính *' => $diemchay->don_vi_tinh,
+                'Giá vốn' => $diemchay->gia_von,
+                'Vị trí' => $diemchay->vi_tri,
+                'Tồn kho thấp nhất' => $diemchay->ton_kho_thap_nhat,
+                'Thời gian bảo quản' => $diemchay->thoi_gian_bao_quan,
+            );
+        }
+        \Excel::create('Sản phẩm', function ($excel) use ($diemchay_array) {
+            $excel->setTitle('Sản phẩm');
+            $excel->sheet('Sản phẩm', function ($sheet) use ($diemchay_array) {
+                $sheet->fromArray($diemchay_array, null, 'A1', false, false);
+                $j = 'A';
+                $x = 1;
+                for ($i = 0; $i < count($diemchay_array); $i++) {
+                    $sheet->getStyle($j . $x)->applyFromArray(array(
+                        'font' => array(
+                            'bold'      =>  true,
+                            'size'  => 12,
+                        )
+                    ));
+                    if ($i == 0) {
+                        foreach ($diemchay_array as $key => $diemchay) {
+                            $sheet->getStyle($j . (++$key))->getAlignment()->applyFromArray(
+                                array('horizontal' => 'center')
+                            );
+                        }
+                    }
+                    $j++;
+                }
+            });
+        })->download('xlsx');
+    }
+
+    public function updateMaSanPham()
+    {
+        $sanPhams = SanPham::withoutGlobalScope(ActiveScope::class)->get();
+        foreach ($sanPhams as $item) {
+            if (!$item->ma) {
+                $item->update(['ma' => 'SPHH' . $item->id]);
+            }
+        }
+        return 'Thanh Cong';
     }
 }

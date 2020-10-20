@@ -527,6 +527,11 @@ class KhachHangNhaCungCapController extends Controller
                 $query->where('noi_dung', 'ilike', "%{$search}%");
                 $query->orWhere('so_tien', 'ilike', "%{$search}%");
                 $query->orWhere('ma', 'ilike', "%{$search}%");
+                $query->orWhereHas('khachHang', function ($query) use ($search) {
+                    $query->where('ten', 'ilike', "%{$search}%");
+                    $query->orWhere('so_dien_thoai', 'ilike', "%{$search}%");
+                    $query->orWhere('email', 'ilike', "%{$search}%");
+                });
             });
         }
         if (isset($date)) {

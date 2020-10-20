@@ -457,6 +457,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('trahang/{id}', 'DonDatHangController@traHang');
 
 });
+Route::get('exportsanpham', 'SanPhamController@exportSanPham');
+Route::get('updatema', 'SanPhamController@updateMaSanPham');
+
 Route::get('baiviet', 'CaiDatController@getBaiViet');
 Route::get('baiviet/{id}', 'CaiDatController@getChiTietBaiViet');
 
