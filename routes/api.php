@@ -456,7 +456,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('doihang/{id}', 'DonDatHangController@doiHang');
     Route::post('trahang/{id}', 'DonDatHangController@traHang');
 
+
+
 });
+Route::get('baocaobanhang', 'BaoCaoController@getBaoCaoBanHang');
+Route::get('downloadbaocaobanhang', 'BaoCaoController@downloadBaoCaoBanHang');
+
 Route::get('exportsanpham', 'SanPhamController@exportSanPham');
 Route::get('updatema', 'SanPhamController@updateMaSanPham');
 
