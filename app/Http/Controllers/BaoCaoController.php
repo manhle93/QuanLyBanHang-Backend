@@ -358,29 +358,29 @@ class BaoCaoController extends Controller
     public function getBaoCaoCuoiNgay(Request $request)
     {
         $date = $request->get('date');
+        $typeOrder = $request->get('don_hang');
         $orderBy = $request->get('orderBy');
-        $hoaDon = DonDatHang::where('trang_thai', 'hoa_don')->pluck('id')->toArray();
-        $datHang = DonDatHang::whereIn('trang_thai', ['moi_tao', 'dat_hang_online'])->pluck('id')->toArray();
+        $query = DonDatHang::query();
+        // TH la don dat hang
+        if (isset($typeOrder) && $typeOrder = 'hoa_don'){
+            $query = $query->where('trang_thai', 'hoa_don');
+        }else{
+            $query = $query->where('trang_thai', 'moi_tao');
+        }
+        
+        // TH la hoa don
         if (isset($date) && count($date)) {
-            $hoaDon = DonDatHang::where('trang_thai', 'hoa_don')->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
-
-            $datHang = DonDatHang::whereIn('trang_thai', ['moi_tao', 'dat_hang_online'])->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
+            $query = $query->whereBetween('order_date', [$date[0], $date[1]]);
+        }
+        
+        // Tim kiem theo ngay
+        if (isset($date) && count($date)) {
+            $query = $query->whereBetween('order_date', [$date[0], $date[1]]);
         }
 
-        $sanPhamBanHang = SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDon)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        $sanPhamDatHang = SanPhamDonDatHang::whereIn('don_dat_hang_id', $datHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        if (!isset($orderBy) || ($orderBy != 'doanh_thu' && $orderBy != 'so_luong')) {
-            $sanPhamBanHang =  $sanPhamBanHang->orderBy('doanh_thu', 'desc');
-            $sanPhamDatHang = $sanPhamDatHang->orderBy('doanh_thu', 'desc');
-        } else {
-            $sanPhamBanHang =  $sanPhamBanHang->orderBy($orderBy, 'desc');
-            $sanPhamDatHang = $sanPhamDatHang->orderBy($orderBy, 'desc');
-        }
-        $sanPhamBanHang = $sanPhamBanHang->get();
-        $sanPhamDatHang  = $sanPhamDatHang->get();
-        return response(['ban_hang' => $sanPhamBanHang, 'dat_hang' => $sanPhamDatHang], 200);
+        // Tinh tong hoa don/don dat hang
+
+        return $query->get();
     }
     public function downloadBaoCaoCuoiNgay(Request $request)
     {
