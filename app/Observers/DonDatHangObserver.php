@@ -146,7 +146,10 @@ class DonDatHangObserver
                     ]);
                 }
             } else {
-                PhieuThu::where('type', 'hoa_don')->where('reference_id', $donDatHang->id)->first()->delete();
+                $phieuThu =  PhieuThu::where('type', 'hoa_don')->where('reference_id', $donDatHang->id)->first();
+                if ($phieuThu) {
+                    $phieuThu->delete();
+                }
             }
         } catch (Exception $e) {
             dd($e);
