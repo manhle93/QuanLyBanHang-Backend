@@ -304,6 +304,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('downloadbaocaohanghoa', 'BaoCaoController@downloadBaoCaoHangHoa');
     Route::get('downloadbaocaonhacungcap', 'BaoCaoController@downloadBaoCaoNhaCungCap');
     Route::get('downloadbaocaocuoingay', 'BaoCaoController@downloadBaoCuoiNgay');
+    Route::get('lichsudangnhap', 'AuthController@getLichSuDangNhap');
+    Route::get('lichsuhoatdong', 'AuthController@getLichSuHoatDong');
 
 });
 
