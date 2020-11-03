@@ -39,13 +39,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('infor', 'AdminController@editInfor');
     Route::post('changepass', 'AdminController@updatePassword'); //Đổi mật khẩu
     Route::post('avatarupload', 'AdminController@uploadAvatar'); //upload anh avatar
-
+    Route::get('mobile/me', 'MobileController@me');
     Route::get('getData', 'ReportController@getData');
 });
 Route::group(['prefix' => 'system'], function () {
     Route::apiResource('roles', 'System\RoleController');
     Route::apiResource('companies', 'System\CompanyController');
     Route::get('allcompany', 'SysAdminController@index');
+    Route::get('mobile/me', 'MobileController@me');
 });
 
 Route::group(['middleware' => 'api', 'prefix' => 'mobile'], function () {
@@ -97,6 +98,28 @@ Route::get('search1', 'DanCuController@search');
 Route::get('danhmucmobile', 'DanhMucController@getDanhMucMobile');
 Route::get('refreshcaptcha', 'AuthController@refreshCaptcha');
 Route::get('checkusercaptcha', 'AuthController@checkUser');
+
+// ******************Loading for RBT************************
+Route::get('danhmuc', 'DanhMucSanPhamController@getDanhMucSanPham');
+Route::get('danhmucmobile', 'DanhMucSanPhamController@danhMucSanPhamMobile');
+Route::get('baiviet', 'CaiDatController@getBaiViet');
+Route::get('baiviet/{id}', 'CaiDatController@getChiTietBaiViet');
+
+Route::get('idmonngonmoingay', 'CaiDatController@getMonNgonMoiNgay');
+Route::get('slider', 'CaiDatController@getSilder');
+Route::get('exportsanpham', 'SanPhamController@exportSanPham');
+Route::get('exportsanpham', 'SanPhamController@exportSanPham');
+Route::get('updatema', 'SanPhamController@updateMaSanPham');
+Route::get('sanphambanchaytrangchu', 'SanPhamController@getSanPhamBanChay');
+Route::get('sanpham', 'SanPhamController@getSanPham');
+Route::get('sanphamgiohang', 'SanPhamController@getSanPhamGioHang');
+Route::post('sanphamgiohang', 'SanPhamController@getSanPhamGioHangMobile');
+Route::get('sanphamtrangchu/{id}', 'SanPhamController@getSanPhamDetailTrangChu');
+Route::get('downloadsanpham', 'SanPhamController@downloadMauSanPham');
+Route::post('khachhang', 'KhachHangNhaCungCapController@addKhachHang');
+Route::post('loginkhachhang', 'KhachHangNhaCungCapController@loginKhachHang');
+
+// ***********************************************************
 
 
 Route::group(['middleware' => 'auth'], function () {
@@ -224,7 +247,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('mobile/dondathang/{id}', 'MobileController@getChiTietDonHang');
     Route::get('mobile/baogia', 'MobileController@getBaoGia');
     Route::get('mobile/baogia/{id}', 'MobileController@getChiTietBaoGia');
-    Route::get('mobile/me', 'MobileController@me');
+    
 
     Route::post('voucher', 'VoucherController@addVoucher');
     Route::get('voucher', 'VoucherController@getVoucher');
@@ -251,28 +274,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('doihang/{id}', 'DonDatHangController@doiHang');
     Route::post('trahang/{id}', 'DonDatHangController@traHang');
 
-    Route::get('baiviet', 'CaiDatController@getBaiViet');
-    Route::get('baiviet/{id}', 'CaiDatController@getChiTietBaiViet');
-
-    Route::get('idmonngonmoingay', 'CaiDatController@getMonNgonMoiNgay');
-    Route::get('slider', 'CaiDatController@getSilder');
-
-    Route::post('khachhang', 'KhachHangNhaCungCapController@addKhachHang');
-    Route::post('loginkhachhang', 'KhachHangNhaCungCapController@loginKhachHang');
     Route::post('capnhatkhachhang', 'KhachHangNhaCungCapController@updateThongTinCaNhan');
     Route::get('chitietkhachhang', 'KhachHangNhaCungCapController@getChiTietKhachHang');
-
-    Route::get('exportsanpham', 'SanPhamController@exportSanPham');
-    Route::get('updatema', 'SanPhamController@updateMaSanPham');
-    Route::get('sanphambanchaytrangchu', 'SanPhamController@getSanPhamBanChay');
-    Route::get('sanpham', 'SanPhamController@getSanPham');
-    Route::get('sanphamgiohang', 'SanPhamController@getSanPhamGioHang');
-    Route::post('sanphamgiohang', 'SanPhamController@getSanPhamGioHangMobile');
-    Route::get('sanphamtrangchu/{id}', 'SanPhamController@getSanPhamDetailTrangChu');
-    Route::get('downloadsanpham', 'SanPhamController@downloadMauSanPham');
-
-    Route::get('danhmuc', 'DanhMucSanPhamController@getDanhMucSanPham');
-    Route::get('danhmucmobile', 'DanhMucSanPhamController@danhMucSanPhamMobile');
 
     Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
 
