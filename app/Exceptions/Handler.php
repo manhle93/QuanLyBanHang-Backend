@@ -50,12 +50,12 @@ class Handler extends ExceptionHandler
             if ($exception->getMessage() == "token_expire") {
                 return response([
                     'code' => 'token_expire',
-                    'message' => 'Unauthorized.'
+                    'message' => 'Phiên đăng nhập đã kết thúc! Vui lòng đăng nhập lại để sử dụng phần mềm!'
                 ], 401);
             } else {
                 return response([
                     'code' => 'unauthorized',
-                    'message' => 'Unauthorized.'
+                    'message' => 'Hãy đăng nhập để sử dụng phần mềm!'
                 ], 401);
             }
 
