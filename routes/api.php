@@ -183,7 +183,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('donhangmobile', 'KhachHangNhaCungCapController@getDonHangMobile');
     Route::get('giaodichmobile', 'KhachHangNhaCungCapController@getGiaoDichMobile');
 
-
+    Route::get('donhangconno', 'KhachHangNhaCungCapController@getDonHangConNo');
     Route::get('nhaccungcap', 'KhachHangNhaCungCapController@getNhaCungCap');
     Route::post('nhaccungcap', 'KhachHangNhaCungCapController@addNhaCungCap');
     Route::put('nhaccungcap/{id}', 'KhachHangNhaCungCapController@editNhaCungCap');
@@ -278,6 +278,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('chitietkhachhang', 'KhachHangNhaCungCapController@getChiTietKhachHang');
 
     Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
+});
 
     Route::get('tien', 'DonDatHangController@test');
     Route::get('inhoadon/{id}', 'DonDatHangController@inHoaDon');
@@ -307,5 +308,4 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('lichsudangnhap', 'AuthController@getLichSuDangNhap');
     Route::get('lichsuhoatdong', 'AuthController@getLichSuHoatDong');
 
-});
 

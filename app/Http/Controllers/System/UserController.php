@@ -219,7 +219,6 @@ class UserController extends Controller
     {
         try {
             User::find($id)->delete();
-
             return response()->json([
                 'message' => 'Xóa người dùng thành công',
                 'code' => 200,

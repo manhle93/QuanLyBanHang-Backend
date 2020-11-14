@@ -847,11 +847,12 @@ class DonDatHangController extends Controller
                 'so_tien' => $request->thanh_toan,
                 'hinh_thuc' => $request->hinh_thuc
             ]);
+            $hinh_thuc_tt = $request->hinh_thuc== 'tien_mat' ? 'Tiền mặt' : ($request->hinh_thuc== 'chuyen_khoan' ? 'Chuyển khoản/Quẹt thẻ' : ($request->hinh_thuc== 'tai_khoan' ? 'Tài khoản' : "" ));
             PhieuThu::create([
                 'type' => 'hoa_don',
                 'reference_id' => $request->id,
                 'so_tien' => $request->thanh_toan,
-                'noi_dung' => 'Thanh toán bổ sung đơn hàng ' . $donHang->ma,
+                'noi_dung' =>"- Thanh toán bổ sung đơn hàng " . $donHang->ma."\n"."- Hình thức thanh toán: ".$hinh_thuc_tt."\n"."- Số tiền còn nợ của đơn hàng: ".$donHang->con_phai_thanh_toan.' đ',
                 'thong_tin_giao_dich' => null,
                 'thong_tin_khach_hang' => null,
                 'user_id_khach_hang' => $donHang->user_id ? $donHang->user_id : null

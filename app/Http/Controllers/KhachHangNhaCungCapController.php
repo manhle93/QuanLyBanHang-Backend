@@ -214,7 +214,9 @@ class KhachHangNhaCungCapController extends Controller
             foreach ($data as $item) {
                 $hoaDonID = DonDatHang::where('trang_thai', 'hoa_don')->where('user_id', $item->user_id)->pluck('id');
                 $tongTien = SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDonID)->sum('doanh_thu');
+                $tongNo = DonDatHang::where('thanh_toan', 'tra_sau')->where('user_id', $item->user_id)->sum('con_phai_thanh_toan');
                 $item['tong_hoa_don'] = $tongTien;
+                $item['tong_no'] = $tongNo;
             }
         }
         return response()->json([
@@ -818,5 +820,11 @@ class KhachHangNhaCungCapController extends Controller
         ];
     }
 
+    public function getDonHangConNo(Request $request){
+        $user_id = $request->user_id;
+        if(isset($user_id))
+        {return DonDatHang::where('user_id', $user_id)->where('con_phai_thanh_toan', '>', 0)->get();}
+        else return [];
+    }
     
 }

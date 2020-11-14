@@ -21,7 +21,8 @@
         <br>
         <div class="line"><strong>Khách hàng: </strong>{{$data->khachHang ? $data->khachHang->name : '........'}}</div>
         <div class="line"><strong>Thông tin: </strong>{{$data->thong_tin_khach_hang}}</div>
-        <div class="line"><strong>Nội dung: </strong>{{$data->noi_dung}}</div>
+        <div class="line"><strong>Nội dung: </strong> </div>
+        <div class="line"><span style="white-space: pre-line">{{$data->noi_dung}}</span></div>
         <div class="line"><strong>Thông tin giao dịch: </strong>{{$data->thong_tin_giao_dich}}</div>
         <br>
         <div class="line"><strong>Tổng tiền: </strong><span id="tongtien">{{ $data->so_tien}}</span></div>
