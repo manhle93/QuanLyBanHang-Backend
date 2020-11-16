@@ -28,6 +28,7 @@ class NopTienCapObserver
             ]);
             if ($nopTien->trang_thai == 'nop_tien') {
                 PhieuThu::create([
+                    'user_id_nguoi_tao' => $user->id,
                     'type' => 'nop_tien',
                     'reference_id' => $nopTien->id,
                     'so_tien' => $nopTien->so_tien,

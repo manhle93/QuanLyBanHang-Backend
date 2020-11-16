@@ -671,7 +671,7 @@ class DonDatHangController extends Controller
     {
         $perPage = $request->query('per_page', 10);
         $page = $request->get('page', 1);
-        $query = PhieuThu::query();
+        $query = PhieuThu::with('nguoiTao');
         $date = $request->get('date');
         $search = $request->get('search');
         if (isset($date)) {
@@ -734,6 +734,7 @@ class DonDatHangController extends Controller
 
         try {
             PhieuThu::create([
+                'user_id_nguoi_tao' =>  auth()->user() ? auth()->user()->id : null,
                 'type' => 'tu_nhap',
                 'so_tien' => $data['so_tien'],
                 'thong_tin_giao_dich' => $data['thong_tin_giao_dich'],
@@ -849,6 +850,7 @@ class DonDatHangController extends Controller
             ]);
             $hinh_thuc_tt = $request->hinh_thuc== 'tien_mat' ? 'Tiền mặt' : ($request->hinh_thuc== 'chuyen_khoan' ? 'Chuyển khoản/Quẹt thẻ' : ($request->hinh_thuc== 'tai_khoan' ? 'Tài khoản' : "" ));
             PhieuThu::create([
+                'user_id_nguoi_tao' => auth()->user()->id,
                 'type' => 'hoa_don',
                 'reference_id' => $request->id,
                 'so_tien' => $request->thanh_toan,

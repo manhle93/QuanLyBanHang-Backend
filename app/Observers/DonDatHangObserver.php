@@ -68,6 +68,7 @@ class DonDatHangObserver
                         $thanhToan = 'Thanh toán mua hàng';
                 }
                 PhieuThu::create([
+                    'user_id_nguoi_tao' => $userLogin->id,
                     'type' => 'hoa_don',
                     'reference_id' => $donDatHang->id,
                     'so_tien' => $donDatHang->da_thanh_toan,
@@ -136,6 +137,7 @@ class DonDatHangObserver
                     ]);
                 } else {
                     PhieuThu::create([
+                        'user_id_nguoi_tao' => $userLogin->id,
                         'type' => 'hoa_don',
                         'reference_id' => $donDatHang->id,
                         'so_tien' => $donDatHang->da_thanh_toan,
