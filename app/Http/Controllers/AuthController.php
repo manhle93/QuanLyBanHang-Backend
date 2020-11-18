@@ -13,8 +13,10 @@ use App\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VerifyEmail;
+use App\Token;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Mews\Captcha\Facades\Captcha;
 use Symfony\Component\HttpFoundation\Request as HttpFoundationRequest;
 use Validator;
@@ -173,7 +175,7 @@ class AuthController extends Controller
                         'type' => 'user',
                         'hanh_dong' => 'login_fail',
                         'user_id' => $user->id,
-                        'noi_dung' => 'Tài khoản người dùng '.$user->name.' đã bị khóa trong 10 phút, do đăng nhập sai nhiều lần'
+                        'noi_dung' => 'Tài khoản người dùng ' . $user->name . ' đã bị khóa trong 10 phút, do đăng nhập sai nhiều lần'
                     ]);
                     LichSuDangNhap::create([
                         'user_id' => $user->id,
@@ -190,7 +192,7 @@ class AuthController extends Controller
                         'type' => 'user',
                         'hanh_dong' => 'login_fail',
                         'user_id' => $user->id,
-                        'noi_dung' => 'Tài khoản người dùng '.$user->name.' đã bị khóa trong 30 phút do đăng nhập sai nhiều lần'
+                        'noi_dung' => 'Tài khoản người dùng ' . $user->name . ' đã bị khóa trong 30 phút do đăng nhập sai nhiều lần'
                     ]);
                     LichSuDangNhap::create([
                         'user_id' => $user->id,
@@ -207,7 +209,7 @@ class AuthController extends Controller
                         'type' => 'user',
                         'hanh_dong' => 'login_fail',
                         'user_id' => $user->id,
-                        'noi_dung' => 'Tài khoản người dùng '.$user->name.' đã bị khóa do đăng nhập sai quá nhiều lần'
+                        'noi_dung' => 'Tài khoản người dùng ' . $user->name . ' đã bị khóa do đăng nhập sai quá nhiều lần'
                     ]);
                     LichSuDangNhap::create([
                         'user_id' => $user->id,
@@ -258,7 +260,7 @@ class AuthController extends Controller
 
         return response()->json(['captcha' => $res]);
     }
-    
+
     /**
      * Get the authenticated User.
      *
@@ -310,11 +312,38 @@ class AuthController extends Controller
      */
     protected function respondWithToken($token)
     {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60,
-        ]);
+        try {
+            $user = auth()->user();
+            $userToken = Token::where('user_id', $user->id)->first();
+            DB::beginTransaction();
+            if ($userToken && $userToken->tokens) {
+                $data = json_decode($userToken->tokens);
+                $data[] = $token;
+                $userToken->update(['tokens' => json_encode($data)]);
+            } else {
+                if ($userToken && !$userToken->tokens) {
+                    $userToken->delete();
+                }
+                $tokenArr[] = $token;
+                Token::create([
+                    'user_id' => $user->id,
+                    'tokens' => json_encode($tokenArr)
+                ]);
+            }
+            DB::commit();
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => auth()->factory()->getTTL() * 60,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => auth()->factory()->getTTL() * 60,
+            ]);
+        }
     }
 
     public function setup(Request $request)
@@ -400,7 +429,7 @@ class AuthController extends Controller
     public function getLichSuHoatDong(Request $request)
     {
         $user = auth()->user();
-        $per_page = $request->get('per_page',10);
+        $per_page = $request->get('per_page', 10);
         $date = $request->get('date');
         $user_id = $request->get('user_id');
         $doi_tuong = $request->get('doi_tuong');
@@ -430,7 +459,8 @@ class AuthController extends Controller
         return response($data, 200);
     }
 
-    public function showDangKy(){
+    public function showDangKy()
+    {
         return 1;
     }
 }

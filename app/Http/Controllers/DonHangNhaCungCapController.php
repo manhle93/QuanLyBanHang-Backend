@@ -262,8 +262,9 @@ class DonHangNhaCungCapController extends Controller
             $hangHoa = SanPhamDonHangNhaCungCap::where('don_hang_id', $id)->get();
             foreach ($hangHoa as $item) {
                 $checkKho = HangTonKho::where('san_pham_id', $item->san_pham_id)->where('kho_id', $kho_id)->first();
+                $soLuong =  $checkKho->so_luong + $item->so_luong_thuc_te;
                 if ($checkKho) {
-                    $checkKho->update(['so_luong' => $checkKho->so_luong + $item->so_luong_thuc_te]);
+                    $checkKho->update(['so_luong' =>$soLuong]);
                 } else {
                     HangTonKho::create(['san_pham_id' => $item->san_pham_id, 'so_luong' => $item->so_luong_thuc_te, 'kho_id' => $kho_id]);
                 }
@@ -641,7 +642,7 @@ class DonHangNhaCungCapController extends Controller
         if(!$user){
             return [];
         }
-        $query = ThanhToanNhaCungCap::with('donHangs', 'nhanCungCap:id,ten', 'user:id,name');
+        $query = ThanhToanNhaCungCap::with('donHangs', 'nhanCungCap:id,ten', 'user:id,name','donHangs', 'donHangs.donHang');
         if (isset($date)) {
             $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
@@ -657,6 +658,9 @@ class DonHangNhaCungCapController extends Controller
                             ->orWhere('email', 'ilike', "%{$search}%")
                             ->orWhere('name', 'ilike', "%{$search}%");
                     });
+                $query->orWhereHas('donHangs.donHang', function($query) use ($search){
+                    $query->where('ma', 'ilike', "%{$search}%")->orWhere('ten', 'ilike', "%{$search}%");
+                });
             });
         }
         if ($user->role_id == 3) {

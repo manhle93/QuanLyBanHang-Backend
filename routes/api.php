@@ -309,3 +309,4 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('lichsuhoatdong', 'AuthController@getLichSuHoatDong');
 
 
+    Route::get('te', 'DonDatHangController@tee');

@@ -37,7 +37,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return Cache()->has('user-is-online-' . $this->id);
     }
-
+    public function token()
+    {
+        return $this->hasOne('App\Token', 'user_id', 'id');
+    }
     public function role()
     {
         return $this->belongsTo('App\Role');

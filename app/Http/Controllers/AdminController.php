@@ -7,12 +7,14 @@ use Illuminate\Http\Request;
 use App\Config;
 use App\QuanHuyen;
 use App\Role;
+use App\Token;
 use App\User;
 use Illuminate\Support\Facades\DB;
 use Validator;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AdminController extends Controller
 {
@@ -65,8 +67,8 @@ class AdminController extends Controller
     {
         $user = auth()->user();
         $tinh_thanh = null;
-        if(isset($user->tinh_thanh_id)){
-            $tinh_thanh = TinhThanh::where('id',$user->tinh_thanh_id)->select(DB::raw('st_asgeojson(geom)'))->first();
+        if (isset($user->tinh_thanh_id)) {
+            $tinh_thanh = TinhThanh::where('id', $user->tinh_thanh_id)->select(DB::raw('st_asgeojson(geom)'))->first();
         }
         return response()->json([
             'data' => $tinh_thanh,
@@ -163,6 +165,7 @@ class AdminController extends Controller
                     "phone" => $data['phone'],
                 ]
             );
+            $this->logOutAllDecevice($user->id);
             return response()->json([
                 'message' => 'Cập nhật thành công',
                 'code' => 200,
@@ -186,7 +189,7 @@ class AdminController extends Controller
             'oldPassword' => 'required',
             'newPassword' => 'required|min:6|regex:/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{6,}$/',
             'reNewPassword' => 'required|same:newPassword',
-        ],[
+        ], [
             'newPassword.regex' => 'Mật khẩu không đủ mạnh',
             'newPassword.min' => 'Mật khẩu tối thiểu 6 ký tự',
             'newPassword.required' => 'Chưa nhập mật khẩu mới',
@@ -196,8 +199,8 @@ class AdminController extends Controller
         ]);
         if ($validator->fails()) {
             $loi = "";
-            foreach ($validator->errors()->all() as $it){
-                $loi = $loi.''.$it.", ";
+            foreach ($validator->errors()->all() as $it) {
+                $loi = $loi . '' . $it . ", ";
             };
             return response()->json([
                 'code' => 400,
@@ -230,6 +233,7 @@ class AdminController extends Controller
         };
         try {
             $request->user()->fill(['password' => Hash::make($newPassword)])->save();
+            $this->logOutAllDecevice($request->user()->id);
             return response()->json([
                 'message' => 'Cập nhật mật khẩu thành công',
                 'code' => 200,
@@ -244,6 +248,24 @@ class AdminController extends Controller
         }
     }
 
+    public function logOutAllDecevice($id)
+    {
+        $tokens =  Token::where('user_id', $id)->first();
+        if (!$tokens || !$tokens->tokens) {
+            return response(['message' => 'Chưa có thiết bị nào đăng nhập'], 200);
+        }
+        $tokensArr = json_decode($tokens->tokens);
+        try {
+            foreach ($tokensArr as $item) {
+              $tk =  JWTAuth::setToken($item)->getToken();
+                JWTAuth::invalidate($tk);
+            }
+            $tokens->delete();
+            return response(['message' => 'Đã đăng xuất trên tất cả các thiết bị'], 200);
+        } catch (\Exception $e) {
+            return response(['message' => 'Không thể đăng xuất trên tất cả các thiết bị'], 500);
+        }
+    }
     public function uploadAvatar(Request $request)
     {
         if ($request->file) {

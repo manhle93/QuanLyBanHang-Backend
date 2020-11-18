@@ -11,11 +11,13 @@ use App\PhieuNhapKho;
 use App\PhieuThu;
 use App\SanPhamDonDatHang;
 use App\ThanhToanBoXung;
+use Berkayk\OneSignal\OneSignalFacade;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 // use DB;
 use Illuminate\Support\Facades\DB;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class DonDatHangController extends Controller
 {
@@ -207,7 +209,7 @@ class DonDatHangController extends Controller
         if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
             return response(['message' => 'Không có quyền'], 500);
         }
-        if ($data['trang_thai'] == 'hoa_don') {
+        if ($data['trang_thai'] == 'hoa_don' &&  $data['thanh_toan'] != 'tra_sau') {
             $data['da_thanh_toan'] = $data['tong_tien'] -  $data['giam_gia'];
             $data['con_phai_thanh_toan'] = 0;
         }
@@ -860,6 +862,12 @@ class DonDatHangController extends Controller
                 'user_id_khach_hang' => $donHang->user_id ? $donHang->user_id : null
             ]);
             DB::commit();
+            OneSignalFacade::sendNotificationUsingTags(
+                "Bạn đã thanh toán số tiền: ".number_format($request->thanh_toan,0,",",".").'đ. Bằng hình thức '.$hinh_thuc_tt,
+                array(["field" => "tag", "relation" => "=", "key" => "user_id", "value" => $donHang->user_id]),
+                $url = null,
+                $data = ['type' => 'task_new', 'id' =>  $donHang->user_id]
+            );
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -950,5 +958,19 @@ class DonDatHangController extends Controller
             DB::rollBack();
             return response(['message' => 'Không thể đổi hàng'], 500);
         }
+    }
+
+    public function tee(){
+        try{
+            // $a  = auth()->setToken('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTYwNTY4Nzg4OSwiZXhwIjoxNjA1NzE2Njg5LCJuYmYiOjE2MDU2ODc4ODksImp0aSI6InlLOEkzR3I2U3EwMlJNVk4iLCJzdWIiOjQwLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.oYLWlWO0YgjDUCEO0oMLXsHfowHl14ypB50v2gZsTTE')->getToken();
+            $a = JWTAuth::setToken('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTYwNTY4Nzk0NCwiZXhwIjoxNjA1NzE2NzQ0LCJuYmYiOjE2MDU2ODc5NDQsImp0aSI6IllCbUw5MkJTZVFyVFJFMjQiLCJzdWIiOjQwLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.ATU0IxqK00gEENxiqKpdfWPTRr_2GnmX8Jugt6YhxVQ')->getToken();
+            // dd($a, JWTAuth::setToken('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTYwNTY4Nzk0NCwiZXhwIjoxNjA1NzE2NzQ0LCJuYmYiOjE2MDU2ODc5NDQsImp0aSI6IllCbUw5MkJTZVFyVFJFMjQiLCJzdWIiOjQwLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.ATU0IxqK00gEENxiqKpdfWPTRr_2GnmX8Jugt6YhxVQ')->getToken());
+            JWTAuth::invalidate($a);
+            return 'done';
+        }catch(\Exception $e){
+            dd($e);
+        }
+
+        // return JWTAuth::getToken();
     }
 }

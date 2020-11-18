@@ -11,6 +11,7 @@ use App\NhaCungCap;
 use App\NopTien;
 use App\SanPhamDonDatHang;
 use App\ThanhToanNhaCungCap;
+use App\Token;
 use App\TraHangNhaCungCap;
 use App\User;
 use Carbon\Carbon;
@@ -83,7 +84,7 @@ class KhachHangNhaCungCapController extends Controller
                 'ca_nhan' => $data['ca_nhan'],
                 'ghi_chu' => $data['ghi_chu'],
                 'ngay_sinh' => Carbon::parse($data['ngay_sinh'])->timezone('Asia/Ho_Chi_Minh'),
-                'giao_dich_cuoi' => Carbon::parse($data['giao_dich_cuoi'])->timezone('Asia/Ho_Chi_Minh'),
+                'giao_dich_cuoi' => null,
                 'so_tai_khoan' => $data['so_tai_khoan'],
                 // 'so_du' => $data['so_du'],
                 'chuyen_khoan_cuoi' => Carbon::parse($data['chuyen_khoan_cuoi'])->timezone('Asia/Ho_Chi_Minh'),
@@ -586,11 +587,38 @@ class KhachHangNhaCungCapController extends Controller
 
     protected function respondWithToken($token)
     {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60,
-        ]);
+        try {
+            $user = auth()->user();
+            $userToken = Token::where('user_id', $user->id)->first();
+            DB::beginTransaction();
+            if ($userToken && $userToken->tokens) {
+                $data = json_decode($userToken->tokens);
+                $data[] = $token;
+                $userToken->update(['tokens' => json_encode($data)]);
+            } else {
+                if ($userToken && !$userToken->tokens) {
+                    $userToken->delete();
+                }
+                $tokenArr[] = $token;
+                Token::create([
+                    'user_id' => $user->id,
+                    'tokens' => json_encode($tokenArr)
+                ]);
+            }
+            DB::commit();
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => auth()->factory()->getTTL() * 60,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => auth()->factory()->getTTL() * 60,
+            ]);
+        }
     }
 
     public function thongTinCaNhanKhachHang()

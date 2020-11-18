@@ -9,9 +9,11 @@ use App\KhachHang;
 use App\NhaCungCap;
 use App\Scopes\ActiveScope;
 use App\ThongTinNhanVien;
+use App\Token;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class UserController extends Controller
 {
@@ -121,6 +123,24 @@ class UserController extends Controller
             ], 500);
         }
     }
+    public function logOutAllDecevice($id)
+    {
+        $tokens =  Token::where('user_id', $id)->first();
+        if (!$tokens || !$tokens->tokens) {
+            return response(['message' => 'Chưa có thiết bị nào đăng nhập'], 200);
+        }
+        $tokensArr = json_decode($tokens->tokens);
+        try {
+            foreach ($tokensArr as $item) {
+                $tk =  JWTAuth::setToken($item)->getToken();
+                JWTAuth::invalidate($tk);
+            }
+            $tokens->delete();
+            return response(['message' => 'Đã đăng xuất trên tất cả các thiết bị'], 200);
+        } catch (\Exception $e) {
+            return response(['message' => 'Không thể đăng xuất trên tất cả các thiết bị'], 500);
+        }
+    }
 
     public function edit(Request $request, $id)
     {
@@ -192,13 +212,14 @@ class UserController extends Controller
                 $data['password'] = Hash::make($data['password']);
                 $user->password = $data['password'];
                 $user->save();
+                $this->logOutAllDecevice($id);
             } else {
                 unset($data['password']);
             }
-           $khachHang = KhachHang::withoutGlobalScope(ActiveScope::class)->where('user_id', $id)->first();
-           if($khachHang){
-               $khachHang->update(['active' => $data['active']]);
-           }
+            $khachHang = KhachHang::withoutGlobalScope(ActiveScope::class)->where('user_id', $id)->first();
+            if ($khachHang) {
+                $khachHang->update(['active' => $data['active']]);
+            }
             $user->update($data);
 
             return response()->json([
