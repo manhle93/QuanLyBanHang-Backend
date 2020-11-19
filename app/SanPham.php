@@ -13,7 +13,10 @@ class SanPham extends Model
     {
         return $this->belongsTo('App\DanhMucSanPham', 'danh_muc_id', 'id');
     }
-
+    public function nguyenLieus()
+    {
+        return $this->hasMany('App\DinhMucSanXuat', 'san_pham_id', 'id');
+    }
     public function hinhAnhs()
     {
         return $this->hasMany('App\HinhAnhSanPham', 'san_pham_id', 'id');

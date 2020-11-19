@@ -256,7 +256,7 @@ class SanPhamController extends Controller
 
     public function getSanPhamDetailTrangChu($id)
     {
-        $sanPham = SanPham::where('id', $id)->with('hinhAnhs', 'danhMuc:id,ten_danh_muc', 'thuongHieu', 'sanPhamTonKho:san_pham_id,so_luong')->first();
+        $sanPham = SanPham::where('id', $id)->with('hinhAnhs', 'danhMuc:id,ten_danh_muc', 'thuongHieu', 'sanPhamTonKho:san_pham_id,so_luong', 'nguyenLieus', 'nguyenLieus.nguyenLieus', 'nguyenLieus.nguyenLieuTonKho:san_pham_id,so_luong')->first();
         return response($sanPham, 200);
     }
     public function getSanPhamGioHang(Request $request)

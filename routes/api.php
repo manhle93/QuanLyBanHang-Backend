@@ -127,7 +127,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('danhmuc', 'DanhMucSanPhamController@editDanhMucSanPham');
     Route::delete('danhmuc/{id}', 'DanhMucSanPhamController@xoaDanhMuc');
     Route::post('anhdanhmuc', 'DanhMucSanPhamController@uploadAnhDanhMuc');
-    
+
     Route::post('uploadsanpham', 'SanPhamController@importSanPham');
     Route::post('uploadanhsanpham', 'SanPhamController@upload');
     Route::post('sanpham', 'SanPhamController@addSanPham');
@@ -247,7 +247,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('mobile/dondathang/{id}', 'MobileController@getChiTietDonHang');
     Route::get('mobile/baogia', 'MobileController@getBaoGia');
     Route::get('mobile/baogia/{id}', 'MobileController@getChiTietBaoGia');
-    
+
 
     Route::post('voucher', 'VoucherController@addVoucher');
     Route::get('voucher', 'VoucherController@getVoucher');
@@ -270,43 +270,46 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('baiviet', 'CaiDatController@addBaiViet');
     Route::put('baiviet/{id}', 'CaiDatController@editBaiViet');
     Route::delete('baiviet/{id}', 'CaiDatController@xoaBaiViet');
-    
+
     Route::post('doihang/{id}', 'DonDatHangController@doiHang');
     Route::post('trahang/{id}', 'DonDatHangController@traHang');
 
     Route::post('capnhatkhachhang', 'KhachHangNhaCungCapController@updateThongTinCaNhan');
     Route::get('chitietkhachhang', 'KhachHangNhaCungCapController@getChiTietKhachHang');
-
     Route::get('tonkho', 'QuanLyKhoController@getHangTonKho');
+
+    Route::get('thanhpham', 'DinhMucSanXuatController@getSanPham');
+    Route::get('nguyenlieu', 'DinhMucSanXuatController@getNguyenVatLieu');
+    Route::post('dinhmuc', 'DinhMucSanXuatController@themDinhMuc');
+    Route::get('dinhmuc', 'DinhMucSanXuatController@index');
+    Route::put('dinhmuc', 'DinhMucSanXuatController@updateDinhMuc');
+    Route::delete('dinhmuc', 'DinhMucSanXuatController@xoaDinhMuc');
 });
 
-    Route::get('tien', 'DonDatHangController@test');
-    Route::get('inhoadon/{id}', 'DonDatHangController@inHoaDon');
-    Route::post('khachdathang', 'DonDatHangController@datHang');
-    Route::get('inphieuthu/{id}', 'DonDatHangController@inPhieuThu');
-    Route::get('inhoadonnhacungcap/{id}', 'DonHangNhaCungCapController@inHoaDon');
-    
-    Route::get('mobile/showdangky', 'AuthController@showDangKy');
-    Route::post('mobile/dangkynhacungcap', 'System\UserController@dangKyNhaCungCap');
-    // bao cao he thong 
-    Route::get('baocaobanhang', 'BaoCaoController@getBaoCaoBanHang');
-    Route::get('baocaodathang', 'BaoCaoController@getBaoCaoDatHang');
-    Route::get('baocaokhachhang', 'BaoCaoController@getBaoCaoKhachHang');
-    Route::get('baocaonhanvien', 'BaoCaoController@getBaoCaoNhanVien');
-    Route::get('baocaotaichinh', 'BaoCaoController@getBaoCaoTaiChinh');
-    Route::get('baocaohanghoa', 'BaoCaoController@getBaoCaoHangHoa');
-    Route::get('baocaonhacungcap', 'BaoCaoController@getBaoCaoNhaCungCap');
-    Route::get('baocaocuoingay', 'BaoCaoController@getBaoCaoCuoiNgay');
-    Route::get('downloadbaocaobanhang', 'BaoCaoController@downloadBaoCaoBanHang');
-    Route::get('downloadbaocaodathang', 'BaoCaoController@downloadBaoCaoDatHang');
-    Route::get('downloadbaocaokhachhang', 'BaoCaoController@downloadBaoCaoKhachHang');
-    Route::get('downloadbaocaonhanvien', 'BaoCaoController@downloadBaoCaoNhanVien');
-    Route::get('downloadbaocaotaichinh', 'BaoCaoController@downloadBaoCaoTaiChinh');
-    Route::get('downloadbaocaohanghoa', 'BaoCaoController@downloadBaoCaoHangHoa');
-    Route::get('downloadbaocaonhacungcap', 'BaoCaoController@downloadBaoCaoNhaCungCap');
-    Route::get('downloadbaocaocuoingay', 'BaoCaoController@downloadBaoCuoiNgay');
-    Route::get('lichsudangnhap', 'AuthController@getLichSuDangNhap');
-    Route::get('lichsuhoatdong', 'AuthController@getLichSuHoatDong');
+Route::get('tien', 'DonDatHangController@test');
+Route::get('inhoadon/{id}', 'DonDatHangController@inHoaDon');
+Route::post('khachdathang', 'DonDatHangController@datHang');
+Route::get('inphieuthu/{id}', 'DonDatHangController@inPhieuThu');
+Route::get('inhoadonnhacungcap/{id}', 'DonHangNhaCungCapController@inHoaDon');
 
-
-    Route::get('te', 'DonDatHangController@tee');
+Route::get('mobile/showdangky', 'AuthController@showDangKy');
+Route::post('mobile/dangkynhacungcap', 'System\UserController@dangKyNhaCungCap');
+// bao cao he thong 
+Route::get('baocaobanhang', 'BaoCaoController@getBaoCaoBanHang');
+Route::get('baocaodathang', 'BaoCaoController@getBaoCaoDatHang');
+Route::get('baocaokhachhang', 'BaoCaoController@getBaoCaoKhachHang');
+Route::get('baocaonhanvien', 'BaoCaoController@getBaoCaoNhanVien');
+Route::get('baocaotaichinh', 'BaoCaoController@getBaoCaoTaiChinh');
+Route::get('baocaohanghoa', 'BaoCaoController@getBaoCaoHangHoa');
+Route::get('baocaonhacungcap', 'BaoCaoController@getBaoCaoNhaCungCap');
+Route::get('baocaocuoingay', 'BaoCaoController@getBaoCaoCuoiNgay');
+Route::get('downloadbaocaobanhang', 'BaoCaoController@downloadBaoCaoBanHang');
+Route::get('downloadbaocaodathang', 'BaoCaoController@downloadBaoCaoDatHang');
+Route::get('downloadbaocaokhachhang', 'BaoCaoController@downloadBaoCaoKhachHang');
+Route::get('downloadbaocaonhanvien', 'BaoCaoController@downloadBaoCaoNhanVien');
+Route::get('downloadbaocaotaichinh', 'BaoCaoController@downloadBaoCaoTaiChinh');
+Route::get('downloadbaocaohanghoa', 'BaoCaoController@downloadBaoCaoHangHoa');
+Route::get('downloadbaocaonhacungcap', 'BaoCaoController@downloadBaoCaoNhaCungCap');
+Route::get('downloadbaocaocuoingay', 'BaoCaoController@downloadBaoCuoiNgay');
+Route::get('lichsudangnhap', 'AuthController@getLichSuDangNhap');
+Route::get('lichsuhoatdong', 'AuthController@getLichSuHoatDong');
