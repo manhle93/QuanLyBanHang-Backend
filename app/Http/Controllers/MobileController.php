@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\BaoGia;
 use App\DonDatHang;
 use App\DonHangNhaCungCap;
+use App\PhieuThu;
 use App\SanPham;
 use App\User;
 use Carbon\Carbon;
@@ -101,6 +102,25 @@ class MobileController extends Controller
     {
         $user = auth()->user();
         $data = User::where('id', $user->id)->with('nhaCungCap')->first();
+        return $data;
+    }
+
+    public function getPhieuThu(Request $request){
+
+        $user = auth()->user();
+        if(!$user){
+            return [];
+        }
+        $perPage = $request->query('per_page', 5);
+        $page = $request->get('page', 1);
+        $query = PhieuThu::where('user_id_khach_hang', $user->id);
+        $date = $request->get('date');
+        $data = [];
+        if (isset($date)) {
+            $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
+        $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
         return $data;
     }
 }

@@ -247,7 +247,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('mobile/dondathang/{id}', 'MobileController@getChiTietDonHang');
     Route::get('mobile/baogia', 'MobileController@getBaoGia');
     Route::get('mobile/baogia/{id}', 'MobileController@getChiTietBaoGia');
-
+    Route::get('mobile/phieuthu', 'MobileController@getPhieuThu');
 
     Route::post('voucher', 'VoucherController@addVoucher');
     Route::get('voucher', 'VoucherController@getVoucher');
