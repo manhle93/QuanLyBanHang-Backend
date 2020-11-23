@@ -101,14 +101,21 @@ class MobileController extends Controller
     public function me()
     {
         $user = auth()->user();
-        $data = User::where('id', $user->id)->with('nhaCungCap')->first();
+        $data = User::where('id', $user->id)->with('nhaCungCap', 'khachHang')->first();
+        if ($data->khachHang) {
+            $data->dia_chi = $data->khachHang ? $data->khachHang->dia_chi : '';
+        }
+        if ($data->nhaCungCap) {
+            $data->dia_chi = $data->nhaCungCap ? $data->nhaCungCap->dia_chi : '';
+        }
         return $data;
     }
 
-    public function getPhieuThu(Request $request){
+    public function getPhieuThu(Request $request)
+    {
 
         $user = auth()->user();
-        if(!$user){
+        if (!$user) {
             return [];
         }
         $perPage = $request->query('per_page', 5);
