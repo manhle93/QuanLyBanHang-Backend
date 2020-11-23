@@ -101,11 +101,15 @@ Route::get('checkusercaptcha', 'AuthController@checkUser');
 
 // ******************Loading for RBT************************
 Route::get('danhmuc', 'DanhMucSanPhamController@getDanhMucSanPham');
+Route::get('danhmuckinhdoanh', 'DanhMucSanPhamController@getDanhMucKinhDoanh');
 Route::get('danhmucmobile', 'DanhMucSanPhamController@danhMucSanPhamMobile');
 Route::get('baiviet', 'CaiDatController@getBaiViet');
 Route::get('baiviet/{id}', 'CaiDatController@getChiTietBaiViet');
 
 Route::get('idmonngonmoingay', 'CaiDatController@getMonNgonMoiNgay');
+Route::get('trangchuhomnayangi', 'HomNayAnGiController@getSanPhamTrangChu');
+Route::get('trangchuhomnayangi/{id}', 'HomNayAnGiController@chiTietMonAn');
+
 Route::get('slider', 'CaiDatController@getSilder');
 Route::get('exportsanpham', 'SanPhamController@exportSanPham');
 Route::get('exportsanpham', 'SanPhamController@exportSanPham');
@@ -136,6 +140,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('uploadedit/{id}', 'SanPhamController@uploadEdit');
     Route::delete('xoahinhanh', 'SanPhamController@xoaAnhSanPham');
     Route::put('sanpham/{id}', 'SanPhamController@editSanPham');
+
+
+    Route::get('homnayangi', 'HomNayAnGiController@index');
+    Route::post('homnayangi', 'HomNayAnGiController@add');
+    Route::delete('homnayangi/{id}', 'HomNayAnGiController@delete');
+    Route::put('homnayangi', 'HomNayAnGiController@edit');
+    Route::put('hienthitrangchu', 'HomNayAnGiController@hienThiTrangChu');
 
     Route::post('trahangnhacungcap', 'DonHangNhaCungCapController@traHangNhaCungCap');
     Route::delete('trahangnhacungcap/{id}', 'DonHangNhaCungCapController@xoaDonTrahang');

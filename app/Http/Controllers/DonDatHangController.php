@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Validator;
 // use DB;
 use Illuminate\Support\Facades\DB;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Cache;
 
 class DonDatHangController extends Controller
 {
@@ -685,11 +686,11 @@ class DonDatHangController extends Controller
                 $query->where('noi_dung', 'ilike', "%{$search}%")
                     ->orWhere('thong_tin_giao_dich', 'ilike', "%{$search}%")
                     ->orWhere('thong_tin_khach_hang', 'ilike', "%{$search}%");
-                    // ->orWhereHas('user', function ($query) use ($search) {
-                    //     $query->where('phone', 'ilike', "%{$search}%")
-                    //         ->orWhere('email', 'ilike', "%{$search}%")
-                    //         ->orWhere('name', 'ilike', "%{$search}%");
-                    // });
+                // ->orWhereHas('user', function ($query) use ($search) {
+                //     $query->where('phone', 'ilike', "%{$search}%")
+                //         ->orWhere('email', 'ilike', "%{$search}%")
+                //         ->orWhere('name', 'ilike', "%{$search}%");
+                // });
             });
         }
         $donHang = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
@@ -821,16 +822,16 @@ class DonDatHangController extends Controller
             $thanhToan = $request->thanh_toan + $donHang->da_thanh_toan;
             $phaiThanhToan = $donHang->con_phai_thanh_toan - $request->thanh_toan;
             $donHang->update(['da_thanh_toan' => $thanhToan, 'con_phai_thanh_toan' => $phaiThanhToan]);
-            if(!$donHang->user_id && $request->hinh_thuc == 'tai_khoan'){
+            if (!$donHang->user_id && $request->hinh_thuc == 'tai_khoan') {
                 return response(['message' => 'Khách hàng không tồn tại, không thể thanh toán qua tài khoản'], 500);
             }
             DB::beginTransaction();
-            if($request->hinh_thuc == 'tai_khoan'){
+            if ($request->hinh_thuc == 'tai_khoan') {
                 $khach = KhachHang::where('user_id', $donHang->user_id)->first();
-                if(!$khach){
+                if (!$khach) {
                     return response(['message' => 'Khách hàng không tồn tại, không thể thanh toán qua tài khoản'], 500);
                 }
-                if($request->thanh_toan > $khach->so_du){
+                if ($request->thanh_toan > $khach->so_du) {
                     return response(['message' => 'Số dư tài khoản không đủ'], 500);
                 }
                 $soDuMoi = $khach->so_du - $request->thanh_toan;
@@ -840,30 +841,30 @@ class DonDatHangController extends Controller
                     'id_user_khach_hang' => $donHang->user_id,
                     'user_id' => auth()->user()->id,
                     'so_tien' => $request->thanh_toan,
-                    'noi_dung' => 'Thanh toán bổ xung cho đơn hàng: '.$donHang->ten . ' .Mã đơn: '.$donHang->ma,
+                    'noi_dung' => 'Thanh toán bổ xung cho đơn hàng: ' . $donHang->ten . ' .Mã đơn: ' . $donHang->ma,
                     'so_du' => $soDuMoi,
                     'ma' => 'GD' . time()
                 ]);
-             }
+            }
             ThanhToanBoXung::create([
                 'don_hang_id' => $request->id,
                 'so_tien' => $request->thanh_toan,
                 'hinh_thuc' => $request->hinh_thuc
             ]);
-            $hinh_thuc_tt = $request->hinh_thuc== 'tien_mat' ? 'Tiền mặt' : ($request->hinh_thuc== 'chuyen_khoan' ? 'Chuyển khoản/Quẹt thẻ' : ($request->hinh_thuc== 'tai_khoan' ? 'Tài khoản' : "" ));
+            $hinh_thuc_tt = $request->hinh_thuc == 'tien_mat' ? 'Tiền mặt' : ($request->hinh_thuc == 'chuyen_khoan' ? 'Chuyển khoản/Quẹt thẻ' : ($request->hinh_thuc == 'tai_khoan' ? 'Tài khoản' : ""));
             PhieuThu::create([
                 'user_id_nguoi_tao' => auth()->user()->id,
                 'type' => 'hoa_don',
                 'reference_id' => $request->id,
                 'so_tien' => $request->thanh_toan,
-                'noi_dung' =>"- Thanh toán bổ sung đơn hàng " . $donHang->ma."\n"."- Hình thức thanh toán: ".$hinh_thuc_tt."\n"."- Số tiền còn nợ của đơn hàng: ".$donHang->con_phai_thanh_toan.' đ',
+                'noi_dung' => "- Thanh toán bổ sung đơn hàng " . $donHang->ma . "\n" . "- Hình thức thanh toán: " . $hinh_thuc_tt . "\n" . "- Số tiền còn nợ của đơn hàng: " . $donHang->con_phai_thanh_toan . ' đ',
                 'thong_tin_giao_dich' => null,
                 'thong_tin_khach_hang' => null,
                 'user_id_khach_hang' => $donHang->user_id ? $donHang->user_id : null
             ]);
             DB::commit();
             OneSignalFacade::sendNotificationUsingTags(
-                "Bạn đã thanh toán số tiền: ".number_format($request->thanh_toan,0,",",".").'đ. Bằng hình thức '.$hinh_thuc_tt,
+                "Bạn đã thanh toán số tiền: " . number_format($request->thanh_toan, 0, ",", ".") . 'đ. Bằng hình thức ' . $hinh_thuc_tt,
                 array(["field" => "tag", "relation" => "=", "key" => "user_id", "value" => $donHang->user_id]),
                 $url = null,
                 $data = ['type' => 'task_new', 'id' =>  $donHang->user_id]
@@ -960,14 +961,15 @@ class DonDatHangController extends Controller
         }
     }
 
-    public function tee(){
-        try{
-            // $a  = auth()->setToken('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTYwNTY4Nzg4OSwiZXhwIjoxNjA1NzE2Njg5LCJuYmYiOjE2MDU2ODc4ODksImp0aSI6InlLOEkzR3I2U3EwMlJNVk4iLCJzdWIiOjQwLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.oYLWlWO0YgjDUCEO0oMLXsHfowHl14ypB50v2gZsTTE')->getToken();
-            $a = JWTAuth::setToken('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTYwNTY4Nzk0NCwiZXhwIjoxNjA1NzE2NzQ0LCJuYmYiOjE2MDU2ODc5NDQsImp0aSI6IllCbUw5MkJTZVFyVFJFMjQiLCJzdWIiOjQwLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.ATU0IxqK00gEENxiqKpdfWPTRr_2GnmX8Jugt6YhxVQ')->getToken();
-            // dd($a, JWTAuth::setToken('eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9sb2NhbGhvc3Q6ODAwMFwvYXBpXC9hdXRoXC9sb2dpbiIsImlhdCI6MTYwNTY4Nzk0NCwiZXhwIjoxNjA1NzE2NzQ0LCJuYmYiOjE2MDU2ODc5NDQsImp0aSI6IllCbUw5MkJTZVFyVFJFMjQiLCJzdWIiOjQwLCJwcnYiOiI4N2UwYWYxZWY5ZmQxNTgxMmZkZWM5NzE1M2ExNGUwYjA0NzU0NmFhIn0.ATU0IxqK00gEENxiqKpdfWPTRr_2GnmX8Jugt6YhxVQ')->getToken());
-            JWTAuth::invalidate($a);
+    public function test()
+    {
+        try {
+            $storage = Cache::get('tymon.jw'); // will return instance of FileStore
+            $keys = [];
+            dd($storage);
+
             return 'done';
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             dd($e);
         }
 
