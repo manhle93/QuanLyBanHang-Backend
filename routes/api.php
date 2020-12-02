@@ -107,6 +107,8 @@ Route::get('baiviet', 'CaiDatController@getBaiViet');
 Route::get('baiviet/{id}', 'CaiDatController@getChiTietBaiViet');
 
 Route::get('idmonngonmoingay', 'CaiDatController@getMonNgonMoiNgay');
+Route::get('bepnharuong', 'CaiDatController@getMonBepNhaRuong');
+Route::post('bepnharuong', 'CaiDatController@addMonBepNhaRuong');
 Route::get('trangchuhomnayangi', 'HomNayAnGiController@getSanPhamTrangChu');
 Route::get('trangchuhomnayangi/{id}', 'HomNayAnGiController@chiTietMonAn');
 

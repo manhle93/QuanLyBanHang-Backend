@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\BaiViet;
+use App\BepNhaRuong;
 use App\MonNgonMoiNgay;
 use App\SanPham;
 use App\Slider;
@@ -231,5 +232,27 @@ class CaiDatController extends Controller
     }
     public function getChiTietBaiViet($id){
         return BaiViet::with('user')->where('id', $id)->where('xuat_ban', true)->first();
+    }
+
+    public function addMonBepNhaRuong(Request $request)
+    {
+        $data = $request->get('data');
+        try {
+            BepNhaRuong::truncate(); //Xóa toàn bộ bảng kèm khóa ngoại
+            if (isset($data) && count($data) > 0) {
+                foreach ($data as $item) {
+                    BepNhaRuong::create([
+                        'san_pham_id' => $item
+                    ]);
+                }
+            }
+            return response(['message' => 'Thanh cong'], 200);
+        } catch (\Exception $e) {
+            return response(['message' => 'khong the cap nhat'], 500);
+        }
+    }
+    public function getMonBepNhaRuong(){
+      $sanPhamID = BepNhaRuong::select('san_pham_id')->pluck('san_pham_id')->toArray();
+      return SanPham::with('danhMuc', 'sanPhamTonKho:san_pham_id,so_luong')->whereIn('id', $sanPhamID)->get();
     }
 }
