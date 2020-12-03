@@ -273,7 +273,6 @@ class DonHangNhaCungCapController extends Controller
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
             DB::rollback();
-            dd($e);
             return response(['message' => 'Không thể tạo phiếu nhập'], 500);
         }
     }
