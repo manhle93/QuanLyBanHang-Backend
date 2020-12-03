@@ -262,8 +262,8 @@ class DonHangNhaCungCapController extends Controller
             $hangHoa = SanPhamDonHangNhaCungCap::where('don_hang_id', $id)->get();
             foreach ($hangHoa as $item) {
                 $checkKho = HangTonKho::where('san_pham_id', $item->san_pham_id)->where('kho_id', $kho_id)->first();
-                $soLuong =  $checkKho->so_luong + $item->so_luong_thuc_te;
                 if ($checkKho) {
+                    $soLuong =  $checkKho->so_luong + $item->so_luong_thuc_te;
                     $checkKho->update(['so_luong' =>$soLuong]);
                 } else {
                     HangTonKho::create(['san_pham_id' => $item->san_pham_id, 'so_luong' => $item->so_luong_thuc_te, 'kho_id' => $kho_id]);
@@ -273,6 +273,7 @@ class DonHangNhaCungCapController extends Controller
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
             DB::rollback();
+            dd($e);
             return response(['message' => 'Không thể tạo phiếu nhập'], 500);
         }
     }
