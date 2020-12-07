@@ -123,6 +123,7 @@ class DonDatHangController extends Controller
         $page = $request->get('page', 1);
         $query = DonDatHang::with('user', 'sanPhams', 'sanPhams.sanPham:id,ten_san_pham,don_vi_tinh', 'thanhToanBoXung');
         $date = $request->get('date');
+        $typeDate = $request->get('typeDate');
         $khach_hang = $request->get('khach_hang');
         $hoaDon = $request->get('hoa_don');
         $trahang = $request->get('tra_hang');
@@ -142,8 +143,14 @@ class DonDatHangController extends Controller
             $query = $query->where('trang_thai', 'huy_hoa_don');
         }
         if (isset($date)) {
-            $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+            if ($typeDate == 'tao_don') {
+                $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                    ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+            }
+            if ($typeDate == 'nhan_hang') {
+                $query->where('thoi_gian_nhan_hang', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                    ->where('thoi_gian_nhan_hang', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+            }
         }
         if (isset($search)) {
             $query->where(function ($query) use ($search) {
@@ -223,7 +230,7 @@ class DonDatHangController extends Controller
         }
         try {
             DB::beginTransaction();
-            if ($khacHang && $data['thanh_toan'] == 'tai_khoan' && $khacHang->so_du < $data['con_phai_thanh_toan']) {
+            if ($khacHang && $data['thanh_toan'] == 'tai_khoan' && $khacHang->so_du < $data['con_phai_thanh_toan'] && $data['trang_thai'] == 'hoa_don') {
                 return response(['message' => 'Số dư tài khoản không đủ'], 500);
             }
             $donHang = DonDatHang::where('id', $id)->first()->update([
@@ -265,8 +272,8 @@ class DonDatHangController extends Controller
                     'doanh_thu' => $item['don_gia'] * $item['so_luong']
                 ]);
             }
-            if ($khacHang && $data['thanh_toan'] == 'tai_khoan' && $data['chenhLech'] == 0 && count($data['doiTra']) == 0) {
-                if ($khacHang->so_du <  $data['con_phai_thanh_toan']) {
+            if ($khacHang && $data['thanh_toan'] == 'tai_khoan' && count($data['doiTra']) == 0) {
+                if ($khacHang->so_du <  $data['con_phai_thanh_toan'] && $data['trang_thai'] == 'hoa_don') {
                     return response(['message' => 'Số dư tài khoản không đủ'], 500);
                 }
                 $khacHang->update(['so_du' => (float) $khacHang->so_du - ((float)$data['tong_tien'] - (float) $data['giam_gia'])]);
@@ -280,8 +287,8 @@ class DonDatHangController extends Controller
                     'ma' => 'GD' . time()
                 ]);
             }
-            if ($khacHang && $data['thanh_toan'] == 'tai_khoan' && $data['chenhLech'] != 0) {
-                if ($khacHang->so_du <  $data['chenhLech']) {
+            if ($khacHang && $data['thanh_toan'] == 'tai_khoan' && $data['trang_thai'] == 'hoa_don') {
+                if ($khacHang->so_du <  $data['chenhLech']  && $data['trang_thai'] == 'hoa_don') {
                     return response(['message' => 'Số dư tài khoản không đủ'], 500);
                 }
                 $khacHang->update(['so_du' => (float) $khacHang->so_du - ((float)$data['chenhLech'])]);
