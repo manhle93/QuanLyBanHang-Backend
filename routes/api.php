@@ -279,6 +279,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('slider', 'CaiDatController@addSilder');
     Route::put('slider', 'CaiDatController@updateSlider');
     Route::delete('slider/{id}', 'CaiDatController@xoaSilder');
+    Route::post('updatebanner', 'CaiDatController@updateBanner');
 
     Route::post('monngonmoingay', 'CaiDatController@addMonNgonMoiNgay');
     Route::post('baiviet', 'CaiDatController@addBaiViet');
@@ -299,6 +300,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('dinhmuc', 'DinhMucSanXuatController@updateDinhMuc');
     Route::delete('dinhmuc', 'DinhMucSanXuatController@xoaDinhMuc');
 });
+Route::get('banner', 'CaiDatController@getBanner');
 Route::get('downloadkhachhang', 'KhachHangNhaCungCapController@downloadMauKhachHang');
 Route::get('tien', 'DonDatHangController@test');
 Route::get('inhoadon/{id}', 'DonDatHangController@inHoaDon');

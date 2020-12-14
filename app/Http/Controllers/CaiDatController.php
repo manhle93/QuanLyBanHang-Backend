@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\BaiViet;
+use App\Banner;
 use App\BepNhaRuong;
 use App\MonNgonMoiNgay;
 use App\SanPham;
@@ -57,7 +58,7 @@ class CaiDatController extends Controller
 
     public function getSilder()
     {
-        return Slider::get();
+        return Slider::orderBy('stt', "ASC")->get();
     }
     public function updateSlider(Request $request)
     {
@@ -80,7 +81,7 @@ class CaiDatController extends Controller
             return response(['message' => 'Không có quyền'], 401);
         }
         try {
-            Slider::find($id)->update(
+            Slider::find($data['id'])->update(
                 [
                     'hinh_anh' => $data['url_slider'],
                     'dong_chu' => $data['dong_chu'],
@@ -254,5 +255,44 @@ class CaiDatController extends Controller
     public function getMonBepNhaRuong(){
       $sanPhamID = BepNhaRuong::select('san_pham_id')->pluck('san_pham_id')->toArray();
       return SanPham::with('danhMuc', 'sanPhamTonKho:san_pham_id,so_luong')->whereIn('id', $sanPhamID)->get();
+    }
+    public function updateBanner(Request $request)
+    {
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'url_slider' => 'required',
+            'id' => 'required'
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Hình ảnh không tồn tại'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+        $user = auth()->user();
+        if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
+            return response(['message' => 'Không có quyền'], 401);
+        }
+        try {
+            Banner::find($data['id'])->update(
+                [
+                    'hinh_anh' => $data['url_slider'],
+                    'dong_chu' => $data['dong_chu'],
+                    'link' => $data['link'],
+                    'stt' => $data['stt']
+                ]
+            );
+            return response(['message' => 'Thành công'], 200);
+        } catch (\Exception $e) {
+            return response(['message' => 'Không thể cap nhat'], 500);
+        }
+    }
+
+    public function getBanner(){
+        $banner = Banner::query()->orderBy('stt', 'ASC')->take(5)->get();
+        return $banner;
     }
 }
