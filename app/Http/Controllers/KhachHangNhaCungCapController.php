@@ -21,9 +21,12 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Traits\ExecuteExcel;
 
 class KhachHangNhaCungCapController extends Controller
 {
+    use ExecuteExcel;
     public function addKhachHang(Request $request)
     {
         $data = $request->all();
@@ -249,7 +252,7 @@ class KhachHangNhaCungCapController extends Controller
         if ($user->role_id == 1 || $user->role_id == 2) {
             $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
         }
-        foreach($data as $item){
+        foreach ($data as $item) {
             $item['cong_no'] = $this->tinhCongNoNCC($item['user_id'], null);
         }
         return response()->json([
@@ -258,30 +261,31 @@ class KhachHangNhaCungCapController extends Controller
             'code' => '200',
         ], 200);
     }
-    function tinhCongNoNCC($user_id_nha_cung_cap, $date = null){
+    function tinhCongNoNCC($user_id_nha_cung_cap, $date = null)
+    {
         $ncc = NhaCungCap::where('user_id', $user_id_nha_cung_cap)->first();
-        if(!$ncc){
+        if (!$ncc) {
             return null;
         }
-       $tongThanhToan = DonHangNhaCungCap::where('user_id', $user_id_nha_cung_cap)->sum('tong_tien');
-       $thanhToanLan1 = DonHangNhaCungCap::where('user_id', $user_id_nha_cung_cap)->sum('da_thanh_toan');
-       $thanhToanLan2 = ThanhToanNhaCungCap::where('nha_cung_cap_id', $ncc->id)->sum('thanh_toan');
-       $traHang = TraHangNhaCungCap::where('nha_cung_cap_id', $ncc->id)->sum('tong_tien');
+        $tongThanhToan = DonHangNhaCungCap::where('user_id', $user_id_nha_cung_cap)->sum('tong_tien');
+        $thanhToanLan1 = DonHangNhaCungCap::where('user_id', $user_id_nha_cung_cap)->sum('da_thanh_toan');
+        $thanhToanLan2 = ThanhToanNhaCungCap::where('nha_cung_cap_id', $ncc->id)->sum('thanh_toan');
+        $traHang = TraHangNhaCungCap::where('nha_cung_cap_id', $ncc->id)->sum('tong_tien');
 
-       if($date){
-        $tongThanhToan = DonHangNhaCungCap::where('user_id', $user_id_nha_cung_cap)->where('created_at', '<=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())->sum('tong_tien');
+        if ($date) {
+            $tongThanhToan = DonHangNhaCungCap::where('user_id', $user_id_nha_cung_cap)->where('created_at', '<=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())->sum('tong_tien');
 
-        $thanhToanLan1 = DonHangNhaCungCap::where('user_id', $user_id_nha_cung_cap)->where('created_at', '<=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-        ->sum('da_thanh_toan');
+            $thanhToanLan1 = DonHangNhaCungCap::where('user_id', $user_id_nha_cung_cap)->where('created_at', '<=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->sum('da_thanh_toan');
 
-        $thanhToanLan2 = ThanhToanNhaCungCap::where('nha_cung_cap_id', $ncc->id)->where('created_at', '<=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-        ->sum('thanh_toan');
+            $thanhToanLan2 = ThanhToanNhaCungCap::where('nha_cung_cap_id', $ncc->id)->where('created_at', '<=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->sum('thanh_toan');
 
-        $traHang = TraHangNhaCungCap::where('nha_cung_cap_id', $ncc->id)->where('created_at', '<=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-        ->sum('tong_tien');
-       }
-       $congNo = $tongThanhToan- $thanhToanLan1 - $thanhToanLan2 - $traHang;
-       return $congNo;
+            $traHang = TraHangNhaCungCap::where('nha_cung_cap_id', $ncc->id)->where('created_at', '<=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->sum('tong_tien');
+        }
+        $congNo = $tongThanhToan - $thanhToanLan1 - $thanhToanLan2 - $traHang;
+        return $congNo;
     }
     public function addNhaCungCap(Request $request)
     {
@@ -327,10 +331,10 @@ class KhachHangNhaCungCapController extends Controller
         }
         DB::beginTransaction();
         try {
-            if(isset($data['ngay_chot_cong_no'])){
+            if (isset($data['ngay_chot_cong_no'])) {
                 $data['ngay_chot_cong_no'] = Carbon::parse($data['ngay_chot_cong_no'])->timezone('Asia/Ho_Chi_Minh');
             }
-            if(isset($data['ngay_thanh_toan'])){
+            if (isset($data['ngay_thanh_toan'])) {
                 $data['ngay_thanh_toan'] = Carbon::parse($data['ngay_thanh_toan'])->timezone('Asia/Ho_Chi_Minh');
             }
             $khachHang = NhaCungCap::create([
@@ -395,10 +399,10 @@ class KhachHangNhaCungCapController extends Controller
             ], 400);
         }
         try {
-            if(isset($data['ngay_chot_cong_no'])){
+            if (isset($data['ngay_chot_cong_no'])) {
                 $data['ngay_chot_cong_no'] = Carbon::parse($data['ngay_chot_cong_no'])->timezone('Asia/Ho_Chi_Minh');
             }
-            if(isset($data['ngay_thanh_toan'])){
+            if (isset($data['ngay_thanh_toan'])) {
                 $data['ngay_thanh_toan'] = Carbon::parse($data['ngay_thanh_toan'])->timezone('Asia/Ho_Chi_Minh');
             }
             NhaCungCap::find($id)->update([
@@ -805,7 +809,8 @@ class KhachHangNhaCungCapController extends Controller
         $donHang = $query->orderBy('updated_at', 'DESC')->paginate($perPage, ['*'], 'page', $page);
         return $donHang;
     }
-    public function getChiTietKhachHang(){
+    public function getChiTietKhachHang()
+    {
         $user = auth()->user();
         if (!$user) {
             return response(['message' => 'Chưa đăng nhập', 'data' => []], 400);
@@ -814,29 +819,30 @@ class KhachHangNhaCungCapController extends Controller
         return $khachHang;
     }
 
-    public function theoDoiCongNo(Request $request){
+    public function theoDoiCongNo(Request $request)
+    {
         $date = $request->get('date');
         $nha_cung_cap = $request->get('nha_cung_cap');
-        if(!isset($nha_cung_cap)){
+        if (!isset($nha_cung_cap)) {
             return [];
         }
-        $ncc= NhaCungCap::where('id', $nha_cung_cap)->first();
-        if(!$ncc){
+        $ncc = NhaCungCap::where('id', $nha_cung_cap)->first();
+        if (!$ncc) {
             return [];
         }
         $noDauKy = 0;
         $nhapHang = DonHangNhaCungCap::where('trang_thai', 'nhap_kho')->where('user_id', $ncc->user_id);
         $traHang = TraHangNhaCungCap::where('nha_cung_cap_id', $nha_cung_cap);
         $thanhToan = ThanhToanNhaCungCap::where('nha_cung_cap_id', $nha_cung_cap);
-        if(isset($date)){
+        if (isset($date)) {
             $nhapHang->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
 
             $traHang->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
 
             $thanhToan->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
 
             $noDauKy = $this->tinhCongNoNCC($ncc->user_id, $date);
         }
@@ -848,11 +854,120 @@ class KhachHangNhaCungCapController extends Controller
         ];
     }
 
-    public function getDonHangConNo(Request $request){
+    public function getDonHangConNo(Request $request)
+    {
         $user_id = $request->user_id;
-        if(isset($user_id))
-        {return DonDatHang::where('user_id', $user_id)->where('con_phai_thanh_toan', '>', 0)->get();}
-        else return [];
+        if (isset($user_id)) {
+            return DonDatHang::where('user_id', $user_id)->where('con_phai_thanh_toan', '>', 0)->get();
+        } else return [];
     }
-    
+
+    public function importKhachHang(Request $request)
+    {
+        $file = $request->file('file');
+        if (!$file) {
+            return response(['message' => 'File Không tồn tại'], 404);
+        }
+        $fileAray = array('excel' => $file);
+        $rulesFile = array('excel' => 'mimes:xls,xlsx,xlt,xltx|required|max:20000');
+        $validator =  Validator::make($fileAray, $rulesFile);
+        if ($validator->fails()) {
+            return response(['message' => 'File không hợp lệ'], 501);
+        }
+        DB::beginTransaction();
+        try {
+            $file_id = time();
+            $fileName = $file_id . '_' . $file->getClientOriginalName();
+            $file->storeAs('public/imports/', $fileName);
+            global $done;
+            $done = 0;
+            \Excel::filter('chunk')->load(storage_path('app/public/imports/' . $fileName))->chunk(200, function ($reader) {
+                global $done;
+                foreach ($reader as $row) {
+                    $info = $row->all();
+                    $khachHang['ma'] = 'KH' . $info['so_dien_thoai'];
+                    $khachHang['ten'] = $info['ten'];
+                    $khachHang['so_dien_thoai'] = $info['so_dien_thoai'];
+                    $khachHang['dia_chi'] = $info['dia_chi'];
+                    $khachHang['username'] = $info['ten_dang_nhap'];
+                    $khachHang['email'] = $info['email']  ? $info['email'] : 'email.' .  $khachHang['so_dien_thoai'] . '@email.com';
+                    $khachHang['active'] = true;
+                    if ($khachHang['ten'] && $khachHang['so_dien_thoai'] && $khachHang['dia_chi'] && $khachHang['username'] &&  $khachHang['email']) {
+                        if (User::where('phone',  $khachHang['so_dien_thoai'])->first()) {
+                            $done = 3;
+                            break;
+                        }
+                        if (KhachHang::where('so_dien_thoai',  $khachHang['so_dien_thoai'])->first()) {
+                            $done = 3;
+                            break;
+                        }
+                        if (User::where('username',  $khachHang['username'])->first()) {
+                            $done = 2;
+                            break;
+                        }
+                        if (KhachHang::where('email',  $khachHang['email'])->first()) {
+                            $done = 1;
+                            break;
+                        }
+                        if (User::where('email',  $khachHang['email'])->first()) {
+                            $done = 1;
+                            break;
+                        }
+                        $khachHang = KhachHang::create([
+                            'ma' => $khachHang['ma'],
+                            'ten' => $khachHang['ten'],
+                            'dia_chi' => $khachHang['dia_chi'],
+                            'so_dien_thoai' => $khachHang['so_dien_thoai'],
+                            'email' => $khachHang['email'],
+                            'trang_thai' => 'moi_tao',
+                            'nguoi_tao_id' => auth()->user()->id,
+                            'active' => $khachHang['active'],
+                        ]);
+                        $user = User::create([
+                            'username' => $info['ten_dang_nhap'],
+                            'name' => $khachHang['ten'],
+                            'email' => $khachHang['email'],
+                            'phone' => $khachHang['so_dien_thoai'],
+                            'role_id' => 4,
+                            'dia_chi' => $khachHang['dia_chi'],
+                            'password' => Hash::make('Abc@2020'),
+                            'active' => $khachHang['active'],
+                        ]);
+                        $khachHang->update(['user_id' => $user->id]);
+                    }
+                };
+            });
+            if ($done == 0) {
+                DB::commit();
+                return response(['message' => 'created'], Response::HTTP_CREATED);
+            }
+            if ($done == 1) {
+                DB::rollBack();
+                return response(['message' => "Email đã tồn tại"], 500);
+            }
+            if ($done == 2) {
+                DB::rollBack();
+                return response(['message' => "Tên đăng nhập đã tồn tại"], 500);
+            }
+            if ($done == 3) {
+                DB::rollBack();
+                return response(['message' => "Số điện thoại đã tồn tại"], 500);
+            }
+
+            return response(['message' => 'created'], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response(['message' => 'Dữ liệu không hợp lệ'], 502);
+        }
+    }
+    function downloadMauKhachHang()
+    {
+        try {
+            $excelFile = public_path() . '/imports/khach_hang.xlsx';
+            $this->load($excelFile, 'Sheet1', function ($sheet) {
+            })->download('xlsx');
+        } catch (\Exception $e) {
+            dd($e);
+        }
+    }
 }

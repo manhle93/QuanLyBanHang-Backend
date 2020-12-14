@@ -185,6 +185,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('khachhuy/{id}', 'DonDatHangController@khachHuyDon');
     Route::get('khachhang', 'KhachHangNhaCungCapController@getKhachHang');
+    Route::post('importkhachhang', 'KhachHangNhaCungCapController@importKhachHang');
     Route::put('khachhang/{id}', 'KhachHangNhaCungCapController@editKhachHang');
     Route::delete('khachhang/{id}', 'KhachHangNhaCungCapController@xoaKhachHang');
     Route::get('profilekhachhang', 'KhachHangNhaCungCapController@thongTinCaNhanKhachHang');
@@ -298,7 +299,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('dinhmuc', 'DinhMucSanXuatController@updateDinhMuc');
     Route::delete('dinhmuc', 'DinhMucSanXuatController@xoaDinhMuc');
 });
-
+Route::get('downloadkhachhang', 'KhachHangNhaCungCapController@downloadMauKhachHang');
 Route::get('tien', 'DonDatHangController@test');
 Route::get('inhoadon/{id}', 'DonDatHangController@inHoaDon');
 Route::post('khachdathang', 'DonDatHangController@datHang');
