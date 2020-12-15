@@ -318,6 +318,6 @@ class CaiDatController extends Controller
     }
 
     public function getChietKhauKhachHang($tinNhiem){
-        return ChietKhau::where('tin_nhiem', $tinNhiem)->first();
+        return ChietKhau::where('tin_nhiem', $tinNhiem)->where('active', true)->first();
     }
 }
