@@ -286,6 +286,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('baiviet/{id}', 'CaiDatController@editBaiViet');
     Route::delete('baiviet/{id}', 'CaiDatController@xoaBaiViet');
 
+    Route::get('chietkhau', 'CaiDatController@getChietKhau');
+    Route::put('chietkhau', 'CaiDatController@updateChietKhau');
+    Route::get('chietkhaukhachhang/{id}', 'CaiDatController@getChietKhauKhachHang');
+
+
     Route::post('doihang/{id}', 'DonDatHangController@doiHang');
     Route::post('trahang/{id}', 'DonDatHangController@traHang');
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\BaiViet;
 use App\Banner;
 use App\BepNhaRuong;
+use App\ChietKhau;
 use App\MonNgonMoiNgay;
 use App\SanPham;
 use App\Slider;
@@ -294,5 +295,29 @@ class CaiDatController extends Controller
     public function getBanner(){
         $banner = Banner::query()->orderBy('stt', 'ASC')->take(5)->get();
         return $banner;
+    }
+
+    public function getChietKhau(){
+        $data = ChietKhau::orderBy('tin_nhiem', "ASC")->get();
+        return $data;
+    }
+    public function updateChietKhau(Request $request){
+        $data = $request->all();
+        if(!$data['id']){
+            return response(['message' => 'Không thể cập nhật chiết khâu'],401);
+        }
+        try{
+            ChietKhau::find($data['id'])->update([
+                'phan_tram' => $data['phan_tram'],
+                'active' => $data['active']
+            ]);
+            return response(['message' => 'Done'],200);
+        }catch(\Exception $e){
+            return response(['message' => 'Không thể cập nhật chiết khâu'],500);
+        }
+    }
+
+    public function getChietKhauKhachHang($tinNhiem){
+        return ChietKhau::where('tin_nhiem', $tinNhiem)->first();
     }
 }
