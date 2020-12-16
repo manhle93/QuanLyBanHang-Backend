@@ -25,7 +25,18 @@ class KiemKhoController extends Controller
         $danhMuc = $request->get('danh_muc');
         if (isset($search)) {
             $search = trim($search);
-            $sanPham =  $sanPham->where('ten_san_pham', 'ilike', "%{$search}%");
+            // $sanPham =  $sanPham->where('ten_san_pham', 'ilike', "%{$search}%");
+            
+            $sanPham->where(\DB::raw('CONCAT(unaccent(ten_san_pham), ten_san_pham)'), 'ilike', "%{$search}%");
+            $sanPham->orWhere(\DB::raw('CONCAT(unaccent(mo_ta_san_pham), mo_ta_san_pham)'), 'ilike', "%{$search}%");
+            if(strlen($search) > 5){
+                $itemCode = substr($search, 0, 6); 
+                if(is_numeric($itemCode)){
+                    $itemCode = (int)$itemCode;
+                    $sanPham = SanPham::query();
+                    $sanPham->where('item_code', $itemCode);
+                }
+            }
         }
         if (isset($danhMuc)) {
             $sanPham =  $sanPham->where('danh_muc_id', $danhMuc);

@@ -125,11 +125,19 @@ class SanPhamController extends Controller
         }
         if (isset($search)) {
             $search = trim($search);
-            // $query->where('ten_san_pham', 'ilike', "%{$search}%");
-            // $query->orWhere('mo_ta_san_pham', 'ilike', "%{$search}%");
+            $query->where(\DB::raw('CONCAT(unaccent(ten_san_pham), ten_san_pham)'), 'ilike', "%{$search}%");
+            $query->orWhere(\DB::raw('CONCAT(unaccent(mo_ta_san_pham), mo_ta_san_pham)'), 'ilike', "%{$search}%");
 
-            $query->whereRaw('CONCAT(unaccent(ten_san_pham), ten_san_pham) ilike ' . "'%{$search}%'");
-            $query->orWhereRaw('CONCAT(unaccent(mo_ta_san_pham), mo_ta_san_pham) ilike ' . "'%{$search}%'");
+            // $query->whereRaw('CONCAT(unaccent(ten_san_pham), ten_san_pham) ilike ' . "'%{$search}%'");
+            // $query->orWhereRaw('CONCAT(unaccent(mo_ta_san_pham), mo_ta_san_pham) ilike ' . "'%{$search}%'");
+            if(strlen($search) > 5){
+                $itemCode = substr($search, 0, 6); 
+                if(is_numeric($itemCode)){
+                    $itemCode = (int)$itemCode;
+                    $query = SanPham::with('danhMuc', 'sanPhamTonKho:san_pham_id,so_luong', 'thuongHieu:id,ten');
+                    $query->where('item_code', $itemCode);
+                }
+            }
         }
 
         $query->orderBy('updated_at', 'desc');
@@ -322,6 +330,7 @@ class SanPhamController extends Controller
                         $thietBi['ma'] = trim($info['ma']);
                         $thietBi['ton_kho_thap_nhat'] = (int)trim($info['ton_kho_thap_nhat']);
                         $thietBi['thoi_gian_bao_quan'] = (int)trim($info['thoi_gian_bao_quan']);
+                        $thietBi['item_code'] = (int)trim($info['item_code']);
 
                         if (isset($info['nhom_hang_hoa']) && isset($thietBi['ten_san_pham']) && isset($thietBi['don_vi_tinh'])) {
                             $nhomSanPham = DanhMucSanPham::where('ten_danh_muc', 'ilike', $info['nhom_hang_hoa'])->first();
@@ -369,8 +378,9 @@ class SanPhamController extends Controller
                                     'don_vi_tinh' => $thietBi['don_vi_tinh'],
                                     'gia_von' => $thietBi['gia_von'] ? $thietBi['gia_von'] : null,
                                     'vi_tri' => $thietBi['vi_tri'],
-                                    'thoi_gian_bao_quan' => null,
-                                    'ton_kho_thap_nhat' => null
+                                    'thoi_gian_bao_quan' => $thietBi['thoi_gian_bao_quan'] ? $thietBi['thoi_gian_bao_quan'] : null,
+                                    'ton_kho_thap_nhat' => $thietBi['ton_kho_thap_nhat'] ? $thietBi['ton_kho_thap_nhat'] : null,
+                                    'item_code'=>$thietBi['item_code'] ? $thietBi['item_code'] : null
                                 ]);
                             } else {
                                 $emp = SanPham::create($thietBi);
@@ -382,7 +392,6 @@ class SanPhamController extends Controller
                 });
             } catch (\Exception $exception) {
                 DB::rollback();
-                dd($exception);
                 return response()->json([
                     'data' => $exception,
                     'message' => 'Không thể upload, Vui lòng kiểm tra lại dữ liệu nhập',
@@ -439,7 +448,7 @@ class SanPhamController extends Controller
     public function exportSanPham()
     {
         $diemchay_data = SanPham::with(['danhMuc'])->get();
-        $diemchay_array[] = array('STT', 'Mã *', 'Tên sản phẩm *', 'Nhóm hàng hóa *', 'Giá bán', 'Đơn vị tính *', 'Giá vốn', 'Vị trí', 'Tồn kho thấp nhất', 'Thời gian bảo quản');
+        $diemchay_array[] = array('STT', 'Mã *', 'Tên sản phẩm *', 'Nhóm hàng hóa *', 'Giá bán', 'Đơn vị tính *', 'Giá vốn', 'Vị trí', 'Tồn kho thấp nhất', 'Thời gian bảo quản', 'Item Code');
         $count = 0;
         foreach ($diemchay_data as $key => $diemchay) {
             $count++;
@@ -454,6 +463,7 @@ class SanPhamController extends Controller
                 'Vị trí' => $diemchay->vi_tri,
                 'Tồn kho thấp nhất' => $diemchay->ton_kho_thap_nhat,
                 'Thời gian bảo quản' => $diemchay->thoi_gian_bao_quan,
+                'Item code' => $diemchay->item_code
             );
         }
         \Excel::create('Sản phẩm', function ($excel) use ($diemchay_array) {

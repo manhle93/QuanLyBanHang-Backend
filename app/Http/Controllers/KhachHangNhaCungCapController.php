@@ -881,8 +881,12 @@ class KhachHangNhaCungCapController extends Controller
             $file->storeAs('public/imports/', $fileName);
             global $done;
             $done = 0;
+            global $name;
+            $name = '';
+            set_time_limit(0);
             \Excel::filter('chunk')->load(storage_path('app/public/imports/' . $fileName))->chunk(200, function ($reader) {
                 global $done;
+                global $name;
                 foreach ($reader as $row) {
                     $info = $row->all();
                     $khachHang['ma'] = 'KH' . $info['so_dien_thoai'];
@@ -894,22 +898,27 @@ class KhachHangNhaCungCapController extends Controller
                     $khachHang['active'] = true;
                     if ($khachHang['ten'] && $khachHang['so_dien_thoai'] && $khachHang['dia_chi'] && $khachHang['username'] &&  $khachHang['email']) {
                         if (User::where('phone',  $khachHang['so_dien_thoai'])->first()) {
+                            $name = $khachHang['so_dien_thoai'];
                             $done = 3;
                             break;
                         }
                         if (KhachHang::where('so_dien_thoai',  $khachHang['so_dien_thoai'])->first()) {
+                            $name = $khachHang['so_dien_thoai'];
                             $done = 3;
                             break;
                         }
                         if (User::where('username',  $khachHang['username'])->first()) {
+                            $name = $khachHang['so_dien_thoai'];
                             $done = 2;
                             break;
                         }
                         if (KhachHang::where('email',  $khachHang['email'])->first()) {
+                            $name = $khachHang['so_dien_thoai'];
                             $done = 1;
                             break;
                         }
                         if (User::where('email',  $khachHang['email'])->first()) {
+                            $name = $khachHang['so_dien_thoai'];
                             $done = 1;
                             break;
                         }
@@ -943,15 +952,15 @@ class KhachHangNhaCungCapController extends Controller
             }
             if ($done == 1) {
                 DB::rollBack();
-                return response(['message' => "Email đã tồn tại"], 500);
+                return response(['message' => "Email đã tồn tại.  Vị trí SĐT: ".$name], 500);
             }
             if ($done == 2) {
                 DB::rollBack();
-                return response(['message' => "Tên đăng nhập đã tồn tại"], 500);
+                return response(['message' => "Tên đăng nhập đã tồn tại. Vị trí SĐT: ".$name], 500);
             }
             if ($done == 3) {
                 DB::rollBack();
-                return response(['message' => "Số điện thoại đã tồn tại"], 500);
+                return response(['message' => "Số điện thoại [".$name."] đã tồn tại "], 500);
             }
 
             return response(['message' => 'created'], Response::HTTP_CREATED);
