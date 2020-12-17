@@ -1,7 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\DoiTraHang;
 use App\DonDatHang;
+use App\SanPham;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Excel;
@@ -63,13 +66,13 @@ class BaoCaoController extends Controller
         $page = $request->get('page', 1);
         $query = DonDatHang::with('user:id', 'traHang');
         // TH mua hang 
-        if (isset($orderBy) && $orderBy == 'ban_hang'){
+        if (isset($orderBy) && $orderBy == 'ban_hang') {
             $query = $query->where('trang_thai', 'hoa_don');
-        }elseif(isset($orderBy) && $orderBy == 'tra_hang'){ 
+        } elseif (isset($orderBy) && $orderBy == 'tra_hang') {
             // TH tra hang
             $query = $query->orWhereHas('traHang', function ($query) use ($orderBy) {
-                                    $query->where('type', $orderBy);
-                    });
+                $query->where('type', $orderBy);
+            });
         }
         // Tim kiem theo ngay
         if (isset($date) && count($date)) {
@@ -108,13 +111,13 @@ class BaoCaoController extends Controller
             $datHang = DonDatHang::whereIn('trang_thai', ['moi_tao', 'dat_hang_online'])->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
             $allDonHang = DonDatHang::where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
         }
         $diemchay_data = SanPhamDonDatHang::whereIn('don_dat_hang_id', $allDonHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        if($trangThai == 'hoa_don'){
+        if ($trangThai == 'hoa_don') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDon)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        }  
-        if($trangThai == 'don_dat_hang') {
+        }
+        if ($trangThai == 'don_dat_hang') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $datHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
         }
         if (!isset($orderBy) || ($orderBy != 'doanh_thu' && $orderBy != 'so_luong')) {
@@ -131,8 +134,8 @@ class BaoCaoController extends Controller
                 'STT' => $key + 1,
                 'Thời gian'  => $diemchay->created_at,
                 'Sản phẩm hàng hóa'  => $diemchay->sanPham ? $diemchay->sanPham->ten_san_pham : "",
-                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban.' /'.$diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
-                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong." ".$diemchay->sanPham->don_vi_tinh:  $diemchay->so_luong,
+                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban . ' /' . $diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
+                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong . " " . $diemchay->sanPham->don_vi_tinh :  $diemchay->so_luong,
                 'Doanh thu' => $diemchay->doanh_thu ? $diemchay->doanh_thu : $diemchay->gia_ban * $diemchay->so_luong,
             );
         }
@@ -172,9 +175,9 @@ class BaoCaoController extends Controller
         $page = $request->get('page', 1);
         $query = DonDatHang::with('user:id', 'traHang');
         // TH dat hang online 
-        if (isset($don_hang) && $don_hang == 'dat_hang_online'){
+        if (isset($don_hang) && $don_hang == 'dat_hang_online') {
             $query = $query->where('source_order', 'dat_hang_online');
-        }elseif(isset($don_hang) && $don_hang == 'dat_hang_tai_quay'){ 
+        } elseif (isset($don_hang) && $don_hang == 'dat_hang_tai_quay') {
             // TH dat hang tai quay
             $query = $query->where('source_order', 'dat_hang_tai_quay');
         }
@@ -183,7 +186,7 @@ class BaoCaoController extends Controller
         if (isset($date) && count($date)) {
             $query = $query->whereBetween('order_date', [Carbon::parse($date[0])->addHours(7), Carbon::parse($date[1])->addHours(31)]);
         }
-        
+
         if (isset($trangthai)) {
             $query = $query->where('trang_thai', $trangthai);
         }
@@ -210,13 +213,13 @@ class BaoCaoController extends Controller
             $datHang = DonDatHang::whereIn('trang_thai', ['moi_tao', 'dat_hang_online'])->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
             $allDonHang = DonDatHang::where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
         }
         $diemchay_data = SanPhamDonDatHang::whereIn('don_dat_hang_id', $allDonHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        if($trangThai == 'hoa_don'){
+        if ($trangThai == 'hoa_don') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDon)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        }  
-        if($trangThai == 'don_dat_hang') {
+        }
+        if ($trangThai == 'don_dat_hang') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $datHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
         }
         if (!isset($orderBy) || ($orderBy != 'doanh_thu' && $orderBy != 'so_luong')) {
@@ -233,8 +236,8 @@ class BaoCaoController extends Controller
                 'STT' => $key + 1,
                 'Thời gian'  => $diemchay->created_at,
                 'Sản phẩm hàng hóa'  => $diemchay->sanPham ? $diemchay->sanPham->ten_san_pham : "",
-                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban.' /'.$diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
-                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong." ".$diemchay->sanPham->don_vi_tinh:  $diemchay->so_luong,
+                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban . ' /' . $diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
+                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong . " " . $diemchay->sanPham->don_vi_tinh :  $diemchay->so_luong,
                 'Doanh thu' => $diemchay->doanh_thu ? $diemchay->doanh_thu : $diemchay->gia_ban * $diemchay->so_luong,
             );
         }
@@ -306,13 +309,13 @@ class BaoCaoController extends Controller
             $datHang = DonDatHang::whereIn('trang_thai', ['moi_tao', 'dat_hang_online'])->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
             $allDonHang = DonDatHang::where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
         }
         $diemchay_data = SanPhamDonDatHang::whereIn('don_dat_hang_id', $allDonHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        if($trangThai == 'hoa_don'){
+        if ($trangThai == 'hoa_don') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDon)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        }  
-        if($trangThai == 'don_dat_hang') {
+        }
+        if ($trangThai == 'don_dat_hang') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $datHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
         }
         if (!isset($orderBy) || ($orderBy != 'doanh_thu' && $orderBy != 'so_luong')) {
@@ -329,8 +332,8 @@ class BaoCaoController extends Controller
                 'STT' => $key + 1,
                 'Thời gian'  => $diemchay->created_at,
                 'Sản phẩm hàng hóa'  => $diemchay->sanPham ? $diemchay->sanPham->ten_san_pham : "",
-                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban.' /'.$diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
-                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong." ".$diemchay->sanPham->don_vi_tinh:  $diemchay->so_luong,
+                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban . ' /' . $diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
+                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong . " " . $diemchay->sanPham->don_vi_tinh :  $diemchay->so_luong,
                 'Doanh thu' => $diemchay->doanh_thu ? $diemchay->doanh_thu : $diemchay->gia_ban * $diemchay->so_luong,
             );
         }
@@ -368,23 +371,22 @@ class BaoCaoController extends Controller
         $perPage = $request->query('per_page', 5);
         $page = $request->get('page', 1);
         $query = DonDatHang::query();
-        // TH la don dat hang
-        if (isset($typeOrder) && $typeOrder == 'hoa_don'){
+        if (isset($typeOrder) && $typeOrder == 'hoa_don') {
             $query = $query->where('trang_thai', 'hoa_don');
-        }elseif(isset($typeOrder) && $typeOrder == 'don_dat_hang'){
+        }
+        if (isset($typeOrder) && $typeOrder == 'don_dat_hang') {
             $query = $query->where('trang_thai', 'moi_tao');
         }
-        
-        // TH la hoa don
-        if (isset($date) && count($date)) {
-            $query = $query->whereBetween('order_date', [Carbon::parse($date[0])->addHours(7), Carbon::parse($date[1])->addHours(31)]);
-        }
-        
-        // Tim kiem theo ngay
 
-        // Tinh tong hoa don/don dat hang
+        if (isset($date) && count($date)) {
+            $query = $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
+        $tongTien = $query->sum('tong_tien');
+        $data = $query->orderBy('created_at', "DESC")->paginate($perPage, ['*'], 'page', $page);
         return response()->json([
-            'data' => $query->get(),
+            'data' => $data,
+            'tong_tien' => $tongTien,
             'message' => 'Lấy dữ liệu thành công',
             'code' => '200',
         ], 200);
@@ -404,13 +406,13 @@ class BaoCaoController extends Controller
             $datHang = DonDatHang::whereIn('trang_thai', ['moi_tao', 'dat_hang_online'])->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
             $allDonHang = DonDatHang::where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
         }
         $diemchay_data = SanPhamDonDatHang::whereIn('don_dat_hang_id', $allDonHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        if($trangThai == 'hoa_don'){
+        if ($trangThai == 'hoa_don') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDon)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        }  
-        if($trangThai == 'don_dat_hang') {
+        }
+        if ($trangThai == 'don_dat_hang') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $datHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
         }
         if (!isset($orderBy) || ($orderBy != 'doanh_thu' && $orderBy != 'so_luong')) {
@@ -427,8 +429,8 @@ class BaoCaoController extends Controller
                 'STT' => $key + 1,
                 'Thời gian'  => $diemchay->created_at,
                 'Sản phẩm hàng hóa'  => $diemchay->sanPham ? $diemchay->sanPham->ten_san_pham : "",
-                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban.' /'.$diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
-                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong." ".$diemchay->sanPham->don_vi_tinh:  $diemchay->so_luong,
+                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban . ' /' . $diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
+                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong . " " . $diemchay->sanPham->don_vi_tinh :  $diemchay->so_luong,
                 'Doanh thu' => $diemchay->doanh_thu ? $diemchay->doanh_thu : $diemchay->gia_ban * $diemchay->so_luong,
             );
         }
@@ -462,18 +464,37 @@ class BaoCaoController extends Controller
     {
         $date = $request->get('date');
         $danh_muc_id = $request->get('danh_muc_id');
-        $perPage = $request->query('per_page', 5);
+        $perPage = $request->query('per_page', 10);
         $page = $request->get('page', 1);
-        $query = SanPhamDonDatHang::with('sanPham');
-       
-        // Tim kiem theo ngay
-        if (isset($date) && count($date)) {
-            $query = $query->whereBetween('updated_at', [Carbon::parse($date[0])->addHours(7), Carbon::parse($date[1])->addHours(31)]);
+        $query = SanPham::query();
+        if (isset($danh_muc_id)) {
+            $query = SanPham::where('danh_muc_id', $danh_muc_id);
         }
-        
-        // Tinh tong hoa don/don dat hang
+        $sanPhamID = $query->pluck('id')->toArray();
+        $tongDoanhThu = SanPhamDonDatHang::whereIn('san_pham_id', $sanPhamID)->sum('doanh_thu');
+        $tongDonHang =  SanPhamDonDatHang::whereIn('san_pham_id', $sanPhamID)->count();
+        $data = $query->orderBy('updated_at', 'DESC')->paginate($perPage, ['*'], 'page', $page);
+        $donHang = SanPhamDonDatHang::query();
+        $traHang = DoiTraHang::query();
+        if (isset($date) && count($date)) {
+            $donHang = $donHang->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+
+                $traHang = $traHang->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
+        foreach ($data as $item) {
+            $soLuong = $donHang->where('san_pham_id', $item['id'])->sum('so_luong');
+            $doanhThu =  $donHang->where('san_pham_id', $item['id'])->sum('doanh_thu');
+            $soLuongTra = $traHang->where('san_pham_id', $item['id'])->sum('so_luong');
+            $item['so_luong_ban'] = $soLuong;
+            $item['doanh_thu'] = $doanhThu;
+            $item['so_luong_tra'] = $soLuongTra;
+        }
         return response()->json([
-            'data' => $query->get(),
+            'data' => $data,
+            'doanh_thu' =>  $tongDoanhThu,
+            'tong_don' => $tongDonHang,
             'message' => 'Lấy dữ liệu thành công',
             'code' => '200',
         ], 200);
@@ -493,13 +514,13 @@ class BaoCaoController extends Controller
             $datHang = DonDatHang::whereIn('trang_thai', ['moi_tao', 'dat_hang_online'])->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
             $allDonHang = DonDatHang::where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
         }
         $diemchay_data = SanPhamDonDatHang::whereIn('don_dat_hang_id', $allDonHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        if($trangThai == 'hoa_don'){
+        if ($trangThai == 'hoa_don') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDon)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        }  
-        if($trangThai == 'don_dat_hang') {
+        }
+        if ($trangThai == 'don_dat_hang') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $datHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
         }
         if (!isset($orderBy) || ($orderBy != 'doanh_thu' && $orderBy != 'so_luong')) {
@@ -516,8 +537,8 @@ class BaoCaoController extends Controller
                 'STT' => $key + 1,
                 'Thời gian'  => $diemchay->created_at,
                 'Sản phẩm hàng hóa'  => $diemchay->sanPham ? $diemchay->sanPham->ten_san_pham : "",
-                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban.' /'.$diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
-                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong." ".$diemchay->sanPham->don_vi_tinh:  $diemchay->so_luong,
+                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban . ' /' . $diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
+                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong . " " . $diemchay->sanPham->don_vi_tinh :  $diemchay->so_luong,
                 'Doanh thu' => $diemchay->doanh_thu ? $diemchay->doanh_thu : $diemchay->gia_ban * $diemchay->so_luong,
             );
         }
@@ -589,13 +610,13 @@ class BaoCaoController extends Controller
             $datHang = DonDatHang::whereIn('trang_thai', ['moi_tao', 'dat_hang_online'])->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
             $allDonHang = DonDatHang::where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
         }
         $diemchay_data = SanPhamDonDatHang::whereIn('don_dat_hang_id', $allDonHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        if($trangThai == 'hoa_don'){
+        if ($trangThai == 'hoa_don') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDon)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        }  
-        if($trangThai == 'don_dat_hang') {
+        }
+        if ($trangThai == 'don_dat_hang') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $datHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
         }
         if (!isset($orderBy) || ($orderBy != 'doanh_thu' && $orderBy != 'so_luong')) {
@@ -612,8 +633,8 @@ class BaoCaoController extends Controller
                 'STT' => $key + 1,
                 'Thời gian'  => $diemchay->created_at,
                 'Sản phẩm hàng hóa'  => $diemchay->sanPham ? $diemchay->sanPham->ten_san_pham : "",
-                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban.' /'.$diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
-                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong." ".$diemchay->sanPham->don_vi_tinh:  $diemchay->so_luong,
+                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban . ' /' . $diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
+                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong . " " . $diemchay->sanPham->don_vi_tinh :  $diemchay->so_luong,
                 'Doanh thu' => $diemchay->doanh_thu ? $diemchay->doanh_thu : $diemchay->gia_ban * $diemchay->so_luong,
             );
         }
@@ -685,13 +706,13 @@ class BaoCaoController extends Controller
             $datHang = DonDatHang::whereIn('trang_thai', ['moi_tao', 'dat_hang_online'])->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
             $allDonHang = DonDatHang::where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
         }
         $diemchay_data = SanPhamDonDatHang::whereIn('don_dat_hang_id', $allDonHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        if($trangThai == 'hoa_don'){
+        if ($trangThai == 'hoa_don') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDon)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        }  
-        if($trangThai == 'don_dat_hang') {
+        }
+        if ($trangThai == 'don_dat_hang') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $datHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
         }
         if (!isset($orderBy) || ($orderBy != 'doanh_thu' && $orderBy != 'so_luong')) {
@@ -708,8 +729,8 @@ class BaoCaoController extends Controller
                 'STT' => $key + 1,
                 'Thời gian'  => $diemchay->created_at,
                 'Sản phẩm hàng hóa'  => $diemchay->sanPham ? $diemchay->sanPham->ten_san_pham : "",
-                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban.' /'.$diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
-                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong." ".$diemchay->sanPham->don_vi_tinh:  $diemchay->so_luong,
+                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban . ' /' . $diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
+                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong . " " . $diemchay->sanPham->don_vi_tinh :  $diemchay->so_luong,
                 'Doanh thu' => $diemchay->doanh_thu ? $diemchay->doanh_thu : $diemchay->gia_ban * $diemchay->so_luong,
             );
         }
@@ -781,13 +802,13 @@ class BaoCaoController extends Controller
             $datHang = DonDatHang::whereIn('trang_thai', ['moi_tao', 'dat_hang_online'])->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
             $allDonHang = DonDatHang::where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
-            ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay())->pluck('id')->toArray();
         }
         $diemchay_data = SanPhamDonDatHang::whereIn('don_dat_hang_id', $allDonHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        if($trangThai == 'hoa_don'){
+        if ($trangThai == 'hoa_don') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDon)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
-        }  
-        if($trangThai == 'don_dat_hang') {
+        }
+        if ($trangThai == 'don_dat_hang') {
             $diemchay_data =  SanPhamDonDatHang::whereIn('don_dat_hang_id', $datHang)->with(['sanPham:id,ten_san_pham,don_vi_tinh']);
         }
         if (!isset($orderBy) || ($orderBy != 'doanh_thu' && $orderBy != 'so_luong')) {
@@ -804,8 +825,8 @@ class BaoCaoController extends Controller
                 'STT' => $key + 1,
                 'Thời gian'  => $diemchay->created_at,
                 'Sản phẩm hàng hóa'  => $diemchay->sanPham ? $diemchay->sanPham->ten_san_pham : "",
-                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban.' /'.$diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
-                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong." ".$diemchay->sanPham->don_vi_tinh:  $diemchay->so_luong,
+                'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban . ' /' . $diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
+                'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong . " " . $diemchay->sanPham->don_vi_tinh :  $diemchay->so_luong,
                 'Doanh thu' => $diemchay->doanh_thu ? $diemchay->doanh_thu : $diemchay->gia_ban * $diemchay->so_luong,
             );
         }
