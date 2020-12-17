@@ -69,6 +69,7 @@ class SanPhamController extends Controller
             'ten_san_pham' => 'required',
             'danh_muc_id' => 'required',
             'don_vi_tinh' => 'required',
+            'gia_ban' => 'required'
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -231,6 +232,7 @@ class SanPhamController extends Controller
             'ten_san_pham' => 'required',
             'danh_muc_id' => 'required',
             'don_vi_tinh' => 'required',
+            'gia_ban' => 'required'
         ]);
         if ($validator->fails()) {
             return response()->json([
