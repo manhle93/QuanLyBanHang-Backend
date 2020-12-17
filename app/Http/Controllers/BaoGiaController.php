@@ -169,11 +169,12 @@ class BaoGiaController extends Controller
             return $data;
         }
         $query = SanPhamBaoGia::with('baoGia', 'sanPham:id,ten_san_pham,don_vi_tinh')->where('lua_chon', true);
+
         $query = $query->whereHas('baoGia', function ($query) use ($nhaCungCapID) {
             $query->where('user_id', $nhaCungCapID);
         });
 
-        $data = collect($query->get())->unique('san_pham_id')->values()->all();
+        $data = collect($query->orderBy('created_at', 'DESC')->get())->unique('san_pham_id')->values()->all();
         return $data;
     }
 }
