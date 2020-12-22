@@ -123,7 +123,7 @@ class DonDatHangController extends Controller
         $page = $request->get('page', 1);
         $query = DonDatHang::with('user', 'sanPhams', 'sanPhams.sanPham:id,ten_san_pham,don_vi_tinh', 'thanhToanBoXung');
         $date = $request->get('date');
-        $typeDate = $request->get('typeDate');
+        $typeDate = $request->get('typeDate', 'tao_don');
         $khach_hang = $request->get('khach_hang');
         $hoaDon = $request->get('hoa_don');
         $trahang = $request->get('tra_hang');
@@ -347,7 +347,7 @@ class DonDatHangController extends Controller
                     if ($tonKho)
                         $tonKho->update(['so_luong' => $tonKho->so_luong + $item['so_luong']]);
                 }
-                PhieuNhapKho::create(['don_hang_id' => null, 'ma' => 'PNK' . $id, 'user_id' => $user->id, 'kho_id' => null]);
+                PhieuNhapKho::create(['don_hang_id' => null,'don_dat_hang_id' => $id, 'ma' => 'PNK' . $id, 'user_id' => $user->id, 'kho_id' => null]);
                 $khachHang = KhachHang::where('user_id', $donHang->user_id)->first();
                 if ($khachHang) {
                     NopTien::create([

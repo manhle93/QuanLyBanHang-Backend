@@ -321,7 +321,6 @@ class DonHangNhaCungCapController extends Controller
                 $tonKho->update(['so_luong' => $soLuongMoi]);
             }
             DB::commit();
-
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
             DB::rollBack();

@@ -29,7 +29,7 @@ class QuanLyKhoController extends Controller
         $perPage = $request->get('per_page', 10);
         $page = $request->get('page', 1);
         $search = $request->get('search');
-        $query = PhieuNhapKho::with('donHang', 'donHang.sanPhams', 'donHang.sanPhams.sanPham:id,ten_san_pham');
+        $query = PhieuNhapKho::with('donHang', 'donHang.sanPhams', 'donHang.sanPhams.sanPham:id,ten_san_pham','donDatHang', 'donDatHang.sanPhams', 'donDatHang.sanPhams.sanPham:id,ten_san_pham');
         if (isset($search)) {
             $search = trim($search);
             $query->where(function($query) use ($search){

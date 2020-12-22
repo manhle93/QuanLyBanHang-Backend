@@ -201,6 +201,7 @@ class KhachHangNhaCungCapController extends Controller
         $page = $request->get('page', 1);
         $query = KhachHang::with('user:id,name,avatar_url', 'donDatHangs');
         $search = $request->get('search');
+        $khach_hang_id = $request->get('khach_hang_id');
         $data = [];
         if (isset($search)) {
             $search = trim($search);
@@ -215,6 +216,9 @@ class KhachHangNhaCungCapController extends Controller
         }
         if ($user->role_id == 1 || $user->role_id == 2) {
             $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+            if(isset($khach_hang_id) && $khach_hang_id){
+                $data = KhachHang::with('user:id,name,avatar_url', 'donDatHangs')->where('user_id', $khach_hang_id)->get();
+            }
             foreach ($data as $item) {
                 $hoaDonID = DonDatHang::where('trang_thai', 'hoa_don')->where('user_id', $item->user_id)->pluck('id');
                 $tongTien = SanPhamDonDatHang::whereIn('don_dat_hang_id', $hoaDonID)->sum('doanh_thu');

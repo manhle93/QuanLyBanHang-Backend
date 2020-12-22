@@ -11,4 +11,8 @@ class PhieuNhapKho extends Model
     {
         return $this->belongsTo('App\DonHangNhaCungCap', 'don_hang_id');
     }
+    public function donDatHang()
+    {
+        return $this->belongsTo('App\DonDatHang', 'don_dat_hang_id');
+    }
 }
