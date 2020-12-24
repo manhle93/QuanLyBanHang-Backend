@@ -144,7 +144,7 @@ class QuanLyKhoController extends Controller
                     HangTonKho::create(['san_pham_id' => $item['san_pham_id'], 'so_luong' => $item['so_luong']]);
                 }
             }
-            PhieuNhapKho::create(['don_hang_id' => $donHang->id, 'ma' => 'PNK' . $donHang->id, 'user_id' => $user->id, 'kho_id' => null]);
+            PhieuNhapKho::create(['don_hang_id' => $donHang->id, 'ma' => 'PNK' . $donHang->id, 'user_id' => $user->id, 'kho_id' => null, 'ghi_chu' => $data['ghi_chu']]);
             DB::commit();
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
