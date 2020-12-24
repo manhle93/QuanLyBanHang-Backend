@@ -616,7 +616,7 @@ class DonDatHangController extends Controller
                 'giam_gia' => $data['giam_gia'],
                 // 'bang_gia_id' => $data['bang_gia_id'],
                 // 'da_thanh_toan' => $data['da_thanh_toan'],        
-                // 'con_phai_thanh_toan' => $data['con_phai_thanh_toan'],
+                'con_phai_thanh_toan' => $data['tong_tien'],
                 'thanh_toan' => $data['phuong_thuc_thanh_toan'],
                 // 'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
                 'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],

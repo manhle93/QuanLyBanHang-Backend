@@ -647,7 +647,7 @@ class KhachHangNhaCungCapController extends Controller
         if (!$user) {
             return response(['message' => 'Chưa đăng nhập', 'data' => []], 400);
         }
-        $khachHang = KhachHang::with('user')->where('user_id', $user->id)->select('id', 'ten', 'so_dien_thoai', 'dia_chi')->first();
+        $khachHang = KhachHang::with('user')->where('user_id', $user->id)->select('user_id','id', 'ten', 'so_dien_thoai', 'dia_chi', 'tin_nhiem')->first();
         return response(['message' => 'Thành công', 'data' => $khachHang], 200);
     }
 

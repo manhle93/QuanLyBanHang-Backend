@@ -181,7 +181,7 @@ class DanhMucSanPhamController extends Controller
         foreach ($data as $item) {
             $sanPham = SanPham::where('danh_muc_id', $item->id)->count();
             $item['so_mat_hang'] = $sanPham;
-            $sanPhams = SanPham::where('danh_muc_id', $item->id)->take($per_page_sp)->get();
+            $sanPhams = SanPham::with('sanPhamTonKho')->where('danh_muc_id', $item->id)->take($per_page_sp)->get();
             $item['san_pham'] = $sanPhams;
         }
         return $data;

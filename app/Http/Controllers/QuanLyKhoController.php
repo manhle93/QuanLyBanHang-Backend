@@ -69,6 +69,7 @@ class QuanLyKhoController extends Controller
         $perPage = $request->get('per_page', 10);
         $page = $request->get('page', 1);
         $query = HangTonKho::with('sanPham', 'kho');
+        $query->whereHas('sanPham');
         $search = $request->get('search');
         $danh_muc_id = $request->get('danh_muc_id');
         $hoaDons = DonDatHang::where('trang_thai', 'hoa_don')->pluck('id')->toArray();

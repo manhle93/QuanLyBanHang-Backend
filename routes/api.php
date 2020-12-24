@@ -95,7 +95,7 @@ Route::get('getXe/{id}', 'PhuongTienPcccController@getXe');
 Route::get('search', 'DonViController@search');
 Route::get('search1', 'DanCuController@search');
 
-Route::get('danhmucmobile', 'DanhMucController@getDanhMucMobile');
+// Route::get('danhmucmobile', 'DanhMucController@getDanhMucMobile');
 Route::get('refreshcaptcha', 'AuthController@refreshCaptcha');
 Route::get('checkusercaptcha', 'AuthController@checkUser');
 
