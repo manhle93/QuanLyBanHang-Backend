@@ -305,6 +305,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('dinhmuc', 'DinhMucSanXuatController@updateDinhMuc');
     Route::delete('dinhmuc', 'DinhMucSanXuatController@xoaDinhMuc');
 });
+Route::get('bcnhapkho', 'BaoCaoController@downloadDanhSachNhapKho');
+
 Route::get('banner', 'CaiDatController@getBanner');
 Route::get('downloadkhachhang', 'KhachHangNhaCungCapController@downloadMauKhachHang');
 Route::get('tien', 'DonDatHangController@test');

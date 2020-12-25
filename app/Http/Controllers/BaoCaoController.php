@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DoiTraHang;
 use App\DonDatHang;
+use App\PhieuNhapKho;
 use App\SanPham;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -828,6 +829,55 @@ class BaoCaoController extends Controller
                 'Giá bán' => $diemchay->sanPham ? $diemchay->gia_ban . ' /' . $diemchay->sanPham->don_vi_tinh : $diemchay->gia_ban,
                 'Số lượng' => $diemchay->sanPham ? $diemchay->so_luong . " " . $diemchay->sanPham->don_vi_tinh :  $diemchay->so_luong,
                 'Doanh thu' => $diemchay->doanh_thu ? $diemchay->doanh_thu : $diemchay->gia_ban * $diemchay->so_luong,
+            );
+        }
+        \Excel::create('Báo cáo', function ($excel) use ($diemchay_array) {
+            $excel->setTitle('Báo cáo');
+            $excel->sheet('Báo cáo', function ($sheet) use ($diemchay_array) {
+                $sheet->fromArray($diemchay_array, null, 'A1', false, false);
+                $j = 'A';
+                $x = 1;
+                for ($i = 0; $i < count($diemchay_array); $i++) {
+                    $sheet->getStyle($j . $x)->applyFromArray(array(
+                        'font' => array(
+                            'bold'      =>  true,
+                            'size'  => 12,
+                        )
+                    ));
+                    if ($i == 0) {
+                        foreach ($diemchay_array as $key => $diemchay) {
+                            $sheet->getStyle($j . (++$key))->getAlignment()->applyFromArray(
+                                array('horizontal' => 'center')
+                            );
+                        }
+                    }
+                    $j++;
+                }
+            });
+        })->download('xlsx');
+    }
+
+    public function downloadDanhSachNhapKho(Request $request)
+    {
+        $date = $request->get('date');
+        $query = PhieuNhapKho::with('donHang', 'donDatHang');
+        if (isset($date)) {
+            $query->where('created_at', '>=', Carbon::parse($date[0])->timezone('Asia/Ho_Chi_Minh')->startOfDay())
+                ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
+        }
+        $diemchay_array[] = array('STT', 'Thời gian nhập kho', 'Mã phiếu nhập', 'Mã đơn hàng', 'Số tiền', 'Nội dung', 'Ghi chú');
+        $count = 0;
+        $data = $query->get();
+        foreach ($data as $key => $diemchay) {
+            $count++;
+            $diemchay_array[] = array(
+                'STT' => $key + 1,
+                'Thời gian nhập kho' => $diemchay->created_at,
+                'Mã phiếu nhập' => $diemchay->ma,
+                'Mã đơn hàng' => $diemchay->donHang ? $diemchay->donHang->ma : ($diemchay->donDatHang ? $diemchay->donDatHang->ma : ''),
+                'Số tiền' => $diemchay->donHang ? $diemchay->donHang->tong_tien : ($diemchay->donDatHang ? $diemchay->donDatHang->con_phai_thanh_toan : ''),
+                'Nội dung' => $diemchay->donHang && $diemchay->donHang->trang_thai == 'nhap_kho'  ? 'Nhập kho từ nhà cung cấp' : ($diemchay->donHang && $diemchay->donHang->trang_thai == 'nhap_kho_ngoai' ? 'Nhập kho hàng mua ngoài' : 'Hoàn hàng'),
+                'Ghi chú' => $diemchay->ghi_chu
             );
         }
         \Excel::create('Báo cáo', function ($excel) use ($diemchay_array) {
