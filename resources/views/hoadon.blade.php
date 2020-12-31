@@ -4,7 +4,6 @@
 <head>
 
 </head>
-
 <body onload="window.print(); myFunction()">
     <div id="app">
         <div style="display:flex; flex-direction: row;  align-items: center; justify-content: center">
@@ -21,7 +20,13 @@
         <br>
         <div class="line"><strong>Đơn hàng </strong>{{$data->ten}}</div>
         <div class="line"><strong>Mã đơn hàng: </strong>{{$data->ma}}</div>
-        <div class="line"><strong>Người mua hàng: </strong>{{$data->user_id ? $data->user->name : 'Khách lẻ'}}</div>
+        <div class="line"><strong>Người mua hàng: </strong>
+           <span>{{$data->user_id && $data->khachHang ? $data->khachHang->ten : 'Khách lẻ'}}</span> 
+           @if($data->user_id && $data->khachHang)
+           <span style="margin-left: 15px;"> - SĐT: {{$data->khachHang->so_dien_thoai}}</span>
+           <span style="margin-left: 15px;"> - Địa chỉ: {{$data->khachHang->dia_chi}}</span>
+           @endif
+        </div>
         <div class="line"><strong>Phương thức thanh toán: </strong>{{$data->thanh_toan == 'tra_sau' ? 'Trả sau' : ($data->thanh_toan == 'tai_khoan' ? 'Tài khoản' : ($data->thanh_toan == 'chuyen_khoan' ? 'Chuyển khoản/Quẹt thẻ' : ($data->thanh_toan == 'tien_mat' ? 'Tiền mặt' : 'Khác')))}}</div>
         <div class="line"><strong>Ghi chú: </strong>{{ $data->ghi_chu}}</div>
         <br>
@@ -52,9 +57,9 @@
         <div class="line"><strong>Đã thanh toán: </strong><span id="dathanhtoan">{{ $data->da_thanh_toan}}</span></div>
         <div class="line"><strong>Còn phải thanh toán: </strong><span id="conphaithanhtoan">{{ $data->con_phai_thanh_toan}}</span></div>
         <div style="display:flex; flex-direction: column;  align-items: center; justify-content: center">
-                <div>-------------------------------------------------</div>
-                <div style="font-size: 11px; font-weight: bold; ">CẢM ƠN QUÝ KHÁCH VÀ HẸN GẶP LẠI!</div>
-                <div>website:ruongbacthang.com.vn</div>
+            <div>-------------------------------------------------</div>
+            <div style="font-size: 11px; font-weight: bold; ">CẢM ƠN QUÝ KHÁCH VÀ HẸN GẶP LẠI!</div>
+            <div>website:ruongbacthang.com.vn</div>
         </div>
     </div>
 </body>

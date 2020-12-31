@@ -384,10 +384,15 @@ class BaoCaoController extends Controller
                 ->where('created_at', '<=', Carbon::parse($date[1])->timezone('Asia/Ho_Chi_Minh')->endOfDay());
         }
         $tongTien = $query->sum('tong_tien');
+        $chietKhau = $query->sum('giam_gia');
+        $daTT = $query->sum('da_thanh_toan');
+        $con = $query->sum('con_phai_thanh_toan');
+        $tien = array('chiet_khau' => $chietKhau, 'da_thanh_toan' => $daTT,  'con_phai_thanh_toan' => $con);
         $data = $query->orderBy('created_at', "DESC")->paginate($perPage, ['*'], 'page', $page);
         return response()->json([
             'data' => $data,
             'tong_tien' => $tongTien,
+            'tien' => $tien,
             'message' => 'Lấy dữ liệu thành công',
             'code' => '200',
         ], 200);
