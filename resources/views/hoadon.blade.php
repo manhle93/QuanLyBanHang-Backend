@@ -10,21 +10,23 @@
             <div> <img src="http://ruongbacthang.skymapglobal.vn/static/img/logorbt.5dcc5da9.jpg" style="width: 100px"></div>
             <div style="margin-left: 15px">
                 <p style="font-size: 12px; font-weight: bold;">RUỘNG BẬC THANG</p>
-                <p style="font-size: 10px;">Địa chỉ: 54 Ngọc Hân Công Chúa - Ninh Xá - Tp Bắc Ninh</p>
+                <p style="font-size: 10px;">Đ/C: 54 Ngọc Hân Công Chúa - Ninh Xá - Tp Bắc Ninh</p>
                 <p style="font-size: 10px;">SĐT: 0988.861.479 - 0862968081</p>
+                <p style="font-size: 10px;">Techcombank: 19031781986686 - Nguyen Thu Trang</p>
             </div>
         </div>
         <br>
         <h3 style="text-align: center; font-size: 11px">HÓA ĐƠN BÁN HÀNG</h3>
+        <div style="text-align: center; font-size: 9px"><strong></strong>{{$data->ma}}</div>
+        <br>
         <div style="text-align: center; font-size: 9px">Ngày {{$ngay}} tháng {{$thang}} năm {{$nam}}</div>
         <br>
         <div class="line"><strong>Đơn hàng </strong>{{$data->ten}}</div>
-        <div class="line"><strong>Mã đơn hàng: </strong>{{$data->ma}}</div>
         <div class="line"><strong>Người mua hàng: </strong>
            <span>{{$data->user_id && $data->khachHang ? $data->khachHang->ten : 'Khách lẻ'}}</span> 
            @if($data->user_id && $data->khachHang)
            <span style="margin-left: 15px;"> - SĐT: {{$data->khachHang->so_dien_thoai}}</span>
-           <span style="margin-left: 15px;"> - Địa chỉ: {{$data->khachHang->dia_chi}}</span>
+           <span style="margin-left: 15px;"> - Đ/C: {{$data->khachHang->dia_chi}}</span>
            @endif
         </div>
         <div class="line"><strong>Phương thức thanh toán: </strong>{{$data->thanh_toan == 'tra_sau' ? 'Trả sau' : ($data->thanh_toan == 'tai_khoan' ? 'Tài khoản' : ($data->thanh_toan == 'chuyen_khoan' ? 'Chuyển khoản/Quẹt thẻ' : ($data->thanh_toan == 'tien_mat' ? 'Tiền mặt' : 'Khác')))}}</div>
