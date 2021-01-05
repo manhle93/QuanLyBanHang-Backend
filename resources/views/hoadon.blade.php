@@ -53,8 +53,8 @@
             </tbody>
         </table>
         <br>
-        <div class="line"><strong>Tổng tiền: </strong><span id="tongtien">{{ $data->tong_tien}}</span></div>
-        <div class="line"><strong>Bằng chữ: </strong><span style="font-weight: bold; font-style: italic">{{ $tien }} đồng.</span></div>
+        <div class="line"><strong>Tổng tiền: </strong><span id="tongtien">{{ $data->tong_tien}} </span><span style="font-weight: bold; font-style: italic"> ( {{ $tien }} đồng. )</span></div>
+        <!-- <div class="line"><strong>Bằng chữ: </strong></div> -->
         <div class="line"><strong>Giảm giá: </strong><span id="giamgia">{{ $data->giam_gia}}</span></div>
         <div class="line"><strong>Đã thanh toán: </strong><span id="dathanhtoan">{{ $data->da_thanh_toan}}</span></div>
         <div class="line"><strong>Còn phải thanh toán: </strong><span id="conphaithanhtoan">{{ $data->con_phai_thanh_toan}}</span></div>
