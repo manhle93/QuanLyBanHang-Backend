@@ -579,6 +579,10 @@ class DonDatHangController extends Controller
             ], 400);
         }
         $user = auth()->user();
+        if(!$user){
+            $data['ghi_chu'] = e($data['ghi_chu']).'. KH: '.e($data['nguoi_mua_hang']).'. Đc: '.e($data['so_dien_thoai']);
+
+        }
         $data['ten'] = 'Đặt hàng online';
         if ($data['mua_hang']) {
             foreach ($data['danhSachHang'] as $item) {
