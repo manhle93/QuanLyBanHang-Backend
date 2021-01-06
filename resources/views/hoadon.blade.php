@@ -79,7 +79,7 @@
     }
 
     .line {
-        margin-bottom: 10px;
+        margin-bottom: 3px;
         font-size: 10px;
     }
 
