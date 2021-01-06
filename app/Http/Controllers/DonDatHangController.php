@@ -438,8 +438,8 @@ class DonDatHangController extends Controller
 
     public function inHoaDon($id)
     {
-        $donHang = DonDatHang::with('sanPhams', 'sanPhams.sanPham:id,ten_san_pham,don_vi_tinh', 'khachHang')->where('id', $id)->first();
-        $time = Carbon::parse($donHang->created_at);
+        $donHang = DonDatHang::with('sanPhams', 'sanPhams.sanPham:id,ten_san_pham,don_vi_tinh', 'khachHang', 'user:id,name')->where('id', $id)->first();
+        $time = Carbon::parse($donHang->updated_at);
         $date = $time->day;
         $month = $time->month;
         $year = $time->year;
