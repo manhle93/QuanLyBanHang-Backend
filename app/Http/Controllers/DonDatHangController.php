@@ -42,6 +42,7 @@ class DonDatHangController extends Controller
         if (!$user || ($user->role_id != 1 && $user->role_id != 2)) {
             return response(['message' => 'Không có quyền'], 500);
         }
+        $data['user_nhan_vien_id'] = $user->id;
         if ($data['trang_thai'] == 'hoa_don' && $data['thanh_toan'] != 'tra_sau') {
             $data['da_thanh_toan'] = $data['tong_tien'] -  $data['giam_gia'];
             $data['con_phai_thanh_toan'] = 0;
@@ -73,7 +74,8 @@ class DonDatHangController extends Controller
                 'thanh_toan' => $data['thanh_toan'],
                 'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
                 'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
-                'dia_chi' => $data['dia_chi']
+                'dia_chi' => $data['dia_chi'],
+                'user_nhan_vien_id'=>$data['user_nhan_vien_id']
 
             ]);
             foreach ($data['danhSachHang'] as $item) {
@@ -220,7 +222,9 @@ class DonDatHangController extends Controller
         if ($data['trang_thai'] == 'hoa_don' &&  $data['thanh_toan'] != 'tra_sau') {
             $data['da_thanh_toan'] = $data['tong_tien'] -  $data['giam_gia'];
             $data['con_phai_thanh_toan'] = 0;
+
         }
+        $data['user_nhan_vien_id'] = $user->id;
         $khacHang = null;
         if (isset($data['khach_hang_id'])) {
             $khacHang = KhachHang::where('user_id', $data['khach_hang_id'])->first();
@@ -247,7 +251,8 @@ class DonDatHangController extends Controller
                 'thanh_toan' => $data['thanh_toan'],
                 'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
                 'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
-                'dia_chi' => $data['dia_chi']
+                'dia_chi' => $data['dia_chi'],
+                'user_nhan_vien_id' => $data['user_nhan_vien_id']
 
             ]);
             foreach ($data['danhSachHang'] as $item) {
@@ -438,7 +443,7 @@ class DonDatHangController extends Controller
 
     public function inHoaDon($id)
     {
-        $donHang = DonDatHang::with('sanPhams', 'sanPhams.sanPham:id,ten_san_pham,don_vi_tinh', 'khachHang', 'user:id,name')->where('id', $id)->first();
+        $donHang = DonDatHang::with('sanPhams', 'sanPhams.sanPham:id,ten_san_pham,don_vi_tinh', 'khachHang', 'nhanVien:id,name')->where('id', $id)->first();
         $time = Carbon::parse($donHang->updated_at);
         $date = $time->day;
         $month = $time->month;

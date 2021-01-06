@@ -10,6 +10,9 @@ class DonDatHang extends Model
     public function user() {
         return $this->belongsTo('App\User', 'user_id', 'id');
     }
+    public function nhanVien() {
+        return $this->belongsTo('App\User', 'user_nhan_vien_id', 'id');
+    }
     public function khachHang() {
         return $this->belongsTo('App\KhachHang', 'user_id', 'user_id');
     }

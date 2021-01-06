@@ -12,7 +12,7 @@
             <div style="text-align: center;">
                 <div style="font-size: 12px; font-weight: bold;">RUỘNG BẬC THANG</div>
                 <div style="font-size: 10px;">Đ/C: 54 Ngọc Hân Công Chúa - Ninh Xá - Tp Bắc Ninh</div>
-                <br/>
+                <br />
                 <div style="font-size: 10px;">SĐT: 0988.861.479 - 0862968081</div>
                 <div style="font-size: 10px;">Techcombank: 19031781986686 - Nguyen Thu Trang</div>
                 <div>-------------------------------</div>
@@ -23,6 +23,9 @@
         <div style="text-align: center; font-size: 9px; font-size: 8px">( Ngày {{$ngay}} tháng {{$thang}} năm {{$nam}} )</div>
         <br>
         <div class="line"><strong>Đơn hàng </strong>{{$data->ten}}</div>
+        @if($data->nhanVien)
+        <div class="line"><strong>Người bán hàng: </strong>{{$data->nhanVien ? $data->nhanVien->name : ''}}</div>
+        @endif
         <div class="line"><strong>Người mua hàng: </strong>
             <span>{{$data->user_id && $data->khachHang ? $data->khachHang->ten : 'Khách lẻ'}}</span>
             @if($data->user_id && $data->khachHang)
