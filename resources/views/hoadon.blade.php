@@ -10,18 +10,17 @@
         <div style="display:flex; flex-direction: row;  align-items: center; justify-content: center">
             <!-- <div> <img src="http://ruongbacthang.skymapglobal.vn/static/img/logorbt.5dcc5da9.jpg" style="width: 100px"></div> -->
             <div style="text-align: center;">
-                <p style="font-size: 12px; font-weight: bold;">RUỘNG BẬC THANG</p>
-                <p style="font-size: 10px;">Đ/C: 54 Ngọc Hân Công Chúa - Ninh Xá - Tp Bắc Ninh</p>
-                <p style="font-size: 10px;">SĐT: 0988.861.479 - 0862968081</p>
-                <p style="font-size: 10px;">Techcombank: 19031781986686 - Nguyen Thu Trang</p>
+                <div style="font-size: 12px; font-weight: bold;">RUỘNG BẬC THANG</div>
+                <div style="font-size: 10px;">Đ/C: 54 Ngọc Hân Công Chúa - Ninh Xá - Tp Bắc Ninh</div>
+                <br/>
+                <div style="font-size: 10px;">SĐT: 0988.861.479 - 0862968081</div>
+                <div style="font-size: 10px;">Techcombank: 19031781986686 - Nguyen Thu Trang</div>
                 <div>-------------------------------</div>
             </div>
         </div>
-        <br>
-        <h3 style="text-align: center; font-size: 11px">HÓA ĐƠN BÁN HÀNG</h3>
+        <div style="text-align: center; font-size: 11px; font-weight: bold">HÓA ĐƠN BÁN HÀNG</div>
         <div style="text-align: center; font-size: 9px"><strong></strong>{{$data->ma}}</div>
-        <br>
-        <div style="text-align: center; font-size: 9px">Ngày {{$ngay}} tháng {{$thang}} năm {{$nam}}</div>
+        <div style="text-align: center; font-size: 9px; font-size: 8px">( Ngày {{$ngay}} tháng {{$thang}} năm {{$nam}} )</div>
         <br>
         <div class="line"><strong>Đơn hàng </strong>{{$data->ten}}</div>
         <div class="line"><strong>Người mua hàng: </strong>
@@ -34,7 +33,6 @@
         <div class="line"><strong>Phương thức thanh toán: </strong>{{$data->thanh_toan == 'tra_sau' ? 'Trả sau' : ($data->thanh_toan == 'tai_khoan' ? 'Tài khoản' : ($data->thanh_toan == 'chuyen_khoan' ? 'Chuyển khoản/Quẹt thẻ' : ($data->thanh_toan == 'tien_mat' ? 'Tiền mặt' : 'Khác')))}}</div>
         <div class="line"><strong>Ghi chú: </strong>{{ $data->ghi_chu}}</div>
         <!-- <div class="line"><strong>Người bán: </strong>{{ $data}}</div> -->
-        <br>
         <table style="border: 1px solid black; border-collapse: collapse; width: 100%; font-size: 10px">
             <thead>
                 <tr>
@@ -70,8 +68,8 @@
         <div class="line"><strong>Còn phải thanh toán: </strong><span id="conphaithanhtoan">{{ $data->con_phai_thanh_toan}}</span></div>
         <div style="display:flex; flex-direction: column;  align-items: center; justify-content: center">
             <div>-------------------------------</div>
-            <div style="font-size: 11px; font-weight: bold; ">CẢM ƠN QUÝ KHÁCH VÀ HẸN GẶP LẠI!</div>
-            <div>website:ruongbacthang.com.vn</div>
+            <div style="font-size: 11px; font-weight: bold; ">Xin cảm ơn và hẹn gặp lại Quý khách!!!</div>
+            <div style="font-style:italic ">website: ruongbacthang.com.vn</div>
         </div>
     </div>
 </body>
