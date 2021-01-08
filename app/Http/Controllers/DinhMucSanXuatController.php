@@ -13,11 +13,15 @@ class DinhMucSanXuatController extends Controller
     public function getSanPham(Request $request)
     {
         $search = $request->get('search');
+        $id = $request->get('id_san_pham');
         $query = SanPham::where('danh_muc_id', 38);
         if (isset($search)) {
             $search = trim($search);
             $query->whereRaw('CONCAT(unaccent(ten_san_pham), ten_san_pham) ilike ' . "'%{$search}%'");
             $query->orWhereRaw('CONCAT(unaccent(mo_ta_san_pham), mo_ta_san_pham) ilike ' . "'%{$search}%'");
+        }
+        if(isset($id) && $id){
+            $query->where('id', $id);
         }
         $data = $query->take(20)->get();
         return $data;
