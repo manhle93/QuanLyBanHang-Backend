@@ -125,7 +125,7 @@ class DonDatHangController extends Controller
         $user = auth()->user();
         $perPage = $request->query('per_page', 5);
         $page = $request->get('page', 1);
-        $query = DonDatHang::with('user', 'sanPhams', 'sanPhams.sanPham:id,ten_san_pham,don_vi_tinh', 'thanhToanBoXung');
+        $query = DonDatHang::with('user', 'sanPhams', 'sanPhams.sanPham:id,ten_san_pham,don_vi_tinh', 'thanhToanBoXung', 'nhanVien');
         $date = $request->get('date');
         $typeDate = $request->get('typeDate', 'tao_don');
         $khach_hang = $request->get('khach_hang');
@@ -168,7 +168,7 @@ class DonDatHangController extends Controller
             });
         }
         if ($user->role_id == 1 || $user->role_id == 2) {
-            $donHang = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+            $donHang = $query->orderBy('thoi_gian_nhan_hang', 'asc')->paginate($perPage, ['*'], 'page', $page);
         }
         return response()->json([
             'data' => $donHang,
