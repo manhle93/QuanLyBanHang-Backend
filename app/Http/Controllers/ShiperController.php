@@ -1,0 +1,88 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\DonDatHang;
+use App\LichSuDangNhap;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use App\Token;
+
+class ShiperController extends Controller
+{
+    public function loginShiper(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'username' => 'required',
+            'password'  => 'required',
+
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Không thể đăng nhập'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+        $credentials = ['username' => $request->username, 'password' => $request->password];
+       
+        if (!$token = auth()->attempt($credentials)) {
+            return response()->json(['message' => 'Sai tài khoản hoặc mật khẩu'], 401);
+        }
+        if (auth()->user()->role_id != 5) {
+            return response(['message' => 'Chức năng đăng nhập chỉ dành cho khách hàng'], 500);
+        }
+        if (!auth()->user()->active) return response(['message' => 'Tài khoản chưa kích hoạt', 'user_id' => auth()->user()->id], Response::HTTP_NOT_ACCEPTABLE);
+
+        LichSuDangNhap::create([
+            'user_id' => auth()->user()->id,
+            'type' => 'login',
+            'thong_tin' => $_SERVER['HTTP_USER_AGENT']
+        ]);
+        return $this->respondWithToken($token);
+    }
+
+    protected function respondWithToken($token)
+    {
+        try {
+            $user = auth()->user();
+            $userToken = Token::where('user_id', $user->id)->first();
+            DB::beginTransaction();
+            if ($userToken && $userToken->tokens) {
+                $data = json_decode($userToken->tokens);
+                $data[] = $token;
+                $userToken->update(['tokens' => json_encode($data)]);
+            } else {
+                if ($userToken && !$userToken->tokens) {
+                    $userToken->delete();
+                }
+                $tokenArr[] = $token;
+                Token::create([
+                    'user_id' => $user->id,
+                    'tokens' => json_encode($tokenArr)
+                ]);
+            }
+            DB::commit();
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => auth()->factory()->getTTL() * 60,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => auth()->factory()->getTTL() * 60,
+            ]);
+        }
+    }
+
+    public function getDonHang(){
+        $user = auth()->user();
+        return DonDatHang::where('nhan_vien_giao_hang', $user->id)->get();
+    }
+}

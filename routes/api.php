@@ -125,6 +125,10 @@ Route::get('downloadsanpham', 'SanPhamController@downloadMauSanPham');
 Route::post('khachhang', 'KhachHangNhaCungCapController@addKhachHang');
 Route::post('loginkhachhang', 'KhachHangNhaCungCapController@loginKhachHang');
 
+
+Route::post('loginshiper', 'ShiperController@loginShiper');
+Route::get('donhangshiper', 'ShiperController@getDonHang');
+
 // ***********************************************************
 
 

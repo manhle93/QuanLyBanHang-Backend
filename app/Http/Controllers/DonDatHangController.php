@@ -75,7 +75,8 @@ class DonDatHangController extends Controller
                 'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
                 'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
                 'dia_chi' => $data['dia_chi'],
-                'user_nhan_vien_id'=>$data['user_nhan_vien_id']
+                'user_nhan_vien_id'=>$data['user_nhan_vien_id'],
+                'nhan_vien_giao_hang' => $data['nhan_vien_giao_hang']
 
             ]);
             foreach ($data['danhSachHang'] as $item) {
@@ -252,7 +253,8 @@ class DonDatHangController extends Controller
                 'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
                 'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
                 'dia_chi' => $data['dia_chi'],
-                'user_nhan_vien_id' => $data['user_nhan_vien_id']
+                'user_nhan_vien_id' => $data['user_nhan_vien_id'],
+                'nhan_vien_giao_hang' => $data['nhan_vien_giao_hang']
 
             ]);
             foreach ($data['danhSachHang'] as $item) {
@@ -281,18 +283,21 @@ class DonDatHangController extends Controller
                 if ($khacHang->so_du <  $data['con_phai_thanh_toan'] && $data['trang_thai'] == 'hoa_don') {
                     return response(['message' => 'Số dư tài khoản không đủ'], 500);
                 }
-                $khacHang->update(['so_du' => (float) $khacHang->so_du - ((float)$data['tong_tien'] - (float) $data['giam_gia'])]);
-                NopTien::create([
-                    'trang_thai' => 'mua_hang',
-                    'noi_dung' => 'Giao dịch mua hàng, đơn hàng: ' . $data['ten'] . ', mã đơn hàng: ' . $data['ma'],
-                    'id_user_khach_hang' => $khacHang->user_id,
-                    'user_id' => $user->id,
-                    'so_tien' => 0 - ((float)$data['tong_tien'] - (float) $data['giam_gia']),
-                    'so_du' => (float) $khacHang->so_du,
-                    'ma' => 'GD' . time()
-                ]);
+                $tienThanhToan =  ((float)$data['tong_tien'] - (float) $data['giam_gia']) - $data['da_thanh_toan'];
+                if($tienThanhToan > 0){
+                    $khacHang->update(['so_du' => (float) $khacHang->so_du - $tienThanhToan]);
+                    NopTien::create([
+                        'trang_thai' => 'mua_hang',
+                        'noi_dung' => 'Giao dịch mua hàng, đơn hàng: ' . $data['ten'] . ', mã đơn hàng: ' . $data['ma'],
+                        'id_user_khach_hang' => $khacHang->user_id,
+                        'user_id' => $user->id,
+                        'so_tien' => 0 - $tienThanhToan,
+                        'so_du' => (float) $khacHang->so_du,
+                        'ma' => 'GD' . time()
+                    ]);
+                }
             }
-            if ($khacHang && $data['thanh_toan'] == 'tai_khoan' && $data['trang_thai'] == 'hoa_don') {
+            if ($khacHang && $data['thanh_toan'] == 'tai_khoan' && $data['trang_thai'] == 'hoa_don' && count($data['doiTra']) > 0) {
                 if ($khacHang->so_du <  $data['chenhLech']  && $data['trang_thai'] == 'hoa_don') {
                     return response(['message' => 'Số dư tài khoản không đủ'], 500);
                 }
@@ -589,6 +594,8 @@ class DonDatHangController extends Controller
 
         }
         $data['ten'] = 'Đặt hàng online';
+        DB::beginTransaction();
+
         if ($data['mua_hang']) {
             foreach ($data['danhSachHang'] as $item) {
                 $tonKho = HangTonKho::where('san_pham_id', $item['id'])->first();
@@ -608,10 +615,20 @@ class DonDatHangController extends Controller
                 if ($data['tong_tien'] > $khacHang->so_du) {
                     return response(['message' => 'Số dư tài khoản không đủ'], 500);
                 }
+                $soDu  = $khacHang->so_du;
+                $khacHang->update(['so_du' => $soDu - $data['tong_tien']]);
+                NopTien::create([
+                    'trang_thai' => 'mua_hang',
+                    'noi_dung' => 'Giao dịch mua hàng, đơn hàng: ' . $data['ten'] . ', mã đơn hàng: ' . $data['ma'],
+                    'id_user_khach_hang' => $khacHang->user_id,
+                    'user_id' => $user->id,
+                    'so_tien' => 0 - $data['tong_tien'],
+                    'so_du' => $khacHang->so_du,
+                    'ma' => 'GD' . time()
+                ]);
             }
         }
         try {
-            DB::beginTransaction();
             $donHang = DonDatHang::create([
                 'ma' => $data['ma'],
                 'tong_tien' => $data['tong_tien'],
@@ -624,8 +641,8 @@ class DonDatHangController extends Controller
                 'trang_thai' => $data['mua_hang'] ? 'mua_hang_online' : 'dat_hang_online',
                 'giam_gia' => $data['giam_gia'],
                 // 'bang_gia_id' => $data['bang_gia_id'],
-                // 'da_thanh_toan' => $data['da_thanh_toan'],        
-                'con_phai_thanh_toan' => $data['tong_tien'],
+                'da_thanh_toan' => ($data['mua_hang'] &&  $data['phuong_thuc_thanh_toan'] == 'tai_khoan') ? $data['tong_tien'] : 0,        
+                'con_phai_thanh_toan' => ($data['mua_hang'] &&  $data['phuong_thuc_thanh_toan'] == 'tai_khoan') ? 0 : $data['tong_tien'],
                 'thanh_toan' => $data['phuong_thuc_thanh_toan'],
                 // 'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
                 'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
