@@ -28,7 +28,7 @@ class ShiperController extends Controller
             ], 400);
         }
         $credentials = ['username' => $request->username, 'password' => $request->password];
-       
+
         if (!$token = auth()->attempt($credentials)) {
             return response()->json(['message' => 'Sai tài khoản hoặc mật khẩu'], 401);
         }
@@ -81,8 +81,46 @@ class ShiperController extends Controller
         }
     }
 
-    public function getDonHang(){
+    public function getDonHang()
+    {
         $user = auth()->user();
         return DonDatHang::where('nhan_vien_giao_hang', $user->id)->get();
+    }
+
+    public function xuLyDon(Request $request)
+    {
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'don_hang_id' => 'required',
+            'trang_thai' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Thiếu dữ liệu, không thể đặt hàng'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+        $donHang = DonDatHang::where('id', $data['don_hang_id'])->first();
+        if (!$donHang) {
+            return response(['message' => 'Đơn hàng không tồn tại'], 404);
+        }
+        $user = auth()->user();
+        if (!$user || $user->id != $donHang->nhan_vien_giao_hang) {
+            return response(['message' => 'Không có quyền thực hiện'], 403);
+        }
+        $trangThais = ['nhan_don', 'tu_choi', 'hoan_thanh', 'huy_don'];
+        if (!in_array($data['trang_thai'], $trangThais)) {
+            return response(['message' => 'Trạng thái không hợp lệ'], 422);
+        }
+        try {
+            $donHang->update(['trang_thai_giao_hang' => $data['trang_thai']]);
+            return response(['message' => 'Success'], 200);
+        } catch (\Exception $e) {
+            dd($e);
+            return response(['message' => 'Không thể thực hiện'], 500);
+        }
     }
 }

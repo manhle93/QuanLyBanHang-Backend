@@ -76,7 +76,8 @@ class DonDatHangController extends Controller
                 'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
                 'dia_chi' => $data['dia_chi'],
                 'user_nhan_vien_id'=>$data['user_nhan_vien_id'],
-                'nhan_vien_giao_hang' => $data['nhan_vien_giao_hang']
+                'nhan_vien_giao_hang' => $data['nhan_vien_giao_hang'],
+                'trang_thai_giao_hang'=>  $data['nhan_vien_giao_hang'] ? 'cho_xu_ly' : null,
 
             ]);
             foreach ($data['danhSachHang'] as $item) {

@@ -128,6 +128,8 @@ Route::post('loginkhachhang', 'KhachHangNhaCungCapController@loginKhachHang');
 
 Route::post('loginshiper', 'ShiperController@loginShiper');
 Route::get('donhangshiper', 'ShiperController@getDonHang');
+Route::post('xulydonshiper', 'ShiperController@xuLyDon');
+
 
 // ***********************************************************
 
