@@ -167,9 +167,17 @@ class DonDatHangController extends Controller
                     });
             });
         }
-        if ($user->role_id == 1 || $user->role_id == 2) {
-            $donHang = $query->orderBy('thoi_gian_nhan_hang', 'asc')->paginate($perPage, ['*'], 'page', $page);
+
+        if ($typeDate == 'tao_don') {
+            if ($user->role_id == 1 || $user->role_id == 2) {
+                $donHang = $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+            }
+        }else{
+            if ($user->role_id == 1 || $user->role_id == 2) {
+                $donHang = $query->orderBy('thoi_gian_nhan_hang', 'asc')->paginate($perPage, ['*'], 'page', $page);
+            }
         }
+        
         return response()->json([
             'data' => $donHang,
             'message' => 'Lấy dữ liệu thành công',
