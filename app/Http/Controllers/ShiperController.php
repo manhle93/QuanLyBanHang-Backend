@@ -84,7 +84,7 @@ class ShiperController extends Controller
     public function getDonHang()
     {
         $user = auth()->user();
-        return DonDatHang::where('nhan_vien_giao_hang', $user->id)->get();
+        return DonDatHang::with('khachHang')->where('nhan_vien_giao_hang', $user->id)->get();
     }
 
     public function xuLyDon(Request $request)
