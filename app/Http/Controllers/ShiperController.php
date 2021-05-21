@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Token;
+use App\User;
+use Illuminate\Support\Facades\Hash;
 
 class ShiperController extends Controller
 {
@@ -119,7 +121,35 @@ class ShiperController extends Controller
             $donHang->update(['trang_thai_giao_hang' => $data['trang_thai']]);
             return response(['message' => 'Success'], 200);
         } catch (\Exception $e) {
-            dd($e);
+            return response(['message' => 'Không thể thực hiện'], 500);
+        }
+    }
+    public function dangKy(Request $request)
+    {
+        $data = $request->all();
+        $validator = Validator::make($data, [
+            'name' => 'required',
+            'username' => 'required',
+            'email' => 'required',
+            'phone' => 'required',
+            'password' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'code' => 400,
+                'message' => __('Thiếu dữ liệu, không thể đặt hàng'),
+                'data' => [
+                    $validator->errors()->all(),
+                ],
+            ], 400);
+        }
+       $data['password'] = Hash::make($data['password']);
+       $data['role_id'] = 5;
+       $data['active'] = true;
+        try {
+            User::create($data);
+            return response(['message' => 'Success'], 200);
+        } catch (\Exception $e) {
             return response(['message' => 'Không thể thực hiện'], 500);
         }
     }

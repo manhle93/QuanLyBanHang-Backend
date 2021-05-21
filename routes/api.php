@@ -342,3 +342,5 @@ Route::get('downloadbaocaonhacungcap', 'BaoCaoController@downloadBaoCaoNhaCungCa
 Route::get('downloadbaocaocuoingay', 'BaoCaoController@downloadBaoCuoiNgay');
 Route::get('lichsudangnhap', 'AuthController@getLichSuDangNhap');
 Route::get('lichsuhoatdong', 'AuthController@getLichSuHoatDong');
+
+Route::post('dangkyshiper', 'ShiperController@dangKy');

@@ -269,11 +269,8 @@ class AuthController extends Controller
     public function me()
     {
         $user = auth()->user();
-        return response(['data' => [
-            'name' => $user->name,
-            'roles' => [$user->role->code],
-            'avatar' => $user->avatar_url,
-        ]]);
+        return response(['data' => $user
+        ]);
     }
 
     /**
