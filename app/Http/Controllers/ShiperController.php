@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Token;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 
 class ShiperController extends Controller
@@ -152,5 +153,20 @@ class ShiperController extends Controller
         } catch (\Exception $e) {
             return response(['message' => 'Không thể thực hiện'], 500);
         }
+    }
+
+    public function baoCao(Request $request){
+        $date = $request->get('date');
+        try{
+            $start = Carbon::parse($date[0]);
+            $end = Carbon::parse($date[1]);
+            $user = auth()->user();
+            $tongDonHang = DonDatHang::where('nhan_vien_giao_hang', $user->id)->where('thoi_gian_nhan_hang', '>=', $start)->where('thoi_gian_nhan_hang', '<=', $end)->count();
+            $tongTien = DonDatHang::where('nhan_vien_giao_hang', $user->id)->where('thoi_gian_nhan_hang', '>=', $start)->where('thoi_gian_nhan_hang', '<=', $end)->sum('tong_tien');
+            $hoanThanh = DonDatHang::where('nhan_vien_giao_hang', $user->id)->where('thoi_gian_nhan_hang', '>=', $start)->where('thoi_gian_nhan_hang', '<=', $end)->where('trang_thai_giao_hang', 'hoan_thanh')->count();
+            return response(['tong_don' => $tongDonHang, 'tong_tien' => $tongTien, 'hoan_thanh' => $hoanThanh]);
+        }catch(\Exception $e){
+            return response(['message' => 'Không thể lấy dữ liệu'], 500);
+        }   
     }
 }

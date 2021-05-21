@@ -344,3 +344,4 @@ Route::get('lichsudangnhap', 'AuthController@getLichSuDangNhap');
 Route::get('lichsuhoatdong', 'AuthController@getLichSuHoatDong');
 
 Route::post('dangkyshiper', 'ShiperController@dangKy');
+Route::post('baocaoshiper', 'ShiperController@baoCao');
