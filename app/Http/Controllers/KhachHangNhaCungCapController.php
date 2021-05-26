@@ -31,7 +31,6 @@ class KhachHangNhaCungCapController extends Controller
     {
         $data = $request->all();
         $validator = Validator::make($data, [
-            'ma' => 'required',
             'ten' => 'required',
             'so_dien_thoai' => 'required',
             'username' => 'required',
@@ -54,6 +53,10 @@ class KhachHangNhaCungCapController extends Controller
                 'data' => ''
             ], 400);
         };
+        if(!isset($data['ma']) || !$data['ma']){
+            $time = substr(time(), -3);
+            $data['ma'] = $data['username']. $time;
+        }
         if (User::where('username', $data['username'])->first()) {
             return response()->json([
                 'code' => 400,
