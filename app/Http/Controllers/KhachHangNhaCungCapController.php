@@ -63,6 +63,15 @@ class KhachHangNhaCungCapController extends Controller
         }
         if (!isset($data['email']) || !$data['email']) {
             $data['email'] = $data['username'] . '@email.com';
+        }else {
+            $checkEmail = User::where('email', $data['email'])->first();
+            if($checkEmail){
+                return response()->json([
+                    'code' => 400,
+                    'message' => __('Email đã tồn tại'),
+                    'data' => [],
+                ], 400);
+            }
         }
         if (KhachHang::where('ma', $data['ma'])->first()) {
             return response()->json([
@@ -71,33 +80,12 @@ class KhachHangNhaCungCapController extends Controller
                 'data' => [],
             ], 400);
         }
+
         DB::beginTransaction();
         try {
-            $khachHang = KhachHang::create([
-                'ma' => $data['ma'],
-                'ten' => $data['ten'],
-                'dia_chi' => $data['dia_chi'],
-                'so_dien_thoai' => $data['so_dien_thoai'],
-                'anh_dai_dien' => $data['anh_dai_dien'],
-                'ma_so_thue' => $data['ma_so_thue'],
-                'email' => $data['email'],
-                'facebook' => $data['facebook'],
-                'nhom_id' => $data['nhom_id'],
-                'gioi_tinh' => $data['gioi_tinh'],
-                'ca_nhan' => $data['ca_nhan'],
-                'ghi_chu' => $data['ghi_chu'],
-                'ngay_sinh' => Carbon::parse($data['ngay_sinh'])->timezone('Asia/Ho_Chi_Minh'),
-                'giao_dich_cuoi' => null,
-                'so_tai_khoan' => $data['so_tai_khoan'],
-                // 'so_du' => $data['so_du'],
-                'chuyen_khoan_cuoi' => Carbon::parse($data['chuyen_khoan_cuoi'])->timezone('Asia/Ho_Chi_Minh'),
-                'loai_thanh_vien_id' => $data['loai_thanh_vien_id'],
-                'tin_nhiem' => $data['tin_nhiem'],
-                'diem_quy_doi' => $data['diem_quy_doi'],
-                'tien_vay' => $data['tien_vay'],
-                'trang_thai' => 'moi_tao',
-                'nguoi_tao_id' => auth()->user() ? auth()->user()->id : null,
-            ]);
+            $data['trang_thai'] = 'moi_tao';
+            $data['chuyen_khoan_cuoi'] = isset($data['chuyen_khoan_cuoi']) &&  $data['chuyen_khoan_cuoi'] ?  Carbon::parse($data['chuyen_khoan_cuoi'])->timezone('Asia/Ho_Chi_Minh') : null;
+            $data['nguoi_tao_id'] = auth()->user() ? auth()->user()->id : null;
             $user = User::create([
                 'username' => $data['username'],
                 'name' => $data['ten'],
@@ -106,10 +94,14 @@ class KhachHangNhaCungCapController extends Controller
                 'role_id' => 4,
                 'dia_chi' => $data['dia_chi'],
                 'password' => Hash::make($data['password']),
-                'avatar_url' => $data['anh_dai_dien'],
+                'avatar_url' =>isset($data['anh_dai_dien']) ?  $data['anh_dai_dien'] : null,
                 'active' => true
             ]);
-            $khachHang->update(['user_id' => $user->id]);
+            $data['user_id'] = $user->id;
+            unset($data['username']);
+            unset($data['password']);
+            unset($data['password_confirmation']);
+            $khachHang = KhachHang::create($data);
             DB::commit();
             return response(['message' => 'Thành công'], 200);
         } catch (\Exception $e) {
