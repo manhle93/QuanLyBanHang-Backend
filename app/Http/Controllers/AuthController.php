@@ -266,11 +266,18 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
+
+    // [
+    //     'name' => $user->name,
+    //     'roles' => [$user->role->code],
+    //     'avatar' => $user->avatar_url,
+    // ]
+
     public function me()
     {
         $user = auth()->user();
-        return response(['data' => $user
-        ]);
+        $user['roles'] = [$user->role->code];
+        return response(['data' => $user]);
     }
 
     /**
