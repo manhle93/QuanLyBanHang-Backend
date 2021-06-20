@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 
 <head>
@@ -11,7 +11,7 @@
             <!-- <div> <img src="http://ruongbacthang.skymapglobal.vn/static/img/logorbt.5dcc5da9.jpg" style="width: 100px"></div> -->
             <div style="text-align: center;">
                 <div style="font-size: 12px; font-weight: bold;">RUỘNG BẬC THANG</div>
-                <div style="font-size: 10px;">Đ/C: 54 Ngọc Hân Công Chúa - Ninh Xá - Tp Bắc Ninh</div>
+                <div style="font-size: 10px;">Đ/C: 82-84 Ngọc Hân Công Chúa - Ninh Xá - Tp Bắc Ninh</div>
                 <br />
                 <div style="font-size: 10px;">SĐT: 0988.861.479 - 0862968081</div>
                 <div style="font-size: 10px;">Techcombank: 19031781986686 - Nguyen Thu Trang</div>
