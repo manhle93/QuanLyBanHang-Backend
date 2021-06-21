@@ -61,7 +61,9 @@ class DonDatHangController extends Controller
                 return response(['message' => 'Số dư tài khoản không đủ'], 500);
             }
             $thoi_gian_nhan_hang = Carbon::parse($data['thoi_gian_nhan_hang'], 'UTC +7')->format('Y-m-d H:i:s');
-            var_dump($thoi_gian_nhan_hang);
+            $date = Carbon::createFromFormat('Y-m-d H:i:s', $data['thoi_gian_nhan_hang'], 'Asia/Phnom_Penh');
+
+            var_dump($date);
             $donHang = DonDatHang::create([
                 'ma' => $data['ma'],
                 'tong_tien' => $data['tong_tien'],
