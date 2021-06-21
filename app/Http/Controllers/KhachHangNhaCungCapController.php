@@ -53,9 +53,9 @@ class KhachHangNhaCungCapController extends Controller
                 'data' => ''
             ], 400);
         };
-        if(!isset($data['ma']) || !$data['ma']){
+        if (!isset($data['ma']) || !$data['ma']) {
             $time = substr(time(), -3);
-            $data['ma'] = $data['username']. $time;
+            $data['ma'] = $data['username'] . $time;
         }
         if (User::where('username', $data['username'])->first()) {
             return response()->json([
@@ -66,9 +66,9 @@ class KhachHangNhaCungCapController extends Controller
         }
         if (!isset($data['email']) || !$data['email']) {
             $data['email'] = $data['username'] . '@email.com';
-        }else {
+        } else {
             $checkEmail = User::where('email', $data['email'])->first();
-            if($checkEmail){
+            if ($checkEmail) {
                 return response()->json([
                     'code' => 400,
                     'message' => __('Email đã tồn tại'),
@@ -97,13 +97,14 @@ class KhachHangNhaCungCapController extends Controller
                 'role_id' => 4,
                 'dia_chi' => $data['dia_chi'],
                 'password' => Hash::make($data['password']),
-                'avatar_url' =>isset($data['anh_dai_dien']) ?  $data['anh_dai_dien'] : null,
+                'avatar_url' => isset($data['anh_dai_dien']) ?  $data['anh_dai_dien'] : null,
                 'active' => true
             ]);
             $data['user_id'] = $user->id;
             unset($data['username']);
             unset($data['password']);
             unset($data['password_confirmation']);
+            unset($data['id']);
             $khachHang = KhachHang::create($data);
             DB::commit();
             return response(['message' => 'Thành công'], 200);
@@ -211,7 +212,7 @@ class KhachHangNhaCungCapController extends Controller
         }
         if ($user->role_id == 1 || $user->role_id == 2) {
             $data = $query->orderBy('updated_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
-            if(isset($khach_hang_id) && $khach_hang_id){
+            if (isset($khach_hang_id) && $khach_hang_id) {
                 $data = KhachHang::with('user:id,name,avatar_url', 'donDatHangs')->where('user_id', $khach_hang_id)->get();
             }
             foreach ($data as $item) {
@@ -642,7 +643,7 @@ class KhachHangNhaCungCapController extends Controller
         if (!$user) {
             return response(['message' => 'Chưa đăng nhập', 'data' => []], 400);
         }
-        $khachHang = KhachHang::with('user')->where('user_id', $user->id)->select('user_id','id', 'ten', 'so_dien_thoai', 'dia_chi', 'tin_nhiem')->first();
+        $khachHang = KhachHang::with('user')->where('user_id', $user->id)->select('user_id', 'id', 'ten', 'so_dien_thoai', 'dia_chi', 'tin_nhiem')->first();
         return response(['message' => 'Thành công', 'data' => $khachHang], 200);
     }
 
@@ -951,15 +952,15 @@ class KhachHangNhaCungCapController extends Controller
             }
             if ($done == 1) {
                 DB::rollBack();
-                return response(['message' => "Email đã tồn tại.  Vị trí SĐT: ".$name], 500);
+                return response(['message' => "Email đã tồn tại.  Vị trí SĐT: " . $name], 500);
             }
             if ($done == 2) {
                 DB::rollBack();
-                return response(['message' => "Tên đăng nhập đã tồn tại. Vị trí SĐT: ".$name], 500);
+                return response(['message' => "Tên đăng nhập đã tồn tại. Vị trí SĐT: " . $name], 500);
             }
             if ($done == 3) {
                 DB::rollBack();
-                return response(['message' => "Số điện thoại [".$name."] đã tồn tại "], 500);
+                return response(['message' => "Số điện thoại [" . $name . "] đã tồn tại "], 500);
             }
 
             return response(['message' => 'created'], Response::HTTP_CREATED);
