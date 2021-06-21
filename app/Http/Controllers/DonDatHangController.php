@@ -61,9 +61,8 @@ class DonDatHangController extends Controller
                 return response(['message' => 'Số dư tài khoản không đủ'], 500);
             }
             $thoi_gian_nhan_hang = Carbon::parse($data['thoi_gian_nhan_hang'], 'UTC +7')->setTimezone('Asia/Phnom_Penh');
-            // $date = Carbon::createFromFormat('Y-m-d H:i:s', $data['thoi_gian_nhan_hang'], 'Asia/Phnom_Penh');
 
-            dd($thoi_gian_nhan_hang);
+            // dd($thoi_gian_nhan_hang);
             $donHang = DonDatHang::create([
                 'ma' => $data['ma'],
                 'tong_tien' => $data['tong_tien'],
@@ -77,7 +76,7 @@ class DonDatHangController extends Controller
                 'con_phai_thanh_toan' => $data['con_phai_thanh_toan'],
                 'thanh_toan' => $data['thanh_toan'],
                 'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
-                'thoi_gian_nhan_hang' => $data['thoi_gian_nhan_hang'],
+                'thoi_gian_nhan_hang' => $thoi_gian_nhan_hang,
                 'dia_chi' => $data['dia_chi'],
                 'user_nhan_vien_id'=>$data['user_nhan_vien_id'],
                 'nhan_vien_giao_hang' => $data['nhan_vien_giao_hang'],
