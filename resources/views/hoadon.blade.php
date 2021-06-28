@@ -22,10 +22,6 @@
         <div style="text-align: center; font-size: 9px"><strong></strong>{{$data->ma}}</div>
         <div style="text-align: center; font-size: 9px; font-size: 8px">( Ngày {{$ngay}} tháng {{$thang}} năm {{$nam}} )</div>
         <br>
-        <div class="line"><strong>Đơn hàng </strong>{{$data->ten}}</div>
-        @if($data->nhanVien)
-        <div class="line"><strong>Người bán hàng: </strong>{{$data->nhanVien ? $data->nhanVien->name : ''}}</div>
-        @endif
         <div class="line"><strong>Người mua hàng: </strong>
             <span>{{$data->user_id && $data->khachHang ? $data->khachHang->ten : 'Khách lẻ'}}</span>
             @if($data->user_id && $data->khachHang)
@@ -33,10 +29,14 @@
             <span style="margin-left: 15px;"> - Đ/C: {{$data->khachHang->dia_chi}}</span>
             @endif
         </div>
+        <div class="line"><strong>Đơn hàng </strong>{{$data->ten}}</div>
         <div class="line"><strong>Phương thức thanh toán: </strong>{{$data->thanh_toan == 'tra_sau' ? 'Trả sau' : ($data->thanh_toan == 'tai_khoan' ? 'Tài khoản' : ($data->thanh_toan == 'chuyen_khoan' ? 'Chuyển khoản/Quẹt thẻ' : ($data->thanh_toan == 'tien_mat' ? 'Tiền mặt' : 'Khác')))}}</div>
         <div class="line"><strong>Ghi chú: </strong>{{ $data->ghi_chu}}</div>
+        @if($data->nhanVien)
+        <div class="line"><strong>Người bán hàng: </strong>{{$data->nhanVien ? $data->nhanVien->name : ''}}</div>
+        @endif
         <!-- <div class="line"><strong>Người bán: </strong>{{ $data}}</div> -->
-        <table style="border: 1px solid black; border-collapse: collapse; width: 100%; font-size: 10px">
+        <table style="border: 1px solid gray; border-collapse: collapse; width: 100%; font-size: 10px;">
             <thead>
                 <tr>
                     <th>Mặt hàng</th>
@@ -90,6 +90,7 @@
     th,
     td {
         border: 1px solid black;
+        border-style: dotted;
         text-align: center;
         height: 28px;
     }
