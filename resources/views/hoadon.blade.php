@@ -13,7 +13,7 @@
                 <div style="font-size: 12px; font-weight: bold;">RUỘNG BẬC THANG</div>
                 <div style="font-size: 10px;">Đ/C: 82-84 Ngọc Hân Công Chúa - Ninh Xá - Tp Bắc Ninh</div>
                 <br />
-                <div style="font-size: 10px;">SĐT: 0988.861.479 - 0862968081</div>
+                <div style="font-size: 10px;">SĐT: 0988.861.479 - 0862.968.081</div>
                 <div style="font-size: 10px;">Techcombank: 19031781986686 - Nguyen Thu Trang</div>
                 <div>-------------------------------</div>
             </div>
@@ -36,12 +36,12 @@
         <div class="line"><strong>Người bán hàng: </strong>{{$data->nhanVien ? $data->nhanVien->name : ''}}</div>
         @endif
         <!-- <div class="line"><strong>Người bán: </strong>{{ $data}}</div> -->
-        <table style="border: 1px solid gray; border-collapse: collapse; width: 100%; font-size: 10px;">
+        <table style="border: 1px solid black; border-collapse: collapse; width: 100%; font-size: 10px;">
             <thead>
                 <tr>
                     <th>Mặt hàng</th>
                     <th>Đơn giá</th>
-                    <th>Số lượng</th>
+                    <th>SL</th>
                     <th>T.Tiền</th>
                 </tr>
             </thead>
@@ -53,7 +53,7 @@
                         $foo =  $tb->gia_ban;
                         echo number_format((float)$foo, 0, ',', '.');
                         ?></td>
-                    <td>{{$tb->so_luong}}</td>
+                    <td >{{$tb->so_luong}}</td>
                     <td>
                         <?php
                         $foo =  $tb->so_luong * $tb->gia_ban;
