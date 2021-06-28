@@ -6,7 +6,7 @@
 </head>
 
 <body onload="window.print(); myFunction()">
-    <div id="app">
+    <div id="app" style="font-family: Arial,Helvetica,sans-serif;">
         <div style="display:flex; flex-direction: row;  align-items: center; justify-content: center">
             <div> <img src="http://ruongbacthang.skymapglobal.vn/static/img/logorbt.5dcc5da9.jpg" style="width: 150px"></div>
             <div style="margin-left: 15px">
