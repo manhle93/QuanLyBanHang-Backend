@@ -169,6 +169,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('donhang/{id}', 'DonHangNhaCungCapController@xoaDon');
     Route::post('nhapkho/{id}', 'DonHangNhaCungCapController@nhapKho');
     Route::post('nhapkhongoai', 'QuanLyKhoController@addNhapKhoNgoai');
+    // nhap vao kho tam
+    Route::post('nhapkhotam', 'QuanLyKhoController@addNhapKhoTam');
+    Route::get('getnhapkhotam', 'QuanLyKhoController@getPhieuNhapKhoTam');
+    Route::put('chotkhotam/{id}', 'QuanLyKhoController@chotKhoTam');
+    Route::put('huykhotam/{id}', 'QuanLyKhoController@huyKhoTam');
+
 
     Route::get('donhangnhacungcapnhapkho/{id}', 'DonHangNhaCungCapController@getDonHangNhaCCC');
     Route::put('thanhtoandonhangnhacungcap/{id}', 'DonHangNhaCungCapController@updateDonThanhToanNCC');

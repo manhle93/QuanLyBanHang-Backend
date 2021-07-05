@@ -182,12 +182,12 @@ class BaoCaoController extends Controller
             // TH dat hang tai quay
             $query = $query->where('source_order', 'dat_hang_tai_quay');
         }
-
+        
+        
         // Tim kiem theo ngay
         if (isset($date) && count($date)) {
-            $query = $query->whereBetween('order_date', [Carbon::parse($date[0])->addHours(7), Carbon::parse($date[1])->addHours(31)]);
+            $query = $query->whereBetween('thoi_gian_nhan_hang', [Carbon::parse($date[0])->startOfDay(), Carbon::parse($date[1])->endOfDay()]);
         }
-
         if (isset($trangthai)) {
             $query = $query->where('trang_thai', $trangthai);
         }

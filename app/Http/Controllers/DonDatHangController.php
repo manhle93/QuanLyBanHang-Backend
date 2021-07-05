@@ -78,6 +78,7 @@ class DonDatHangController extends Controller
                 'phu_thu' => $data['trang_thai'] == 'hoa_don' ? $data['phu_thu'] : null,
                 'thoi_gian_nhan_hang' => $thoi_gian_nhan_hang,
                 'dia_chi' => $data['dia_chi'],
+                'source_order' => $data['source_order'],
                 'user_nhan_vien_id'=>$data['user_nhan_vien_id'],
                 'nhan_vien_giao_hang' => $data['nhan_vien_giao_hang'],
                 'trang_thai_giao_hang'=>  $data['nhan_vien_giao_hang'] ? 'cho_xu_ly' : null,
